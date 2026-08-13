@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<body class="font-roobert antialiased text-miro-ink bg-miro-surface">
+  <!-- 布局骨架 -->
+  <div class="max-w-6xl mx-auto px-6 py-12 font-roobert antialiased text-miro-ink">
+    <header class="border-b border-miro-line-light pb-8">
+      <h1 class="text-3xl font-bold tracking-tight">设置页 设计调研</h1>
+      <p class="text-sm text-miro-muted mt-2">iOS · 2026-08-13 · 目标：布局参考</p>
+    </header>
+
+    <h2 class="text-xl font-semibold tracking-tight mt-12 mb-6">证据</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      <!-- 证据卡 -->
+      <figure class="group bg-miro-canvas rounded-miro shadow-miro overflow-hidden border border-miro-line-light">
+        <a class="relative block" href="#" target="_blank" rel="noopener">
+          <img src="x.png" alt="" loading="lazy" class="w-full bg-miro-mist">
+          <span class="absolute top-3 right-3 rounded-full bg-black/70 text-white text-xs px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">查看 Mobbin 原文 ↗</span>
+        </a>
+        <figcaption class="p-5">
+          <strong class="text-[15px] font-semibold">Notion</strong>
+          <p class="text-sm text-miro-muted mt-0.5 leading-snug">设置页</p>
+          <span class="flex gap-1.5 mt-3">
+            <i class="w-4 h-4 rounded border border-miro-line" style="background:#F9F8F7"></i>
+            <i class="w-4 h-4 rounded border border-miro-line" style="background:#2F2F2F"></i>
+          </span>
+        </figcaption>
+      </figure>
+
+      <!-- 模式卡（三种类型都要出现在源码里，确保 class 被编译） -->
+      <article class="bg-miro-canvas rounded-miro shadow-miro p-5 border border-miro-line-light">
+        <span class="inline-block rounded-full text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800">共性</span>
+        <p class="mt-3 leading-relaxed">模式文本</p>
+        <p class="text-sm text-miro-muted mt-3">来源：Notion</p>
+      </article>
+      <article class="bg-miro-canvas rounded-miro shadow-miro p-5 border border-miro-line-light">
+        <span class="inline-block rounded-full text-xs font-semibold px-2.5 py-1 bg-yellow-100 text-yellow-800">差异</span>
+        <p class="mt-3 leading-relaxed">模式文本</p>
+        <p class="text-sm text-miro-muted mt-3">来源：Notion</p>
+      </article>
+      <article class="bg-miro-canvas rounded-miro shadow-miro p-5 border border-miro-line-light">
+        <span class="inline-block rounded-full text-xs font-semibold px-2.5 py-1 bg-red-100 text-red-800">例外</span>
+        <p class="mt-3 leading-relaxed">模式文本</p>
+        <p class="text-sm text-miro-muted mt-3">来源：Notion</p>
+      </article>
+
+      <!-- 流程步骤条 -->
+      <ol class="flex gap-5 overflow-x-auto pb-2">
+        <li class="flex-1 min-w-[120px] text-center">
+          <span class="inline-flex w-7 h-7 rounded-full items-center justify-center text-xs text-white font-semibold mb-3" style="background:var(--miro-blue)">1</span>
+          <a href="#" target="_blank" rel="noopener" class="block">
+            <img src="x.png" alt="" loading="lazy" class="w-full rounded-miro border border-miro-line-light">
+          </a>
+          <p class="text-sm text-miro-muted mt-2 leading-snug">步骤说明</p>
+        </li>
+      </ol>
+
+      <!-- 建议条 -->
+      <div class="rounded-miro bg-miro-mist p-5 border border-miro-line border-l-4" style="border-left-color:var(--miro-yellow)">
+        <strong class="text-sm font-semibold">建议</strong>
+        <p class="text-sm mt-2 leading-relaxed">建议文本</p>
+      </div>
+
+      <!-- 参考墙说明段落 + 缩略图（确保 class 被编译） -->
+      <p class="text-sm text-miro-muted mt-6 mb-3">其余参考屏幕（点击查看大图）</p>
+      <button type="button" class="thumb group block w-full rounded-miro overflow-hidden border border-miro-line-light bg-miro-canvas p-1.5 cursor-zoom-in transition-shadow hover:shadow-miro">
+        <img src="x.png" alt="" loading="lazy" class="w-full rounded-[4px] bg-miro-mist">
+        <span class="block text-xs font-medium text-miro-muted mt-1.5 mb-0.5 text-left group-hover:text-miro-ink transition-colors">Notion</span>
+      </button>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"></div>
+    </div>
+  </div>
+</body>
+</html>

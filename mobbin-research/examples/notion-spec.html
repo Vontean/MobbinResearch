@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<title>Notion 设置页 设计调研</title>
+<style>
+/* ===== Miro 设计 token（编译自 Tailwind 配置，可覆盖） ===== */
+:root {
+  --miro-yellow: #FDE050;
+  --miro-blue: #3859FF;
+  --miro-blue-dark: #314CD9;
+  --miro-violet: #867AFF;
+  --miro-ink: #1C1C1E;
+  --miro-muted: #555A6A;
+  --miro-surface: #FAFAFC;
+  --miro-canvas: #FFFFFF;
+  --miro-mist: #F1F2F5;
+  --miro-line: #C7CAD5;
+  --miro-line-light: #E5E7EB;
+  --miro-radius: 8px;
+  --miro-shadow: 0px 0.6px 0.6px -1.25px rgba(0,0,0,.18), 0px 2.3px 2.3px -2.5px rgba(0,0,0,.16), 0px 10px 10px -3.75px rgba(0,0,0,.06);
+  --miro-shadow-lg: 0px 1.2px 1.2px -1.25px rgba(0,0,0,.18), 0px 4.6px 4.6px -2.5px rgba(0,0,0,.16), 0px 20px 20px -3.75px rgba(0,0,0,.08);
+  --miro-font: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ===== Tailwind 编译产物（npx tailwindcss 生成，勿手改） =====
+*,:after,:before{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }::backdrop{--tw-border-spacing-x:0;--tw-border-spacing-y:0;--tw-translate-x:0;--tw-translate-y:0;--tw-rotate:0;--tw-skew-x:0;--tw-skew-y:0;--tw-scale-x:1;--tw-scale-y:1;--tw-pan-x: ;--tw-pan-y: ;--tw-pinch-zoom: ;--tw-scroll-snap-strictness:proximity;--tw-gradient-from-position: ;--tw-gradient-via-position: ;--tw-gradient-to-position: ;--tw-ordinal: ;--tw-slashed-zero: ;--tw-numeric-figure: ;--tw-numeric-spacing: ;--tw-numeric-fraction: ;--tw-ring-inset: ;--tw-ring-offset-width:0px;--tw-ring-offset-color:#fff;--tw-ring-color:rgba(59,130,246,.5);--tw-ring-offset-shadow:0 0 #0000;--tw-ring-shadow:0 0 #0000;--tw-shadow:0 0 #0000;--tw-shadow-colored:0 0 #0000;--tw-blur: ;--tw-brightness: ;--tw-contrast: ;--tw-grayscale: ;--tw-hue-rotate: ;--tw-invert: ;--tw-saturate: ;--tw-sepia: ;--tw-drop-shadow: ;--tw-backdrop-blur: ;--tw-backdrop-brightness: ;--tw-backdrop-contrast: ;--tw-backdrop-grayscale: ;--tw-backdrop-hue-rotate: ;--tw-backdrop-invert: ;--tw-backdrop-opacity: ;--tw-backdrop-saturate: ;--tw-backdrop-sepia: ;--tw-contain-size: ;--tw-contain-layout: ;--tw-contain-paint: ;--tw-contain-style: }/*! tailwindcss v3.4.19 | MIT License | https://tailwindcss.com*/*,:after,:before{box-sizing:border-box;border:0 solid #e5e7eb}:after,:before{--tw-content:""}:host,html{line-height:1.5;-webkit-text-size-adjust:100%;-moz-tab-size:4;-o-tab-size:4;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;font-feature-settings:normal;font-variation-settings:normal;-webkit-tap-highlight-color:transparent}body{margin:0;line-height:inherit}hr{height:0;color:inherit;border-top-width:1px}abbr:where([title]){-webkit-text-decoration:underline dotted;text-decoration:underline dotted}h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}a{color:inherit;text-decoration:inherit}b,strong{font-weight:bolder}code,kbd,pre,samp{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;font-feature-settings:normal;font-variation-settings:normal;font-size:1em}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}table{text-indent:0;border-color:inherit;border-collapse:collapse}button,input,optgroup,select,textarea{font-family:inherit;font-feature-settings:inherit;font-variation-settings:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}button,select{text-transform:none}button,input:where([type=button]),input:where([type=reset]),input:where([type=submit]){-webkit-appearance:button;background-color:transparent;background-image:none}:-moz-focusring{outline:auto}:-moz-ui-invalid{box-shadow:none}progress{vertical-align:baseline}::-webkit-inner-spin-button,::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}blockquote,dd,dl,figure,h1,h2,h3,h4,h5,h6,hr,p,pre{margin:0}fieldset{margin:0}fieldset,legend{padding:0}menu,ol,ul{list-style:none;margin:0;padding:0}dialog{padding:0}textarea{resize:vertical}input::-moz-placeholder,textarea::-moz-placeholder{opacity:1;color:#9ca3af}input::placeholder,textarea::placeholder{opacity:1;color:#9ca3af}[role=button],button{cursor:pointer}:disabled{cursor:default}audio,canvas,embed,iframe,img,object,svg,video{display:block;vertical-align:middle}img,video{max-width:100%;height:auto}[hidden]:where(:not([hidden=until-found])){display:none}body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.absolute{position:absolute}.relative{position:relative}.right-3{right:.75rem}.top-3{top:.75rem}.mx-auto{margin-left:auto;margin-right:auto}.mb-0\.5{margin-bottom:.125rem}.mb-3{margin-bottom:.75rem}.mb-6{margin-bottom:1.5rem}.mt-0\.5{margin-top:.125rem}.mt-1\.5{margin-top:.375rem}.mt-12{margin-top:3rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-6{margin-top:1.5rem}.block{display:block}.inline-block{display:inline-block}.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.h-4{height:1rem}.h-7{height:1.75rem}.w-4{width:1rem}.w-7{width:1.75rem}.w-full{width:100%}.min-w-\[120px\]{min-width:120px}.max-w-6xl{max-width:72rem}.flex-1{flex:1 1 0%}.cursor-zoom-in{cursor:zoom-in}.grid-cols-1{grid-template-columns:repeat(1,minmax(0,1fr))}.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.items-center{align-items:center}.justify-center{justify-content:center}.gap-1\.5{gap:.375rem}.gap-3{gap:.75rem}.gap-5{gap:1.25rem}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.rounded{border-radius:.25rem}.rounded-\[4px\]{border-radius:4px}.rounded-full{border-radius:9999px}.rounded-miro{border-radius:8px}.border{border-width:1px}.border-b{border-bottom-width:1px}.border-l-4{border-left-width:4px}.border-miro-line{--tw-border-opacity:1;border-color:rgb(199 202 213/var(--tw-border-opacity,1))}.border-miro-line-light{--tw-border-opacity:1;border-color:rgb(229 231 235/var(--tw-border-opacity,1))}.bg-black\/70{background-color:rgba(0,0,0,.7)}.bg-green-100{--tw-bg-opacity:1;background-color:rgb(220 252 231/var(--tw-bg-opacity,1))}.bg-miro-canvas{--tw-bg-opacity:1;background-color:rgb(255 255 255/var(--tw-bg-opacity,1))}.bg-miro-mist{--tw-bg-opacity:1;background-color:rgb(241 242 245/var(--tw-bg-opacity,1))}.bg-miro-surface{--tw-bg-opacity:1;background-color:rgb(250 250 252/var(--tw-bg-opacity,1))}.bg-red-100{--tw-bg-opacity:1;background-color:rgb(254 226 226/var(--tw-bg-opacity,1))}.bg-yellow-100{--tw-bg-opacity:1;background-color:rgb(254 249 195/var(--tw-bg-opacity,1))}.p-1\.5{padding:.375rem}.p-5{padding:1.25rem}.px-2\.5{padding-left:.625rem;padding-right:.625rem}.px-3{padding-left:.75rem;padding-right:.75rem}.px-6{padding-left:1.5rem;padding-right:1.5rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-1\.5{padding-top:.375rem;padding-bottom:.375rem}.py-12{padding-top:3rem;padding-bottom:3rem}.pb-2{padding-bottom:.5rem}.pb-8{padding-bottom:2rem}.text-left{text-align:left}.text-center{text-align:center}.font-roobert{font-family:Inter,system-ui,-apple-system,sans-serif}.text-3xl{font-size:1.875rem;line-height:2.25rem}.text-\[15px\]{font-size:15px}.text-sm{font-size:.875rem;line-height:1.25rem}.text-xl{font-size:1.25rem;line-height:1.75rem}.text-xs{font-size:.75rem;line-height:1rem}.font-bold{font-weight:700}.font-medium{font-weight:500}.font-semibold{font-weight:600}.leading-relaxed{line-height:1.625}.leading-snug{line-height:1.375}.tracking-tight{letter-spacing:-.025em}.text-green-800{--tw-text-opacity:1;color:rgb(22 101 52/var(--tw-text-opacity,1))}.text-miro-ink{--tw-text-opacity:1;color:rgb(28 28 30/var(--tw-text-opacity,1))}.text-miro-muted{--tw-text-opacity:1;color:rgb(85 90 106/var(--tw-text-opacity,1))}.text-red-800{--tw-text-opacity:1;color:rgb(153 27 27/var(--tw-text-opacity,1))}.text-white{--tw-text-opacity:1;color:rgb(255 255 255/var(--tw-text-opacity,1))}.text-yellow-800{--tw-text-opacity:1;color:rgb(133 77 14/var(--tw-text-opacity,1))}.antialiased{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.opacity-0{opacity:0}.shadow-miro{--tw-shadow:0px 0.6px 0.6px -1.25px rgba(0,0,0,.18),0px 2.3px 2.3px -2.5px rgba(0,0,0,.16),0px 10px 10px -3.75px rgba(0,0,0,.06);--tw-shadow-colored:0px 0.6px 0.6px -1.25px var(--tw-shadow-color),0px 2.3px 2.3px -2.5px var(--tw-shadow-color),0px 10px 10px -3.75px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-opacity{transition-property:opacity;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.transition-shadow{transition-property:box-shadow;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}.hover\:shadow-miro:hover{--tw-shadow:0px 0.6px 0.6px -1.25px rgba(0,0,0,.18),0px 2.3px 2.3px -2.5px rgba(0,0,0,.16),0px 10px 10px -3.75px rgba(0,0,0,.06);--tw-shadow-colored:0px 0.6px 0.6px -1.25px var(--tw-shadow-color),0px 2.3px 2.3px -2.5px var(--tw-shadow-color),0px 10px 10px -3.75px var(--tw-shadow-color);box-shadow:var(--tw-ring-offset-shadow,0 0 #0000),var(--tw-ring-shadow,0 0 #0000),var(--tw-shadow)}.group:hover .group-hover\:text-miro-ink{--tw-text-opacity:1;color:rgb(28 28 30/var(--tw-text-opacity,1))}.group:hover .group-hover\:opacity-100{opacity:1}@media (min-width:640px){.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}@media (min-width:768px){.md\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}.md\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}}@media (min-width:1024px){.lg\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.lg\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}}
+</style>
+<style>
+.thumb img { max-height: 220px; object-fit: cover; object-position: top; }
+</style>
+</head><body class="bg-miro-surface">
+<div class="max-w-6xl mx-auto px-6 py-12 font-roobert antialiased text-miro-ink">
+  <header class="border-b border-miro-line-light pb-8">
+    <h1 class="text-3xl font-bold tracking-tight">Notion 设置页 设计调研</h1>
+    <p class="text-sm text-miro-muted mt-2">iOS · 2026-08-13 · 目标：设置页布局与层级参考</p>
+  </header>
+
+  <h2 class="text-xl font-semibold tracking-tight mt-12 mb-6">图片收集</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+  <figure class="group bg-miro-canvas rounded-miro shadow-miro overflow-hidden border border-miro-line-light">
+  <a class="relative block" href="https://mobbin.com/screens/b86ac678-2438-4180-9fa6-efce9f1e43ea" target="_blank" rel="noopener">
+    <img src="screens/b86ac678-2438-4180-9fa6-efce9f1e43ea.png" alt="Notion - 设置页：账号与偏好设置" loading="lazy" class="w-full bg-miro-mist">
+    <span class="absolute top-3 right-3 rounded-full bg-black/70 text-white text-xs px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">查看 Mobbin 原文 ↗</span>
+  </a>
+  <figcaption class="p-5">
+    <strong class="text-[15px] font-semibold">Notion</strong>
+    <p class="text-sm text-miro-muted mt-0.5 leading-snug">设置页：账号与偏好设置</p>
+    <span class="flex gap-1.5 mt-3">
+      <i class="w-4 h-4 rounded border border-miro-line" style="background:#F9F8F7"></i>
+      <i class="w-4 h-4 rounded border border-miro-line" style="background:#2F2F2F"></i>
+    </span>
+  </figcaption>
+</figure>
+<figure class="group bg-miro-canvas rounded-miro shadow-miro overflow-hidden border border-miro-line-light">
+  <a class="relative block" href="https://mobbin.com/screens/0728149c-34f1-451e-b694-197bc8d15ac7" target="_blank" rel="noopener">
+    <img src="screens/0728149c-34f1-451e-b694-197bc8d15ac7.png" alt="Notion - 设置页：工作区与通知" loading="lazy" class="w-full bg-miro-mist">
+    <span class="absolute top-3 right-3 rounded-full bg-black/70 text-white text-xs px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">查看 Mobbin 原文 ↗</span>
+  </a>
+  <figcaption class="p-5">
+    <strong class="text-[15px] font-semibold">Notion</strong>
+    <p class="text-sm text-miro-muted mt-0.5 leading-snug">设置页：工作区与通知</p>
+    <span class="flex gap-1.5 mt-3">
+      <i class="w-4 h-4 rounded border border-miro-line" style="background:#F8F7F6"></i>
+      <i class="w-4 h-4 rounded border border-miro-line" style="background:#3B3B3B"></i>
+    </span>
+  </figcaption>
+</figure>
+<figure class="group bg-miro-canvas rounded-miro shadow-miro overflow-hidden border border-miro-line-light">
+  <a class="relative block" href="https://mobbin.com/screens/27dfe1df-5eea-4e4f-9272-cb3ec0b265e3" target="_blank" rel="noopener">
+    <img src="screens/27dfe1df-5eea-4e4f-9272-cb3ec0b265e3.png" alt="Notion - 设置页：成员与权限" loading="lazy" class="w-full bg-miro-mist">
+    <span class="absolute top-3 right-3 rounded-full bg-black/70 text-white text-xs px-3 py-1.5 opacity-0 group-hover:opacity-100 transition-opacity">查看 Mobbin 原文 ↗</span>
+  </a>
+  <figcaption class="p-5">
+    <strong class="text-[15px] font-semibold">Notion</strong>
+    <p class="text-sm text-miro-muted mt-0.5 leading-snug">设置页：成员与权限</p>
+    <span class="flex gap-1.5 mt-3">
+      <i class="w-4 h-4 rounded border border-miro-line" style="background:#C7C6C5"></i>
+      <i class="w-4 h-4 rounded border border-miro-line" style="background:#2F2F2F"></i>
+    </span>
+  </figcaption>
+</figure>
+  </div>
+
+  <p class="text-sm text-miro-muted mt-6 mb-3">其余参考屏幕（点击查看大图）</p>
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+  <button type="button" class="thumb group block w-full rounded-miro overflow-hidden border border-miro-line-light bg-miro-canvas p-1.5 cursor-zoom-in transition-shadow hover:shadow-miro" data-full="screens/fe567fb4-19a5-43dd-a85e-cc7f4019c3e0.png" onclick="openLightbox('screens/fe567fb4-19a5-43dd-a85e-cc7f4019c3e0.png')">
+  <img src="screens/fe567fb4-19a5-43dd-a85e-cc7f4019c3e0.png" alt="MyFitnessPal 屏幕" loading="lazy" class="w-full rounded-[4px] bg-miro-mist">
+  <span class="block text-xs font-medium text-miro-muted mt-1.5 mb-0.5 text-left group-hover:text-miro-ink transition-colors">MyFitnessPal</span>
+</button>
+<button type="button" class="thumb group block w-full rounded-miro overflow-hidden border border-miro-line-light bg-miro-canvas p-1.5 cursor-zoom-in transition-shadow hover:shadow-miro" data-full="screens/5dfe82cb-ca0c-498e-a18e-391970d07c77.png" onclick="openLightbox('screens/5dfe82cb-ca0c-498e-a18e-391970d07c77.png')">
+  <img src="screens/5dfe82cb-ca0c-498e-a18e-391970d07c77.png" alt="MyFitnessPal 屏幕" loading="lazy" class="w-full rounded-[4px] bg-miro-mist">
+  <span class="block text-xs font-medium text-miro-muted mt-1.5 mb-0.5 text-left group-hover:text-miro-ink transition-colors">MyFitnessPal</span>
+</button>
+<button type="button" class="thumb group block w-full rounded-miro overflow-hidden border border-miro-line-light bg-miro-canvas p-1.5 cursor-zoom-in transition-shadow hover:shadow-miro" data-full="screens/f74264ac-0593-4010-a615-a072d51d445e.png" onclick="openLightbox('screens/f74264ac-0593-4010-a615-a072d51d445e.png')">
+  <img src="screens/f74264ac-0593-4010-a615-a072d51d445e.png" alt="Evernote 屏幕" loading="lazy" class="w-full rounded-[4px] bg-miro-mist">
+  <span class="block text-xs font-medium text-miro-muted mt-1.5 mb-0.5 text-left group-hover:text-miro-ink transition-colors">Evernote</span>
+</button>
+<button type="button" class="thumb group block w-full rounded-miro overflow-hidden border border-miro-line-light bg-miro-canvas p-1.5 cursor-zoom-in transition-shadow hover:shadow-miro" data-full="screens/8db95913-c9fa-4896-a29f-dd9f1217c419.png" onclick="openLightbox('screens/8db95913-c9fa-4896-a29f-dd9f1217c419.png')">
+  <img src="screens/8db95913-c9fa-4896-a29f-dd9f1217c419.png" alt="Evernote 屏幕" loading="lazy" class="w-full rounded-[4px] bg-miro-mist">
+  <span class="block text-xs font-medium text-miro-muted mt-1.5 mb-0.5 text-left group-hover:text-miro-ink transition-colors">Evernote</span>
+</button>
+  </div>
+
+  <h2 class="text-xl font-semibold tracking-tight mt-12 mb-6">设计模式</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+  <article class="bg-miro-canvas rounded-miro shadow-miro p-5 border border-miro-line-light">
+  <span class="inline-block rounded-full text-xs font-semibold px-2.5 py-1 bg-green-100 text-green-800">共性</span>
+  <p class="mt-3 leading-relaxed">设置页普遍采用分组列表结构，账号信息与工作区设置分区呈现，文字层级靠字号与灰色区分。</p>
+  <p class="text-sm text-miro-muted mt-3">来源：Notion (3 screens)</p>
+</article>
+<article class="bg-miro-canvas rounded-miro shadow-miro p-5 border border-miro-line-light">
+  <span class="inline-block rounded-full text-xs font-semibold px-2.5 py-1 bg-yellow-100 text-yellow-800">差异</span>
+  <p class="mt-3 leading-relaxed">设置入口的位置不一：Notion 采用侧边栏底部头像入口，MyFitnessPal 使用顶部导航栏入口。</p>
+  <p class="text-sm text-miro-muted mt-3">来源：Notion vs MyFitnessPal</p>
+</article>
+<article class="bg-miro-canvas rounded-miro shadow-miro p-5 border border-miro-line-light">
+  <span class="inline-block rounded-full text-xs font-semibold px-2.5 py-1 bg-red-100 text-red-800">例外</span>
+  <p class="mt-3 leading-relaxed">深色模式下设置页保持浅色表面，与主界面深色形成对比，聚焦内容区；Evernote 同样在设置页保持高对比列表。</p>
+  <p class="text-sm text-miro-muted mt-3">来源：Notion, Evernote</p>
+</article>
+  </div>
+
+  <div class="rounded-miro bg-miro-mist p-5 border border-miro-line border-l-4 mt-12" style="border-left-color:var(--miro-yellow)">
+    <strong class="text-sm font-semibold">建议</strong>
+    <p class="text-sm mt-2 leading-relaxed">设置页沿用分组列表 + 底部头像入口的成熟模式；深色模式下保持内容区浅色表面以聚焦。</p>
+  </div>
+</div>
+<div id="spec-lightbox" style="display:none;position:fixed;inset:0;z-index:50;background:rgba(28,28,30,.92);align-items:center;justify-content:center;padding:32px;cursor:zoom-out">
+  <img id="spec-lightbox-img" alt="全屏查看" style="max-width:100%;max-height:100%;border-radius:8px;box-shadow:0 30px 80px rgba(0,0,0,.4)">
+  <button type="button" onclick="closeLightbox()" style="position:absolute;top:16px;right:24px;font-size:28px;color:#fff;background:none;border:none;cursor:pointer;line-height:1">×</button>
+</div>
+<script>
+function openLightbox(src) {
+  const box = document.getElementById("spec-lightbox");
+  const img = document.getElementById("spec-lightbox-img");
+  img.src = src;
+  box.style.display = "flex";
+  document.addEventListener("keydown", lightboxKeydown);
+}
+function closeLightbox() {
+  document.getElementById("spec-lightbox").style.display = "none";
+  document.removeEventListener("keydown", lightboxKeydown);
+}
+function lightboxKeydown(e) { if (e.key === "Escape") closeLightbox(); }
+document.getElementById("spec-lightbox").addEventListener("click", function (e) { if (e.target === this) closeLightbox(); });
+</script>
+</body></html>
