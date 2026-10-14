@@ -84,7 +84,7 @@
     }));
 
     // ---------- 筛选：顶部的布局开关换成筛选标题与 Close ----------
-    $("filter-close").innerHTML = `${glyph("close")}Close`;
+    $("filter-close").innerHTML = glyph("close");
     $("filter-close").onclick = () => ix().clearFilter();
     function syncFilter() {
       const f = stage.filter;
@@ -93,6 +93,19 @@
       body.querySelectorAll("[data-insight]").forEach(el => el.classList.toggle("is-on", !!f && f.key === `insight:${el.dataset.insight}`));
       body.querySelectorAll("[data-filter]").forEach(el => el.setAttribute("aria-pressed", !!f && f.key === el.dataset.filter));
       hudKey = "";
+    }
+
+    // ---------- 聚焦时的上一张 / 下一张：两个圆形按钮跟在聚焦图片的正下方 ----------
+    const nav = $("focus-nav"), navPrev = $("nav-prev"), navNext = $("nav-next");
+    navPrev.innerHTML = glyph("prev"); navNext.innerHTML = glyph("next");
+    navPrev.onclick = () => ix().step(-1); navNext.onclick = () => ix().step(1);
+    function syncNav() {
+      const st = ix().state, n = st.focused && st.woken && stage.nodeOf.get(st.woken);
+      nav.classList.toggle("on", !!n);
+      if (!n) return;
+      const c = camera.state, { TH } = config.grid;
+      nav.style.transform = `translate(${n.x * c.k + c.x}px, ${(n.y + TH / 2) * c.k + c.y + 28}px) translateX(-50%)`;
+      navPrev.disabled = !ix().neighbor(-1); navNext.disabled = !ix().neighbor(1);
     }
 
     // ---------- 模式索引：右下角，可原地滚动 ----------
@@ -233,7 +246,7 @@
       openPanel, closePanel, syncTools, syncSwitch, syncFilter,
       // 调研数据更新后：标题与模式索引跟上；打开着的面板不重排，下次打开时用新数据
       refresh() { syncMast(); buildIndex(); },
-      tick() { drawHud(); syncDepth(); drawNow(); },
+      tick() { drawHud(); syncDepth(); drawNow(); syncNav(); },
     };
   }
 

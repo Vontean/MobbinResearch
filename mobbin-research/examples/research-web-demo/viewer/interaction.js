@@ -54,7 +54,7 @@
     }
 
     // 聚焦：镜头推到最深并居中，面板只在这时出现，标题和 HUD 让位
-    function focus(s, dur = config.camera.fly.focus) {
+    function focus(s, dur = config.camera.fly.focus, ease = util.ease.out) {
       // 跳到筛选之外的图（比如从关联、线索链点过去）：先退出筛选
       if (stage.filter && !stage.filter.ids.has(s.id)) { stage.setFilter(null); app.ui.syncFilter(); }
       const fresh = !(state.focused && state.woken === s);
@@ -64,7 +64,21 @@
       app.intro.stop(); camera.stopGlide(); settled = lastInteract;
       app.url.set("frame", s.id);
       const n = nodeOf(s);
-      camera.fly(camera.centerOn(n.x, n.y, camera.maxK()), dur, util.ease.out);
+      camera.fly(camera.centerOn(n.x, n.y, camera.maxK()), dur, ease);
+    }
+
+    // 聚焦时的上一张 / 下一张：按画面上的阅读顺序（同一行从左到右，行尾接下一行的行首）；筛选中只在筛选出的图里走
+    function neighbor(dir) {
+      if (!state.focused) return null;
+      const list = stage.nodes.filter(n => !n.out).sort((a, b) => a.gy - b.gy || a.gx - b.gx);
+      const i = list.findIndex(n => n.s === state.woken);
+      return i < 0 ? null : list[i + dir] || null;
+    }
+    // 镜头保持聚焦的深度平移过去；换行时距离更远，多给一点时间
+    function step(dir) {
+      const to = neighbor(dir), from = state.woken && nodeOf(state.woken);
+      if (!to || !from) return;
+      focus(to.s, to.gy === from.gy ? config.camera.fly.step : config.camera.fly.stepRow, util.ease.inOut);
     }
     function unfocus() { if (state.focused) app.url.set("frame", null); state.focused = false; wake(null); }
 
@@ -219,6 +233,7 @@
       else if (e.key === "f" || e.key === "F") { app.intro.stop(); camera.surface(); }
       else if (e.key === "d" || e.key === "D") { app.intro.stop(); camera.diveAt(stage.scene.core.x, stage.scene.core.y); }
       else if (e.key === "i" || e.key === "I") toggleOverview();
+      else if (state.focused && (e.key === "ArrowLeft" || e.key === "ArrowRight")) { e.preventDefault(); step(e.key === "ArrowLeft" ? -1 : 1); }
     });
 
     return {
@@ -228,7 +243,7 @@
       get hoverLead() { return hoverLead; },
       get idleFor() { return performance.now() - lastInteract; },
       touch(now) { lastInteract = now; },
-      wake, focus, release, leave, highlight, filter, clearFilter, remap, toggleOverview, openPattern, cancelClose,
+      wake, focus, step, neighbor, release, leave, highlight, filter, clearFilter, remap, toggleOverview, openPattern, cancelClose,
       beforeDraw, afterDraw,
     };
   }
