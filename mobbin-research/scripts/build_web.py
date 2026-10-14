@@ -12,7 +12,9 @@ template, so it is replaced on every build.
 Exit codes: 0 when there are no errors (warnings allowed), 1 otherwise.
 """
 
+import hashlib
 import json
+import re
 import shutil
 import sys
 from collections import Counter
@@ -96,6 +98,14 @@ def check(data, root):
     return errors, warnings
 
 
+def digest(folder):
+    h = hashlib.sha1()
+    for f in sorted(folder.rglob("*")):
+        if f.is_file():
+            h.update(f.name.encode()); h.update(f.read_bytes())
+    return h.hexdigest()[:8]
+
+
 def main():
     if len(sys.argv) != 2:
         print(__doc__)
@@ -114,8 +124,12 @@ def main():
     tmp = root / "research.js.tmp"
     tmp.write_text(f"window.RESEARCH = {payload};\n", encoding="utf-8")
     tmp.replace(root / "research.js")
-    # 查看器是模板：每次构建都整体替换，已有的调研目录也能拿到最新版本
-    shutil.copy(VIEWER / "index.html", root / "index.html")
+    # 查看器是模板：每次构建都整体替换，已有的调研目录也能拿到最新版本。
+    # 地址带上内容版本号：Loop 进行中用户刷新页面时，浏览器不会把缓存里的旧脚本和新脚本混在一起
+    html = (VIEWER / "index.html").read_text(encoding="utf-8")
+    html = re.sub(r'(src|href)="(viewer/[^"?]+)"', rf'\1="\2?v={digest(VIEWER / "viewer")}"', html)
+    html = html.replace('src="research.js"', f'src="research.js?v={hashlib.sha1(payload.encode()).hexdigest()[:8]}"')
+    (root / "index.html").write_text(html, encoding="utf-8")
     shutil.rmtree(root / "viewer", ignore_errors=True)
     shutil.copytree(VIEWER / "viewer", root / "viewer")
     print(f"完成  {len(data.get('screens', []))} 张图 → {root / 'research.js'}")
