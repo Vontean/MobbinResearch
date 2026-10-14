@@ -5,7 +5,7 @@
 
   function create(app) {
     const L = app.config.live;
-    const on = /^https?:$/.test(location.protocol);   // file:// 打开时是一份完成的调研，不轮询
+    const on = app.view.live;
     let last = null, pending = null;
 
     const parse = text => JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
@@ -36,7 +36,8 @@
       tick() {
         if (!pending) return;
         const { interaction: ix, camera, stage } = app;
-        if (ix.dragging || camera.flying || camera.gliding || stage.layoutT || app.intro.playing || ix.idleFor < L.settle) return;
+        // 聚焦着看一张图时也不落地：等离开聚焦再说
+        if (ix.dragging || ix.state.focused || camera.flying || camera.gliding || stage.layoutT || app.intro.playing || ix.idleFor < L.settle) return;
         const data = pending; pending = null;
         merge(data);
       },

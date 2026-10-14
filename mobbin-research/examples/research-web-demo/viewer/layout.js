@@ -20,13 +20,18 @@
     return order;
   }
 
-  // 岛屿：圈层定半径、模式定方向，关系弹簧拉近相关的图，再把每张图分配进一个对称的点阵圆
-  function islandPositions(research, order) {
-    const { screens } = research;
-    if (!screens.length) return new Map();
+  // 模式定方向：每个模式占一段扇区，宽度按成员数
+  function sectors(order) {
     const total = order.reduce((t, p) => t + Math.max(p.n, 2), 0);
     const sec = new Map(); let a = -Math.PI / 2;
     for (const p of order) { const w = Math.max(p.n, 2) / total * Math.PI * 2; sec.set(p.id, { a0: a, w, idx: sec.size }); a += w; }
+    return sec;
+  }
+
+  // 理想位置：圈层定半径、模式定方向，关系弹簧拉近相关的图
+  function islandIdeals(research, order) {
+    const { screens } = research;
+    const sec = sectors(order);
     const area = CX * CY / .8, bands = {};
     let r0 = 0;
     for (const r of RINGS) { const n = screens.filter(s => s.ring === r).length; const r1 = Math.sqrt(r0 * r0 + n * area / Math.PI); bands[r] = [r0, r1]; r0 = r1 + 8; }
@@ -59,8 +64,12 @@
         }
       }
     }
-    // 形状由数量决定：取包含 N 个格点的最小完整圆，多出来的格子在最外圈按角度均匀挑掉
-    const n = screens.length, cells = [];
+    return P;
+  }
+
+  // 形状由数量决定：取包含 n 个格点的最小完整圆，多出来的格子在最外圈按角度均匀挑掉
+  function discSlots(n) {
+    const cells = [];
     const R = Math.ceil(Math.sqrt(n)) + 2;
     for (let i = -R; i <= R; i++) for (let j = -R; j <= R; j++) cells.push({ x: i * CX, y: j * CY });
     cells.sort((p, q) => Math.hypot(p.x, p.y) - Math.hypot(q.x, q.y));
@@ -72,11 +81,56 @@
       const drop = new Set(Array.from({ length: extra }, (_, i) => shell[Math.floor((i + .5) * shell.length / extra)]));
       slots = slots.filter(c => !drop.has(c));
     }
-    // 把弹簧算出的理想位置缩放到圆的大小，再求总位移最小的一一对应
-    const rs = Math.max(...slots.map(c => Math.hypot(c.x, c.y))), rp = Math.max(...all.map(p => Math.hypot(p.x, p.y))) || 1;
+    return slots;
+  }
+  const radiusOf = slots => Math.max(...slots.map(c => Math.hypot(c.x, c.y)));
+
+  // 分配：把理想位置缩放到半径 rs，再求总位移最小的一一对应；格子多于图时补空行
+  function assignSlots(screens, P, slots, rs) {
+    const rp = Math.max(...screens.map(s => Math.hypot(P.get(s).x, P.get(s).y))) || 1;
     const cost = screens.map(s => { const p = P.get(s); return slots.map(c => (p.x * rs / rp - c.x) ** 2 + (p.y * rs / rp - c.y) ** 2); });
+    while (cost.length < slots.length) cost.push(new Array(slots.length).fill(0));
     const assign = hungarian(cost), out = new Map();
     screens.forEach((s, i) => out.set(s, [slots[assign[i]].x, slots[assign[i]].y]));
+    return out;
+  }
+
+  // 岛屿：一份完成的调研的布局。打开 file://、调研完成时都用它
+  function islandPositions(research, order) {
+    const { screens } = research;
+    if (!screens.length) return new Map();
+    const slots = discSlots(screens.length);
+    return assignSlots(screens, islandIdeals(research, order), slots, radiusOf(slots));
+  }
+
+  // 生长中的岛屿（Loop 进行中）：外形按目标数量 capacity 预先确定。
+  // 整理：重新求理想位置并全局分配；理想位置缩放到当前数量的圆，图从中心向外长。
+  // 实测加"留在原格子"的代价只会让关系更松散，整理就干脆地整理
+  function settleIsland(research, order, capacity) {
+    const { screens } = research;
+    if (!screens.length) return new Map();
+    return assignSlots(screens, islandIdeals(research, order), discSlots(capacity), radiusOf(discSlots(screens.length)));
+  }
+
+  // 生长：已有的图原地不动；新图落在离它的相关图最近的空格子里（没有相关图时，按圈层和模式给一个方向）
+  function growIsland(research, order, capacity, prev) {
+    const { screens } = research, out = new Map(), key = (x, y) => `${x},${y}`, taken = new Set();
+    for (const s of screens) { const q = prev.get(s.id); if (q) { out.set(s, q); taken.add(key(...q)); } }
+    const slots = discSlots(capacity), sec = sectors(order), rn = radiusOf(discSlots(Math.max(1, screens.length)));
+    for (const s of screens.filter(s => !out.has(s)).sort((a, b) => a.id - b.id)) {
+      let wx = 0, wy = 0, ws = 0;
+      for (const [o, q] of out) { const r = research.relation(s, o); if (r.score >= .3) { wx += q[0] * r.score; wy += q[1] * r.score; ws += r.score; } }
+      let ix, iy;
+      if (ws) { ix = wx / ws; iy = wy / ws; }
+      else {
+        const sc = sec.get(s.patterns[0]), ang = sc ? sc.a0 + sc.w / 2 : 0, rad = rn * Math.sqrt((RINGS.indexOf(s.ring) + .5) / RINGS.length);
+        ix = Math.cos(ang) * rad; iy = Math.sin(ang) * rad;
+      }
+      let best = null, bd = Infinity;
+      for (const c of slots) { if (taken.has(key(c.x, c.y))) continue; const d = (c.x - ix) ** 2 + (c.y - iy) ** 2; if (d < bd) { bd = d; best = c; } }
+      if (!best) break;   // 格子用完：由调用方按新的数量扩大圆
+      out.set(s, [best.x, best.y]); taken.add(key(best.x, best.y));
+    }
     return out;
   }
 
@@ -165,5 +219,5 @@
     return { layout, positions, lanes: layout === "lanes" ? lanes : null, covered, bounds, core, coreDist, seaR, leadDots };
   }
 
-  Sea.layout = Object.freeze({ patternOrder, islandPositions, lanePositions, composeScene, hungarian });
+  Sea.layout = Object.freeze({ patternOrder, islandPositions, settleIsland, growIsland, lanePositions, composeScene, hungarian });
 })(window.Sea = window.Sea || {});

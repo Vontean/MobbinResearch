@@ -14,7 +14,7 @@
 
   function create(app) {
     const { config, util } = app;
-    let islandCache = null;
+    let islandCache = null, grown = null, settledAt = -1;
     const stage = { order: [], nodes: [], nodeOf: new Map(), scene: null, layoutT: 0, enterT: 0 };
 
     function load(n) {
@@ -50,17 +50,38 @@
       islandCache = null;
     };
 
-    // 切换布局：计算新场景，节点从当前位置出发；animate 时由 step() 插值过去
+    // 岛屿坐标。Loop 进行中（实时打开、未完成、未达目标数量）用生长中的岛屿：
+    // 平时新图只落进空格子；每多一个检查点整理一次；完成后回到完整调研的布局，与 file:// 打开时一致
+    function island(research, order) {
+      const { data, screens } = research, target = (data.brief || {}).target || 0;
+      const growing = app.view.live && !(data.now && data.now.done) && screens.length < target;
+      if (!growing) { grown = null; return Sea.layout.islandPositions(research, order); }
+      const cps = (data.checkpoints || []).length, capacity = Math.max(target, screens.length);
+      const pos = !grown || cps !== settledAt ? Sea.layout.settleIsland(research, order, capacity) : Sea.layout.growIsland(research, order, capacity, grown);
+      settledAt = cps; grown = new Map([...pos].map(([s, p]) => [s.id, p]));
+      return pos;
+    }
+
+    // 新图从哪里出生：找到它的那条线索在海岸线外的光点；没有时从它的上一张图，再没有时从核心
+    function birthplace(s, prev) {
+      const lead = prev.leadDots.find(L => L.lead.id === s.found_via);
+      if (lead) return [lead.x, lead.y];
+      const parent = app.research.parentOf(s), pn = parent != null && stage.nodes.find(n => n.s.id === parent && n.x != null);
+      return pn ? [pn.x, pn.y] : [prev.core.x, prev.core.y];
+    }
+
+    // 切换布局或数据更新：计算新场景，节点从当前位置出发；animate 时由 step() 插值过去
     stage.apply = animate => {
       let positions, lanes = null;
-      const research = app.research, order = stage.order;
+      const research = app.research, order = stage.order, prev = stage.scene;
       if (app.view.layout === "lanes") ({ positions, info: lanes } = Sea.layout.lanePositions(research, order));
-      else positions = islandCache ||= Sea.layout.islandPositions(research, order);
+      else positions = islandCache ||= island(research, order);
       const scene = Sea.layout.composeScene(research, app.view.layout, positions, lanes, order);
       for (const n of stage.nodes) {
         const [x, y] = positions.get(n.s);
         n.gx = x; n.gy = y;
-        if (!animate || n.x == null) { n.x = x; n.y = y; }
+        if (n.x == null && animate && prev && !config.reduced) [n.x, n.y] = birthplace(n.s, prev);
+        else if (!animate || n.x == null) { n.x = x; n.y = y; }
         n.x0 = n.x; n.y0 = n.y;
         n.cd = scene.coreDist.get(n.s);
       }

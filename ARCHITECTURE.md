@@ -38,6 +38,7 @@ flowchart LR
 - **帧循环先调度下一帧**：单帧出错不会冻住画布；缺失任何一层时，`main.js` 直接在页面上说明缺了哪个文件。
 - **交互动词即领域语言**：`wake` / `focus` / `release` / `leave` / `highlight`，与 CONTEXT.md 对应。
 - **调研数据可整体替换**：`app.research` 是一份不可变快照，各层用时再取，不在创建时抓进闭包。实时更新时换上新快照，`stage.sync()` 按 id 沿用已有节点，`interaction.remap()` 把唤醒和聚焦换到新对象上。
+- **生长中的布局有历史**：完成的调研的布局是数据的纯函数（`islandPositions`）；Loop 进行中的岛屿还取决于上一次的位置，这份历史放在 `stage`（有状态层），`layout` 的 `growIsland` / `settleIsland` 仍是纯函数。完成时回到 `islandPositions`，保证实时看到的最终形态和双击打开时一样。
 - **实时更新只在停手时落地**：页面经由 `http://` 打开时，`live.js` 轮询 `research.js`，新数据先排队；用户拖拽、缩放、运镜、入场期间不并入，停手后一次并入。`build_web.py` 先写临时文件再替换，页面不会读到写了一半的数据。
 
 每帧顺序（`main.js`）：镜头推进 → 布局过渡 → 预判聚焦与指针平滑 → 绘制 → 悬停唤醒 → HUD 与深度计 → 并入排队的实时数据。

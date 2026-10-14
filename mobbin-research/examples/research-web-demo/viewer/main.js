@@ -14,7 +14,8 @@
     config, util: Sea.util,
     research: Sea.domain.createResearch(DATA),
     canvas: document.getElementById("sea"),
-    view: { layout: config.layouts.includes(params.get("layout")) ? params.get("layout") : "island" },
+    // live：经由本地服务打开（Loop 进行中）；file:// 打开时是一份完成的调研
+    view: { layout: config.layouts.includes(params.get("layout")) ? params.get("layout") : "island", live: /^https?:$/.test(location.protocol) },
     // 网址记录当前视图：布局与聚焦的帧，便于分享
     url: {
       set(key, v) {
