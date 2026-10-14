@@ -19,9 +19,8 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 img { display: block; }
 
 #sea { position: fixed; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
-/* 光标说明"点下去会发生什么"：海面可拖、图可聚焦、聚焦中的图只是看、Shift 框选；由 interaction.js 写 data-cursor */
+/* 光标：空白海面可拖（抓手），图和线索光点上是普通箭头，Shift 框选是十字；由 interaction.js 写 data-cursor */
 #sea.panning { cursor: grabbing; }
-#sea[data-cursor="zoom"] { cursor: zoom-in; }
 #sea[data-cursor="look"] { cursor: default; }
 #sea[data-cursor="box"], #sea.boxing { cursor: crosshair; }
 

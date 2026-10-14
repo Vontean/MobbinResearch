@@ -176,7 +176,7 @@
     // 光标：拖拽中由 panning / boxing 类接管；否则按光标下是什么决定（只在变化时写）
     let shift = false;
     function syncCursor() {
-      const c = shift ? "box" : hoverLead ? "look" : hoverTile ? (state.focused && hoverTile === state.woken ? "look" : "zoom") : "";
+      const c = shift ? "box" : hoverTile || hoverLead ? "look" : "";
       if (canvas.dataset.cursor !== c) canvas.dataset.cursor = c;
     }
     const onShift = e => { if (e.shiftKey !== shift) { shift = e.shiftKey; syncCursor(); } };
