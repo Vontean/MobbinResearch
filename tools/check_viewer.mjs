@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// 查看器回归检查：在 Node 里加载纯函数层（domain、layout、cards），
-// 用演示数据算出布局、关联、线索链、场景和面板模板，与快照逐项比对。
+// 查看器回归检查：先对 viewer/ 下所有脚本做语法检查（任何一个出错，页面都会缺层）；
+// 再在 Node 里加载纯函数层（domain、layout、cards），用演示数据算出布局、关联、线索链、场景和面板模板，与快照逐项比对。
 //
 //   node tools/check_viewer.mjs            比对；有差异时退出码为 1
 //   node tools/check_viewer.mjs --update   有意改变行为后，更新快照
 //
 // 交互（唤醒、聚焦、镜头）依赖浏览器，按 ARCHITECTURE.md 的"验证"一节手动检查。
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
@@ -15,6 +15,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const VIEWER = join(ROOT, "mobbin-research/assets/web-viewer/viewer");
 const DEMO = join(ROOT, "mobbin-research/examples/research-web-demo/research.json");
 const SNAPSHOT = join(ROOT, "tools/viewer.snapshot.json");
+
+for (const f of readdirSync(VIEWER).filter(f => f.endsWith(".js"))) {
+  try { new vm.Script(readFileSync(join(VIEWER, f), "utf8"), { filename: f }); }
+  catch (e) { console.log(`语法错误 viewer/${f}：${e.message}`); process.exit(1); }
+}
 
 const window = { matchMedia: () => ({ matches: false }) };
 const ctx = vm.createContext({ window, matchMedia: window.matchMedia });
