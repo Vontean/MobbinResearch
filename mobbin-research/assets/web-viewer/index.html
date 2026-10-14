@@ -3,839 +3,758 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>调研网</title>
+<meta name="theme-color" content="#000000">
+<title>Research Sea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Doto:wght@400;700&family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --canvas: #F4F3EF;
-  --surface: rgb(252 252 250 / .82);
-  --surface-solid: #FCFCFA;
-  --ink: #1B1B19;
-  --ink-2: #6B6A65;
-  --ink-3: #A3A29C;
-  --line: rgb(27 27 25 / .08);
-  --line-2: rgb(27 27 25 / .14);
-  --clay: #C2603B;
-  --node-bg: rgb(27 27 25 / .06);
-  --shadow-panel: 0 1px 1px rgb(0 0 0 / .04), 0 16px 48px -12px rgb(0 0 0 / .18);
-  --font-ui: -apple-system, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
-  --font-voice: ui-serif, "New York", "Songti SC", Georgia, serif;
-  --fs-meta: 11px; --fs-label: 12px; --fs-body: 14px; --fs-voice: 16px; --fs-title: 20px;
-  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-6: 24px; --s-8: 32px;
-  --r-control: 8px; --r-card: 12px; --r-panel: 16px;
-  --h-control: 32px;
-  --ease-out: cubic-bezier(.23, 1, .32, 1);
-  --ease-drawer: cubic-bezier(.32, .72, 0, 1);
-  color-scheme: light;
+  --black: #000; --surface: #111; --surface-raised: #1a1a1a;
+  --border: #222; --border-visible: #333;
+  --text-disabled: #666; --text-secondary: #999; --text-primary: #e8e8e8; --text-display: #fff;
+  --accent-red: #d71921; --utility-orange: #f26522;
+  --font-human: "Space Grotesk", "PingFang SC", system-ui, sans-serif;
+  --font-machine: "Space Mono", "PingFang SC", ui-monospace, monospace;
+  --font-dot: "Doto", "Space Mono", monospace;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+  --ease-back: cubic-bezier(.34, 1.56, .64, 1);
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px;
+  --r-card: 16px; --r-thumb: 8px;
+  --panel-w: 400px;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --canvas: #111110;
-    --surface: rgb(30 30 28 / .82);
-    --surface-solid: #1E1E1C;
-    --ink: #ECEBE6;
-    --ink-2: #A3A29C;
-    --ink-3: #6B6A65;
-    --line: rgb(236 235 230 / .09);
-    --line-2: rgb(236 235 230 / .16);
-    --clay: #E07A52;
-    --node-bg: rgb(236 235 230 / .06);
-    --shadow-panel: 0 1px 1px rgb(0 0 0 / .3), 0 16px 48px -12px rgb(0 0 0 / .6);
-    color-scheme: dark;
-  }
-}
-* { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; overflow: hidden; background: var(--canvas); color: var(--ink); font: 400 var(--fs-body)/1.55 var(--font-ui); -webkit-font-smoothing: antialiased; }
-button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; background: var(--black); color: var(--text-primary); font: 400 14px/1.55 var(--font-human); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 img { display: block; }
 
-#stage { position: fixed; inset: 0; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
-#stage.panning { cursor: grabbing; }
-#links { position: absolute; inset: 0; width: 100%; height: 100%; }
-#nodes, #labels { position: absolute; inset: 0; pointer-events: none; }
-.node {
-  position: absolute; left: 0; top: 0; width: 240px; height: 520px;
-  border-radius: 16px; overflow: hidden; background: var(--node-bg);
-  transform-origin: 120px 260px; will-change: transform, opacity;
-  pointer-events: auto; cursor: pointer; opacity: 0;
-}
-.node img { width: 100%; height: 100%; object-fit: cover; }
-.node::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px var(--line); pointer-events: none; }
-.node .lift { position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 40px 80px -24px rgb(0 0 0 / .45); opacity: 0; transition: opacity 240ms var(--ease-out); z-index: -1; }
-.node.is-focus { overflow: visible; }
-.node.is-focus img { border-radius: 16px; }
-.node.is-focus .lift { opacity: 1; }
+#sea { position: fixed; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+#sea.panning { cursor: grabbing; }
 
-.sector, .ring-label, #caption { position: absolute; left: 0; top: 0; white-space: nowrap; will-change: transform; }
-.sector { pointer-events: auto; cursor: pointer; padding: var(--s-1) var(--s-2); border-radius: var(--r-control); font-size: var(--fs-label); color: var(--ink-2); transition: color 160ms ease, background-color 160ms ease, opacity 240ms ease; }
-.sector b { font-weight: 500; color: var(--ink); }
-.sector span { color: var(--ink-3); margin-left: var(--s-1); font-variant-numeric: tabular-nums; }
-.sector.is-dim { opacity: .35; }
-@media (hover: hover) and (pointer: fine) { .sector:hover { background: var(--line); } }
-.ring-label { font-size: var(--fs-meta); color: var(--ink-3); letter-spacing: .02em; padding: 1px 6px; border-radius: 999px; background: color-mix(in srgb, var(--canvas) 86%, transparent); transition: opacity 240ms ease; }
-#overlay { position: absolute; inset: 0; pointer-events: none; z-index: 1200; }
-#caption { font-size: var(--fs-label); color: var(--ink-2); opacity: 0; transition: opacity 200ms var(--ease-out); text-align: center; }
-#caption b { color: var(--ink); font-weight: 500; }
+.meta { font: 400 11px/1.5 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); }
+.dim { color: var(--text-disabled); }
+.title { font: 500 20px/1.2 var(--font-human); letter-spacing: -.01em; color: var(--text-display); }
 
-#marquee { position: fixed; border: 1px solid var(--clay); background: color-mix(in srgb, var(--clay) 8%, transparent); border-radius: 4px; pointer-events: none; display: none; }
+/* 点阵字形：图标由 5×5 点构成 */
+.glyph { display: inline-grid; grid-template-columns: repeat(5, 2px); grid-auto-rows: 2px; gap: 1px; flex: none; }
+.glyph i { border-radius: 50%; background: currentColor; opacity: .14; transition: opacity .14s var(--ease); }
+.glyph i.on { opacity: 1; }
 
-.chrome { position: fixed; z-index: 20; }
-#masthead { left: var(--s-6); top: var(--s-6); max-width: 420px; pointer-events: none; }
-#masthead h1 { margin: 0; font-size: 15px; font-weight: 500; letter-spacing: -.01em; }
-#masthead p { margin: 2px 0 0; font-size: var(--fs-label); color: var(--ink-2); font-variant-numeric: tabular-nums; }
-#tools { right: var(--s-6); top: var(--s-6); display: flex; gap: var(--s-1); padding: var(--s-1); border-radius: var(--r-card); background: var(--surface); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); box-shadow: inset 0 0 0 1px var(--line); transition: transform 340ms var(--ease-drawer); }
-body.panel-open #tools { transform: translateX(calc(-380px - var(--s-4))); }
-.tool { height: var(--h-control); min-width: var(--h-control); padding: 0 var(--s-2); display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--r-control); font-size: 13px; color: var(--ink-2); transition: background-color 160ms ease, color 160ms ease, transform 160ms var(--ease-out); }
-.tool svg { width: 16px; height: 16px; }
+.chrome { position: fixed; z-index: 10; transition: transform .42s var(--ease-back), opacity .3s var(--ease); }
+body.panel-open .shift { transform: translateX(calc(-1 * var(--panel-w) - var(--s-4))); }
+#masthead { left: var(--s-6); top: var(--s-5); pointer-events: none; }
+#masthead .title { margin-top: 6px; }
+#masthead .title + .meta { margin-top: 2px; }
+#tools { right: var(--s-6); top: var(--s-5); display: flex; gap: 6px; }
+.tool { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font: 400 11px/1 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); transition: border-color .2s ease-out, color .2s ease-out, transform .16s var(--ease); }
 .tool:active { transform: scale(.96); }
-.tool[aria-pressed="true"] { color: var(--ink); background: var(--line); }
-@media (hover: hover) and (pointer: fine) { .tool:hover { color: var(--ink); background: var(--line); } }
-#zoom { right: var(--s-6); bottom: var(--s-6); display: flex; align-items: center; border-radius: var(--r-card); padding: var(--s-1); background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: inset 0 0 0 1px var(--line); transition: transform 340ms var(--ease-drawer); }
-body.panel-open #zoom { transform: translateX(calc(-380px - var(--s-4))); }
-#zoom .pct { min-width: 48px; font-size: var(--fs-label); font-variant-numeric: tabular-nums; }
-#hint { left: var(--s-6); bottom: var(--s-6); font-size: var(--fs-label); color: var(--ink-3); transition: opacity 600ms ease; pointer-events: none; }
-#hint kbd { font: inherit; color: var(--ink-2); }
+.tool[aria-pressed="true"] { color: var(--text-display); border-color: var(--border-visible); }
+@media (hover: hover) and (pointer: fine) { .tool:hover { color: var(--text-primary); border-color: var(--border-visible); } }
+#t-depth { min-width: 96px; }
 
-#panel {
-  position: fixed; z-index: 30; top: var(--s-4); right: var(--s-4); bottom: var(--s-4); width: 380px;
-  border-radius: var(--r-panel); background: var(--surface);
-  backdrop-filter: blur(28px) saturate(1.5); -webkit-backdrop-filter: blur(28px) saturate(1.5);
-  box-shadow: var(--shadow-panel), inset 0 0 0 1px var(--line);
-  display: flex; flex-direction: column; overflow: hidden; visibility: hidden;
-}
-#panel-close { position: absolute; top: var(--s-3); right: var(--s-3); z-index: 2; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 999px; color: var(--ink-2); background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: transform 160ms var(--ease-out), color 160ms ease; }
-#panel-close:active { transform: scale(.94); }
-#panel-close svg { width: 15px; height: 15px; }
-#panel-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: var(--s-6) var(--s-6) var(--s-8); scrollbar-width: thin; }
-#panel-body > * { margin: 0; }
-#panel-body > * + * { margin-top: var(--s-4); }
+#hud { left: var(--s-6); bottom: var(--s-5); max-width: min(560px, 60vw); pointer-events: none; }
+#hud .meta { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+#hud .line { margin-top: 4px; font: 400 14px/1.4 var(--font-human); color: var(--text-primary); min-height: 20px; }
+.segs { display: inline-flex; gap: 2px; }
+.segs i { width: 6px; height: 10px; background: #242424; }
+.segs i.on { background: var(--text-primary); }
 
-.eyebrow { font-size: var(--fs-meta); color: var(--ink-3); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
-.p-title { font-size: var(--fs-title); font-weight: 500; letter-spacing: -.015em; line-height: 1.3; margin-top: var(--s-1) !important; }
-.muted { color: var(--ink-2); font-size: 13px; }
-.voice { font-family: var(--font-voice); font-size: var(--fs-voice); line-height: 1.6; letter-spacing: .005em; }
-.sec { padding-top: var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-label); color: var(--ink-3); display: flex; justify-content: space-between; margin-top: var(--s-6) !important; }
-.hero { position: relative; margin: calc(-1 * var(--s-6)) calc(-1 * var(--s-6)) 0 !important; height: 400px; overflow: hidden; display: grid; place-items: center; }
-.hero .bg { position: absolute; inset: -20%; width: 140%; height: 140%; object-fit: cover; filter: blur(28px) saturate(1.2); opacity: .55; }
-.hero .main { position: relative; height: 340px; width: auto; aspect-ratio: 1179 / 2556; object-fit: cover; border-radius: 14px; box-shadow: 0 24px 48px -16px rgb(0 0 0 / .35), 0 0 0 1px rgb(0 0 0 / .06); }
-.note { padding: var(--s-3) var(--s-4); border-radius: var(--r-card); background: var(--line); font-size: 13px; color: var(--ink-2); }
-.note .eyebrow { margin-bottom: var(--s-1); }
-.note p { margin: 0; font-family: var(--font-voice); font-size: 14px; color: var(--ink); }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { height: 26px; padding: 0 10px; border-radius: 999px; font-size: var(--fs-label); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line-2); transition: background-color 160ms ease, color 160ms ease, transform 160ms var(--ease-out); }
+#index { right: var(--s-6); bottom: var(--s-5); display: grid; gap: 2px; }
+body.panel-open #index { opacity: 0; pointer-events: none; transform: translateX(12px); }
+.idx { display: grid; grid-template-columns: auto auto; align-items: center; justify-content: end; gap: 12px; padding: 3px 0; font-size: 12px; color: var(--text-disabled); transition: color .2s ease-out; }
+.idx .segs i { width: 3px; height: 9px; transform: scaleY(.5); transition: transform .3s var(--ease-back), background-color .2s ease-out; }
+.idx .segs i.on { background: var(--text-disabled); }
+.idx:hover, .idx.is-on { color: var(--text-primary); }
+.idx:hover .segs i, .idx.is-on .segs i { transform: none; }
+.idx:hover .segs i.on, .idx.is-on .segs i.on { background: var(--text-primary); }
+
+#gauge { right: var(--s-6); top: 50%; display: grid; gap: 5px; justify-items: end; transform: translateY(-50%); }
+body.panel-open #gauge { transform: translate(calc(-1 * var(--panel-w) - var(--s-4)), -50%); }
+#gauge i { width: 8px; height: 2px; background: var(--border-visible); transition: background-color .2s ease-out, width .3s var(--ease-back); }
+#gauge i.on { background: var(--text-primary); width: 14px; }
+#gauge span { margin-top: 6px; font: 400 10px/1 var(--font-machine); letter-spacing: .08em; color: var(--text-disabled); writing-mode: vertical-rl; transform: rotate(180deg); }
+#marquee { position: fixed; z-index: 5; display: none; pointer-events: none; border: 1px dashed rgb(232 232 232 / .5); background: rgb(255 255 255 / .03); }
+
+/* 面板：一列 bento 卡片 */
+#panel { position: fixed; z-index: 20; top: var(--s-4); right: var(--s-4); bottom: var(--s-4); width: var(--panel-w); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; display: none; }
+#panel::-webkit-scrollbar { display: none; }
+#panel-body { display: grid; gap: 10px; padding-bottom: var(--s-4); }
+.card { position: relative; overflow: hidden; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: var(--s-5); transition: border-color .2s ease-out; }
+.card:hover { border-color: var(--border-visible); }
+.card > .meta:first-of-type, .card > .row:first-of-type { margin-bottom: var(--s-3); }
+.shine { position: absolute; top: -30%; bottom: -30%; left: -140px; width: 110px; pointer-events: none; z-index: 2; opacity: 0; transform: skewX(-14deg); background: linear-gradient(100deg, transparent, rgb(255 255 255 / .04) 35%, rgb(255 255 255 / .10) 50%, rgb(255 255 255 / .04) 65%, transparent); }
+.shine.play { animation: shimmer 1.05s var(--ease) forwards; }
+@keyframes shimmer { 0% { left: -140px; opacity: 1; } 100% { left: 110%; opacity: 0; } }
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); }
+.led { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-red); animation: pulse 1.6s var(--ease) infinite; margin-right: 8px; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .18; } }
+#panel-close { display: inline-flex; align-items: center; gap: 6px; color: var(--text-disabled); transition: color .2s ease-out; }
+#panel-close:hover { color: var(--text-primary); }
+
+.frame { margin: 0 calc(-1 * var(--s-5)) calc(-1 * var(--s-5)); height: 380px; display: grid; place-items: center; background-image: radial-gradient(circle, #1d1d1d 1.1px, transparent 1.1px); background-size: 16px 16px; background-position: 8px 8px; }
+.frame img { height: 340px; aspect-ratio: 1179 / 2556; object-fit: cover; border-radius: 14px; border: 1px solid var(--border-visible); }
+.body-text { font: 400 15px/1.6 var(--font-human); color: var(--text-primary); }
+.sub-text { font-size: 13px; color: var(--text-secondary); }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stats .card { padding: var(--s-4) var(--s-5); }
+.dot-num { font: 400 52px/1 var(--font-dot); color: var(--text-display); font-variant-numeric: tabular-nums; margin-top: 10px; }
+.big-segs { display: flex; gap: 3px; height: 14px; margin-top: 26px; }
+.big-segs i { flex: 1; background: #242424; transform: scale(.3); opacity: 0; animation: seg-in .3s var(--ease-back) forwards; }
+.big-segs i:nth-child(2) { animation-delay: 40ms; } .big-segs i:nth-child(3) { animation-delay: 80ms; } .big-segs i:nth-child(4) { animation-delay: 120ms; }
+.big-segs i.on { background: var(--text-primary); }
+@keyframes seg-in { to { transform: scale(1); opacity: 1; } }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); }
+.chip { height: 26px; padding: 0 10px; border: 1px solid var(--border-visible); border-radius: 999px; font-size: 12px; color: var(--text-secondary); transition: color .2s ease-out, border-color .2s ease-out, transform .16s var(--ease); }
+.chip:hover { color: var(--text-primary); border-color: var(--text-disabled); }
 .chip:active { transform: scale(.96); }
-@media (hover: hover) and (pointer: fine) { .chip:hover { color: var(--ink); background: var(--line); } }
-.thread { list-style: none; padding: 0; position: relative; }
-.thread::before { content: ""; position: absolute; left: 13px; top: 18px; bottom: 18px; width: 1px; background: var(--line-2); }
-.thread li { position: relative; display: grid; grid-template-columns: 28px 1fr; gap: var(--s-3); align-items: center; padding: 6px 0; cursor: pointer; border-radius: var(--r-control); }
-.thread li img { width: 28px; height: 60px; object-fit: cover; border-radius: 5px; box-shadow: 0 0 0 1px var(--line), 0 0 0 4px var(--surface-solid); }
-.thread li .t { font-size: 13px; line-height: 1.45; }
-.thread li .t b { font-weight: 500; }
-.thread li .t span { display: block; color: var(--ink-2); font-size: var(--fs-label); }
-.thread li .t em { display: block; font-style: normal; color: var(--ink-3); font-size: var(--fs-meta); line-height: 1.5; }
-.thread li.is-self .t b { color: var(--clay); }
-.thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
-.thumb { position: relative; aspect-ratio: 1179 / 2556; border-radius: 8px; overflow: hidden; background: var(--node-bg); transition: transform 200ms var(--ease-out); }
+.note { margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--border); }
+.note p { margin-top: 6px; font-size: 13px; color: var(--text-secondary); }
+.trail { list-style: none; display: grid; gap: 2px; }
+.trail li { display: grid; grid-template-columns: 24px 26px 1fr; gap: 10px; align-items: center; padding: 6px 0; cursor: pointer; }
+.trail li .n { font: 400 11px/1 var(--font-machine); color: var(--text-disabled); letter-spacing: .08em; }
+.trail li img { width: 26px; height: 56px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-visible); }
+.trail li b { display: block; font-weight: 500; font-size: 13px; color: var(--text-primary); }
+.trail li span { display: block; font-size: 12px; color: var(--text-secondary); }
+.trail li em { display: block; font-style: normal; font-size: 11px; color: var(--text-disabled); }
+.trail li.self b, .trail li.self .n { color: var(--text-display); }
+@media (hover: hover) and (pointer: fine) { .trail li:hover b { text-decoration: underline; text-decoration-color: var(--text-disabled); text-underline-offset: 3px; } }
+.thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.thumb { position: relative; display: block; aspect-ratio: 1179 / 2556; border-radius: var(--r-thumb); overflow: hidden; border: 1px solid var(--border); background: var(--surface-raised); transition: border-color .2s ease-out, transform .25s var(--ease-back); }
 .thumb img { width: 100%; height: 100%; object-fit: cover; }
-.thumb::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--line); }
-.thumb .tag { position: absolute; left: 4px; bottom: 4px; padding: 1px 6px; border-radius: 999px; font-size: 10.5px; line-height: 16px; color: #fff; background: rgb(0 0 0 / .45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
-.thumb .tag.is-clay { background: color-mix(in srgb, var(--clay) 85%, black); }
+.thumb .tag { position: absolute; left: 0; right: 0; bottom: 0; padding: 14px 6px 5px; font: 700 9px/1 var(--font-machine); letter-spacing: .12em; color: var(--text-primary); background: linear-gradient(transparent, rgb(0 0 0 / .8)); text-align: left; }
+.thumb:hover { border-color: var(--text-disabled); transform: translateY(-2px); }
 .thumb:active { transform: scale(.97); }
-@media (hover: hover) and (pointer: fine) { .thumb:hover { transform: translateY(-2px); } }
-.relnote { font-size: 13px; color: var(--ink-2); padding-left: var(--s-3); border-left: 2px solid var(--clay); }
-.relnote b { color: var(--ink); font-weight: 500; }
-.insight { display: block; width: 100%; text-align: left; padding: var(--s-3) var(--s-4); margin: 0 calc(-1 * var(--s-4)); width: calc(100% + 2 * var(--s-4)); border-radius: var(--r-card); transition: background-color 160ms ease; }
-.insight + .insight { margin-top: var(--s-1) !important; }
-.insight .ev { display: flex; align-items: center; gap: 3px; margin-top: var(--s-2); font-size: var(--fs-meta); color: var(--ink-3); }
-.insight .ev img { width: 14px; height: 30px; object-fit: cover; border-radius: 3px; }
-.insight .ev span { margin-left: 6px; }
-@media (hover: hover) and (pointer: fine) { .insight:hover { background: var(--line); } }
-.questions { padding-left: 18px; color: var(--ink-2); font-size: 13px; }
-.questions li + li { margin-top: 2px; }
-.timeline { list-style: none; padding: 0; }
-.timeline li { display: grid; grid-template-columns: 40px 1fr; gap: var(--s-2); }
-.timeline li + li { margin-top: var(--s-4); }
-.timeline .at { font-size: var(--fs-label); color: var(--clay); font-variant-numeric: tabular-nums; padding-top: 3px; }
-.timeline p { margin: 0; font-family: var(--font-voice); font-size: 14px; }
-.timeline .next { margin-top: var(--s-1); font-family: var(--font-ui); font-size: var(--fs-label); color: var(--ink-2); }
-.gaps { padding-left: 18px; font-size: 13px; color: var(--ink-2); }
-.gaps li + li { margin-top: var(--s-1); }
-.bars { display: grid; gap: 6px; }
-.bar { display: grid; grid-template-columns: 96px 1fr 24px; align-items: center; gap: var(--s-2); font-size: var(--fs-label); color: var(--ink-2); }
-.bar i { height: 4px; border-radius: 2px; background: var(--line-2); overflow: hidden; }
-.bar i::before { content: ""; display: block; height: 100%; width: var(--w); background: var(--ink); border-radius: inherit; }
-.bar em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
-.pat-part .eyebrow { margin-bottom: 2px; }
-.pat-part p { margin: 0; font-size: 14px; }
-.source { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); text-decoration: none; }
-.source svg { width: 14px; height: 14px; }
-@media (hover: hover) and (pointer: fine) { .source:hover { color: var(--ink); } }
+.echo { margin-top: var(--s-3); font-size: 13px; color: var(--text-secondary); }
+.echo b { font: 700 9px/1 var(--font-machine); letter-spacing: .12em; color: var(--text-primary); margin-right: 8px; }
+.list-item { display: block; width: 100%; text-align: left; padding: var(--s-3) 0; border-top: 1px solid var(--border); }
+.card > .meta + .list-item, .card > .row + .list-item { border-top: 0; padding-top: 0; }
+.list-item .meta { margin-top: 6px; }
+@media (hover: hover) and (pointer: fine) { button.list-item:hover .body-text { color: var(--text-display); } }
+.qs { list-style: none; counter-reset: q; display: grid; gap: 6px; margin-top: var(--s-3); }
+.qs li { counter-increment: q; display: grid; grid-template-columns: 24px 1fr; font-size: 13px; color: var(--text-secondary); }
+.qs li::before { content: counter(q, decimal-leading-zero); font: 400 11px/1.8 var(--font-machine); color: var(--text-disabled); }
+.bars { display: grid; gap: 10px; }
+.bar { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; font-size: 12px; color: var(--text-secondary); }
+.bar .segs { grid-column: 1 / -1; display: flex; }
+.bar .segs i { flex: 1; height: 8px; }
+.bar em { font: 400 11px/1.5 var(--font-machine); font-style: normal; color: var(--text-disabled); }
+.source { display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: var(--text-secondary); }
+.source:hover { color: var(--text-primary); }
+.source .meta { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  .shine.play, .led, .big-segs i { animation: none; }
+  .big-segs i { transform: none; opacity: 1; }
+}
 </style>
 </head>
 <body>
-<div id="stage">
-  <canvas id="links"></canvas>
-  <div id="labels"></div>
-  <div id="nodes"></div>
-  <div id="overlay"></div>
-</div>
-<div id="caption"></div>
+<canvas id="sea"></canvas>
 <div id="marquee"></div>
 
-<header id="masthead" class="chrome"><h1></h1><p></p></header>
-<nav id="tools" class="chrome" aria-label="视图">
-  <button class="tool" id="t-insight" aria-pressed="false" title="洞察（I）"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>洞察</button>
-  <button class="tool" id="t-replay" title="重播生长过程"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
-  <button class="tool" id="t-fit" title="适配视图（F）"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg></button>
+<header id="masthead" class="chrome">
+  <div class="meta">Research sea <span class="dim">/ Mobbin</span></div>
+  <h1 class="title"></h1>
+  <div class="meta dim" id="mast-sub"></div>
+</header>
+<nav id="tools" class="chrome shift">
+  <button class="tool" id="t-insight" aria-pressed="false" title="洞察（I）"><span class="glyph" data-g="insight"></span>Insight</button>
+  <button class="tool" id="t-replay" title="重播入场"><span class="glyph" data-g="replay"></span>Replay</button>
+  <button class="tool" id="t-depth" title="潜入（D）/ 浮上海面（F）"><span class="glyph" data-g="dive"></span><span>Dive</span></button>
 </nav>
-<div id="zoom" class="chrome">
-  <button class="tool" id="z-out" title="缩小"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
-  <button class="tool pct" id="z-pct" title="适配视图">100%</button>
-  <button class="tool" id="z-in" title="放大"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+<div id="hud" class="chrome">
+  <div class="meta" id="hud-meta"></div>
+  <div class="line" id="hud-line"></div>
 </div>
-<div id="hint" class="chrome">悬停一张图看它的关系簇 · 点击固定 · <kbd>Shift</kbd> 拖拽框选 · 双指缩放</div>
+<div id="index" class="chrome"></div>
+<div id="gauge" class="chrome shift" aria-hidden="true"></div>
 
-<aside id="panel" aria-live="polite">
-  <button id="panel-close" title="关闭（Esc）"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
-  <div id="panel-body"></div>
-</aside>
+<aside id="panel"><div id="panel-body"></div></aside>
 
 <script src="research.js"></script>
 <script>
 (() => {
 "use strict";
 const DATA = window.RESEARCH;
-if (!DATA) { document.body.innerHTML = '<p style="padding:32px;font:14px system-ui">没有找到 research.js。请先运行 <code>python3 scripts/build_web.py &lt;调研目录&gt;</code>。</p>'; return; }
+if (!DATA) { document.body.innerHTML = '<p style="padding:32px;font:14px system-ui;color:#999">没有找到 research.js。请先运行 python3 scripts/build_web.py &lt;调研目录&gt;。</p>'; return; }
+
+// ---------- 点阵字形 ----------
+const GLYPHS = {
+  insight: "..#...###.#####.###...#..",
+  replay:  ".###.#...##.#.##...#.###.",
+  close:   "#...#.#.#...#...#.#.#...#",
+  out:     "..###...##..#.#.#...#....",
+  dive:    "..#....#..#.#.#.###...#..",
+  surface: "..#...###.#.#.#..#....#..",
+};
+const glyph = name => `<span class="glyph">${[...GLYPHS[name]].map(c => `<i class="${c === "#" ? "on" : ""}"></i>`).join("")}</span>`;
+document.querySelectorAll(".glyph[data-g]").forEach(el => { el.outerHTML = glyph(el.dataset.g); });
 
 // ---------- 常量 ----------
-const NODE_W = 36, NODE_H = 78, EL_W = 240;          // 世界单位下的节点尺寸；DOM 基准宽 240
-const RINGS = ["R1", "R2", "R3", "R4"];
-const RING_NAME = { R1: "直接竞品", R2: "间接竞品", R3: "结构相似", R4: "表达启发" };
+const G = 26, TW = 36, TH = 78;   // 点阵间距与截图尺寸（世界单位）
+const SX = 3 * G, SY = 5 * G;      // 截图格子间距：每张图四周留一圈点，奇数行错开半格
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const PANEL_W = 380 + 16;
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-const hash = n => { let t = (n * 2654435761) >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ t >>> 15, 1 | t); r ^= r + Math.imul(r ^ r >>> 7, 61 | r); return ((r ^ r >>> 14) >>> 0) / 4294967296; }; };
+const pad = (n, w = 3) => String(n).padStart(w, "0");
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const backOut = t => { const c = 1.70158; return 1 + (c + 1) * Math.pow(t - 1, 3) + c * Math.pow(t - 1, 2); };
 
 // ---------- 数据 ----------
-const screens = DATA.screens;
-const byId = new Map(screens.map(s => [s.id, s]));
+const screens = DATA.screens, byId = new Map(screens.map(s => [s.id, s]));
 const leadById = new Map((DATA.leads || []).map(l => [l.id, l]));
 const patById = new Map(DATA.patterns.map(p => [p.id, p]));
 const echoes = new Map();
-for (const e of DATA.echoes || []) {
-  for (const [a, b] of [[e.a, e.b], [e.b, e.a]]) {
-    if (!echoes.has(a)) echoes.set(a, []);
-    echoes.get(a).push({ other: b, kind: e.kind, note: e.note });
-  }
+for (const e of DATA.echoes || []) for (const [a, b] of [[e.a, e.b], [e.b, e.a]]) {
+  if (!echoes.has(a)) echoes.set(a, []);
+  echoes.get(a).push({ other: b, kind: e.kind, note: e.note });
 }
-for (const s of screens) {
-  s.lead = s.found_via ? leadById.get(s.found_via) : null;
-  s.parent = s.lead && s.lead.from != null ? s.lead.from : null;
-}
-const ancestors = s => { const out = []; let c = s; const seen = new Set(); while (c && !seen.has(c.id)) { out.unshift(c); seen.add(c.id); c = c.parent != null ? byId.get(c.parent) : null; } return out; };
+for (const s of screens) { s.lead = s.found_via ? leadById.get(s.found_via) : null; s.parent = s.lead && s.lead.from != null ? s.lead.from : null; }
+const RINGS = ["R1", "R2", "R3", "R4"], depth = s => RINGS.indexOf(s.ring) + 1;
+const trail = s => { const out = [], seen = new Set(); let c = s; while (c && !seen.has(c.id)) { out.unshift(c); seen.add(c.id); c = c.parent != null ? byId.get(c.parent) : null; } return out; };
 
-// ---------- 布局：半径 = 圈层，角度 = 模式 ----------
-function layout() {
-  // 模式排序：让常一起出现的模式相邻，减少跨扇区的拉扯
-  const pats = DATA.patterns.map(p => ({ ...p, n: screens.filter(s => s.patterns[0] === p.id).length }));
-  const co = new Map();
-  const bump = (a, b) => { if (a === b) return; const k = [a, b].sort().join("|"); co.set(k, (co.get(k) || 0) + 1); };
-  for (const s of screens) for (let i = 1; i < s.patterns.length; i++) bump(s.patterns[0], s.patterns[i]);
-  for (const e of DATA.echoes || []) bump(byId.get(e.a).patterns[0], byId.get(e.b).patterns[0]);
-  const cw = (a, b) => co.get([a, b].sort().join("|")) || 0;
+// ---------- 布局：离中心越近越直接，同一模式占同一片角度 ----------
+const covered = new Set();
+let leadDots = [];
+(function layout() {
+  const pats = DATA.patterns.map(p => ({ id: p.id, n: screens.filter(s => s.patterns[0] === p.id).length }));
+  const co = new Map(), key = (a, b) => [a, b].sort().join("|");
+  for (const s of screens) for (const p of s.patterns.slice(1)) co.set(key(s.patterns[0], p), (co.get(key(s.patterns[0], p)) || 0) + 1);
   const order = [pats.slice().sort((a, b) => b.n - a.n)[0]];
   while (order.length < pats.length) {
     const last = order[order.length - 1];
-    const next = pats.filter(p => !order.includes(p)).sort((a, b) => cw(last.id, b.id) - cw(last.id, a.id) || b.n - a.n)[0];
-    order.push(next);
+    order.push(pats.filter(p => !order.includes(p)).sort((a, b) => (co.get(key(last.id, b.id)) || 0) - (co.get(key(last.id, a.id)) || 0) || b.n - a.n)[0]);
   }
-  const weight = p => Math.max(p.n, 3);
-  const total = order.reduce((t, p) => t + weight(p), 0);
-  let a = -Math.PI / 2 - (weight(order[0]) / total) * Math.PI;
-  for (const p of order) { const w = (weight(p) / total) * Math.PI * 2; p.a0 = a; p.a1 = a + w; p.ac = a + w / 2; a += w; }
-  const sector = new Map(order.map(p => [p.id, p]));
+  const total = order.reduce((t, p) => t + Math.max(p.n, 2), 0);
+  const sec = new Map(); let a = 0;
+  for (const p of order) { const w = Math.max(p.n, 2) / total * Math.PI * 2; sec.set(p.id, { a0: a, w, idx: sec.size }); a += w; }
 
-  // 圈层宽度按面积分配：外圈周长更长，所以更薄
-  const area = (NODE_W + 10) * (NODE_H + 10) / 0.56;
-  const bands = {}; let r0 = 64;
+  // 候选格子：交错排列，按到中心的距离排序
+  const cells = [];
+  for (let m = -14; m <= 14; m++) for (let i = -20; i <= 20; i++) {
+    const x = i * SX + (m & 1 ? SX / 2 : 0), y = m * SY;
+    cells.push({ x, y, d: Math.hypot(x, y), a: Math.atan2(y, x) });
+  }
+  cells.sort((p, q) => p.d - q.d);
+  const cover = (x, y, hw, hh) => {
+    for (let i = Math.ceil((x - hw) / G); i <= Math.floor((x + hw) / G); i++)
+      for (let j = Math.ceil((y - hh) / G); j <= Math.floor((y + hh) / G); j++) covered.add(`${i},${j}`);
+  };
+  const wrap = v => ((v + Math.PI / 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+  let cursor = 0;
   for (const r of RINGS) {
-    const n = screens.filter(s => s.ring === r).length;
-    const r1 = Math.sqrt(r0 * r0 + n * area / Math.PI);
-    bands[r] = [r0, Math.max(r1, r0 + NODE_H)];
-    r0 = bands[r][1] + 34;
-  }
-
-  const angDiff = (x, y) => Math.atan2(Math.sin(y - x), Math.cos(y - x));
-  for (const s of screens) {
-    const rnd = hash(s.id), sec = sector.get(s.patterns[0]);
-    let ang = sec.ac + (rnd() - .5) * (sec.a1 - sec.a0) * .72;
-    if (s.patterns[1] && sector.get(s.patterns[1])) {
-      const d = angDiff(sec.ac, sector.get(s.patterns[1]).ac);
-      ang = sec.ac + Math.max(-1, Math.min(1, d / Math.abs(d || 1))) * (sec.a1 - sec.a0) * (.32 + rnd() * .16);
+    const group = screens.filter(s => s.ring === r);
+    const band = cells.slice(cursor, cursor + group.length); cursor += group.length;
+    // 目标角度：主模式扇区内排开，有次模式的图偏向相邻扇区
+    for (const s of group) {
+      const sc = sec.get(s.patterns[0]), sib = group.filter(o => o.patterns[0] === s.patterns[0]);
+      let t = (sib.indexOf(s) + .5) / sib.length;
+      const s2 = s.patterns[1] && sec.get(s.patterns[1]);
+      if (s2) t = s2.idx === (sc.idx + 1) % sec.size ? .55 + t * .45 : t * .45;
+      s._ta = wrap(sc.a0 + sc.w * t);
     }
-    const [b0, b1] = bands[s.ring];
-    const rad = b0 + rnd() * (b1 - b0);
-    s.bx = Math.cos(ang) * rad; s.by = Math.sin(ang) * rad;
+    group.sort((p, q) => p._ta - q._ta);
+    band.sort((p, q) => wrap(p.a) - wrap(q.a));
+    group.forEach((s, k) => { const c = band[k]; s.cx = c.x; s.cy = c.y; s.cd = c.d; cover(c.x, c.y, TW / 2 + 6, TH / 2 + 6); });
   }
-  // 矩形碰撞松弛，再投影回所在圈层
-  const GX = NODE_W + 8, GY = NODE_H + 8;
-  for (let it = 0; it < 160; it++) {
-    for (let i = 0; i < screens.length; i++) for (let j = i + 1; j < screens.length; j++) {
-      const A = screens[i], B = screens[j];
-      const dx = B.bx - A.bx, dy = B.by - A.by, ox = GX - Math.abs(dx), oy = GY - Math.abs(dy);
-      if (ox > 0 && oy > 0) {
-        if (ox < oy) { const m = ox / 2 * Math.sign(dx || 1); A.bx -= m; B.bx += m; }
-        else { const m = oy / 2 * Math.sign(dy || 1); A.by -= m; B.by += m; }
-      }
-    }
-    for (const s of screens) {
-      const [b0, b1] = bands[s.ring], d = Math.hypot(s.bx, s.by) || 1, c = Math.min(b1, Math.max(b0, d));
-      s.bx *= c / d; s.by *= c / d;
-    }
-  }
-  // 圈层标签沿正上方纵向排开，像一把刻度尺
-  return { order, bands, outer: bands.R4[1], ringAngle: -Math.PI / 2 };
-}
-const L = layout();
+  // 还没走过的线索：落在海岸线外，方向指向长出它的那张图
+  const shore = cells.slice(cursor + 6, cursor + 90);
+  const angGap = (p, q) => Math.abs(Math.atan2(Math.sin(p - q), Math.cos(p - q)));
+  leadDots = (DATA.leads || []).filter(l => l.status !== "done" && l.from != null && byId.get(l.from)).map(l => {
+    const from = byId.get(l.from), fa = Math.atan2(from.cy, from.cx);
+    const c = shore.filter(c => !c.used).sort((p, q) => angGap(p.a, fa) - angGap(q.a, fa))[0];
+    if (!c) return null;
+    c.used = true;
+    const x = Math.round(c.x / G) * G, y = Math.round(c.y / G) * G;
+    covered.add(`${x / G},${y / G}`);
+    return { lead: l, x, y };
+  }).filter(Boolean);
+})();
+const seaR = Math.max(...screens.map(s => s.cd)) + SY;
 
-// ---------- 状态 ----------
-const cam = { k: 1, x: 0, y: 0, tk: 1, tx: 0, ty: 0 };
-const st = { focus: null, anchor: null, cluster: [], pinned: false, hover: null, selection: null, highlight: null, panel: null, t0: 0, sF: 1, sM: 1 };
-const stage = document.getElementById("stage"), cv = document.getElementById("links"), ctx = cv.getContext("2d");
-const nodesEl = document.getElementById("nodes"), labelsEl = document.getElementById("labels"), caption = document.getElementById("caption");
-let W = 0, H = 0, DPR = 1, colors = {};
-
-function readColors() {
-  const cs = getComputedStyle(document.documentElement);
-  colors = { ink: cs.getPropertyValue("--ink").trim(), ink2: cs.getPropertyValue("--ink-2").trim(), clay: cs.getPropertyValue("--clay").trim(), line: cs.getPropertyValue("--line-2").trim() };
-}
-function resize() {
-  DPR = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight;
-  cv.width = W * DPR; cv.height = H * DPR;
-}
-
-// ---------- 节点 DOM ----------
-for (const s of screens) {
-  const el = document.createElement("div");
-  el.className = "node"; el.dataset.id = s.id;
-  el.innerHTML = `<div class="lift"></div><img alt="${esc(s.app)} · ${esc(s.screen_type)}" src="${esc(s.thumb)}" decoding="async" draggable="false">`;
-  nodesEl.appendChild(el);
-  Object.assign(s, { el, x: s.bx, y: s.by, vx: 0, vy: 0, s: .5, vs: 0, o: 0, _t: "", _o: "", _z: "", phase: hash(s.id + 99)() * Math.PI * 2, per: 7 + hash(s.id + 7)() * 4 });
-  el.addEventListener("pointerenter", () => onNodeEnter(s));
-  el.addEventListener("pointerleave", () => { if (st.hover === s) st.hover = null; clearTimeout(dwellT); });
-  el.addEventListener("click", e => { e.stopPropagation(); if (moved) return; pin(s); });
-}
-const sectorEls = L.order.map(p => {
-  const el = document.createElement("button");
-  el.className = "sector"; el.innerHTML = `<b>${esc(p.name)}</b><span>${p.n}</span>`;
-  el.addEventListener("pointerenter", () => { if (!st.focus && !st.selection && st.panel !== "pattern") setHighlight(membersOf(p.id)); });
-  el.addEventListener("pointerleave", () => { if (st.panel !== "pattern" && st.panel !== "overview") setHighlight(null); });
-  el.addEventListener("click", e => { e.stopPropagation(); openPattern(p.id); });
-  labelsEl.appendChild(el); return { p, el };
-});
-const ringEls = RINGS.map(r => { const el = document.createElement("div"); el.className = "ring-label"; el.textContent = `${r} ${RING_NAME[r]}`; document.getElementById("overlay").appendChild(el); return { r, el }; });
-const membersOf = pid => new Set(screens.filter(s => s.patterns.includes(pid)).map(s => s.id));
-
-// ---------- 关系簇：共享模式 + 线索 + 呼应 ----------
+// ---------- 关系 ----------
 function relation(a, b) {
   const pa = new Set(a.patterns), shared = b.patterns.filter(p => pa.has(p)).length;
   const jac = shared / new Set([...a.patterns, ...b.patterns]).size;
-  let lin = 0, rel = shared ? "同模式" : "";
-  if (a.parent === b.id || b.parent === a.id) { lin = 1; rel = "线索"; }
-  else if (a.found_via && a.found_via === b.found_via) { lin = .7; rel = "同一线索"; }
-  else if (a.parent != null && a.parent === b.parent) { lin = .5; rel = "同源"; }
-  const ech = (echoes.get(a.id) || []).find(e => e.other === b.id);
-  if (ech) rel = ech.kind === "contrast" ? "对照" : "呼应";
-  const score = jac * .6 + lin * .55 + (ech ? 1 : 0) + (a.app === b.app ? .15 : 0);
-  return { score, rel, clay: !!ech };
+  let lin = 0, tag = shared ? "PATTERN" : "APP";
+  if (a.parent === b.id || b.parent === a.id) { lin = 1; tag = "LEAD"; }
+  else if (a.found_via && a.found_via === b.found_via) { lin = .7; tag = "SIBLING"; }
+  else if (a.parent != null && a.parent === b.parent) { lin = .5; tag = "SIBLING"; }
+  const e = (echoes.get(a.id) || []).find(x => x.other === b.id);
+  if (e) tag = e.kind === "contrast" ? "CONTRAST" : "ECHO";
+  return { score: jac * .6 + lin * .55 + (e ? 1 : 0) + (a.app === b.app ? .15 : 0), tag };
 }
-function clusterOf(f) {
-  return screens.filter(s => s !== f).map(s => ({ s, ...relation(f, s) }))
-    .filter(o => o.score >= .3).sort((x, y) => y.score - x.score).slice(0, 8);
+const relatedOf = f => screens.filter(s => s !== f).map(s => ({ s, ...relation(f, s) })).filter(o => o.score >= .3).sort((x, y) => y.score - x.score).slice(0, 8);
+
+for (const s of screens) {
+  const img = new Image(); img.decoding = "async"; img.src = s.thumb;
+  Object.assign(s, { img, lit: 0, dim: 0, rect: null, bornAt: 0 });
 }
 
-// 把簇成员排在焦点外侧的一圈矩形上：按原方向分配位置，再松弛掉重叠，最后约束在视口内
-function arrangeCluster() {
-  const f = st.focus; if (!f) return;
-  const k = cam.tk;
-  st.sF = Math.max(1.9, Math.min(6, 300 / (NODE_H * k)));
-  st.sM = Math.max(1.3, Math.min(3, 132 / (NODE_H * k)));
-  const g = 14 / k;
-  const hxF = NODE_W / 2 * st.sF, hyF = NODE_H / 2 * st.sF, hxM = NODE_W / 2 * st.sM, hyM = NODE_H / 2 * st.sM;
-  const capH = 30 / k;  // 焦点下方留给说明文字的高度
-  const Hx = hxF + hxM + g, Hy = hyF + hyM + g + capH / 2, P = 4 * (Hx + Hy), n = st.cluster.length;
-  const onRect = u => {
-    u = ((u % P) + P) % P;
-    if (u < Hx) return [u, -Hy];
-    if ((u -= Hx) < 2 * Hy) return [Hx, -Hy + u];
-    if ((u -= 2 * Hy) < 2 * Hx) return [Hx - u, Hy];
-    if ((u -= 2 * Hx) < 2 * Hy) return [-Hx, Hy - u];
-    return [-Hx + (u - 2 * Hy), -Hy];
-  };
-  const ang = (x, y) => Math.atan2(y, x);
-  const mem = st.cluster.map(o => ({ o, a: ang(o.s.x - st.anchor.x, o.s.y - st.anchor.y) })).sort((p, q) => p.a - q.a);
-  // 尝试 n 种旋转，选与原方向偏差最小的那一种
-  let best = null;
-  for (let r = 0; r < n; r++) {
-    const pts = mem.map((m, i) => onRect((i + r + .5) * P / n)).map(([x, y]) => ({ x, y, a: ang(x, y) })).sort((p, q) => p.a - q.a);
-    const cost = mem.reduce((c, m, i) => c + Math.abs(Math.atan2(Math.sin(pts[i].a - m.a), Math.cos(pts[i].a - m.a))), 0);
-    if (!best || cost < best.cost) best = { cost, pts };
-  }
-  // 关系越弱，离焦点越远：簇团因此有了疏密，而不是一圈等距的网格
-  const top = Math.max(...st.cluster.map(o => o.score)), low = Math.min(...st.cluster.map(o => o.score));
-  const pos = mem.map((m, i) => {
-    const { x, y } = best.pts[i], w = top > low ? (top - m.o.score) / (top - low) : 0;
-    const out = w * (Math.abs(x) >= Hx - 1e-6 ? hxM * .9 : hyM * .55);
-    return { m, x: x + Math.sign(x) * (Math.abs(x) >= Hx - 1e-6 ? out : 0), y: y + Math.sign(y) * (Math.abs(y) >= Hy - 1e-6 ? out : 0) };
-  });
-  const GX = 2 * hxM + g, GY = 2 * hyM + g;
-  for (let it = 0; it < 16; it++) {
-    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
-      const A = pos[i], B = pos[j], dx = B.x - A.x, dy = B.y - A.y, ox = GX - Math.abs(dx), oy = GY - Math.abs(dy);
-      if (ox > 0 && oy > 0) {
-        if (ox < oy) { const m = ox / 2 * Math.sign(dx || 1); A.x -= m; B.x += m; }
-        else { const m = oy / 2 * Math.sign(dy || 1); A.y -= m; B.y += m; }
-      }
-    }
-    for (const q of pos) {
-      const ox = Hx - Math.abs(q.x), oy = Hy - Math.abs(q.y);
-      if (ox > 0 && oy > 0) { if (ox / Hx < oy / Hy) q.x = Math.sign(q.x || 1) * Hx; else q.y = Math.sign(q.y || 1) * Hy; }
-    }
-  }
-  // 整个簇超出视口时，平移锚点把它拉回来
-  const m = 24, xs = [-hxF, hxF, ...pos.flatMap(q => [q.x - hxM, q.x + hxM])], ys = [-hyF, hyF, ...pos.flatMap(q => [q.y - hyM, q.y + hyM])];
-  const sx0 = (st.anchor.x + Math.min(...xs)) * k + cam.tx, sx1 = (st.anchor.x + Math.max(...xs)) * k + cam.tx;
-  const sy0 = (st.anchor.y + Math.min(...ys)) * k + cam.ty, sy1 = (st.anchor.y + Math.max(...ys)) * k + cam.ty;
-  const AW = availW();
-  let shx = 0, shy = 0;
-  if (sx1 - sx0 < AW - 2 * m) shx = sx0 < m ? m - sx0 : sx1 > AW - m ? AW - m - sx1 : 0;
-  if (sy1 - sy0 < H - 2 * m) shy = sy0 < m ? m - sy0 : sy1 > H - m ? H - m - sy1 : 0;
-  const ax = st.anchor.x + shx / k, ay = st.anchor.y + shy / k;
-  for (const q of pos) q.m.o.slot = { x: ax + q.x, y: ay + q.y };
-  st.anchorShown = { x: ax, y: ay };
-  st.pushR = Math.max(Hx, Hy) * 1.15;
-}
+// ---------- 状态 ----------
+const cv = document.getElementById("sea"), ctx = cv.getContext("2d");
+let W = 0, H = 0, DPR = 1;
+const cam = { k: 1, x: 0, y: 0, tk: 1, tx: 0, ty: 0 };
+const ptr = { x: -9999, y: -9999, sx: -9999, sy: -9999, inside: false, speed: 0, wake: 0, lastT: 0 };
+const st = { focus: null, related: [], relMap: new Map(), pinned: false, rippleT: -1, rippleAt: null, highlight: null, panel: null, panelArg: null, enterT: 0, fish: 0, hoverLead: null, leadRects: [] };
+const availW = () => W - (st.panel ? 400 + 16 : 0);
 
-// ---------- 交互状态切换 ----------
-let dwellT = 0, leaveT = 0;
-function onNodeEnter(s) {
-  hideHint();
-  st.hover = s; clearTimeout(dwellT); clearTimeout(leaveT);
-  if (st.pinned || st.selection || drag) return;
-  if (st.focus === s) return;
-  const inCluster = st.cluster.some(o => o.s === s);
-  dwellT = setTimeout(() => setFocus(s), st.focus ? (inCluster ? 220 : 160) : 90);
+let vignette = null;
+function resize() {
+  DPR = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * DPR; cv.height = H * DPR;
+  vignette = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .32, W / 2, H / 2, Math.hypot(W, H) * .56);
+  vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, "rgba(0,0,0,.82)");
 }
-function setFocus(s, opts = {}) {
-  st.focus = s;
-  if (!s) { st.cluster = []; st.anchor = null; caption.style.opacity = 0; return; }
-  st.anchor = { x: s.x, y: s.y };
-  if (opts.home) st.anchor = { x: s.bx, y: s.by };
-  st.cluster = clusterOf(s);
-  st.edgeT = performance.now();
-  arrangeCluster();
-  caption.innerHTML = `<b>${esc(s.app)}</b> · ${esc(s.screen_type)}`;
-  caption.style.opacity = 1;
+function fitTarget() { return { k: Math.min(availW() / (seaR * 2.6), H / (seaR * 2.5)), x: availW() / 2, y: H / 2 }; }
+function fit(instant) { const t = fitTarget(); cam.tk = t.k; cam.tx = t.x; cam.ty = t.y; if (instant) Object.assign(cam, { k: t.k, x: t.x, y: t.y }); }
+let tween = null, introT = 0, glide = null;
+const DIVE_K = 1.25;
+const easeInOut = t => t < .5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2;
+function flyCam(to, dur) {
+  if (REDUCED) { Object.assign(cam, { k: to.k, x: to.x, y: to.y, tk: to.k, tx: to.x, ty: to.y }); return; }
+  const cw = availW() / 2;
+  tween = { k0: cam.k, k1: to.k, c0: [(cw - cam.x) / cam.k, (H / 2 - cam.y) / cam.k], c1: [(cw - to.x) / to.k, (H / 2 - to.y) / to.k], t0: performance.now(), dur };
 }
-function clearFocus() { clearTimeout(dwellT); setFocus(null); }
-function setHighlight(set) { st.highlight = set; }
-
-function pin(s) {
-  clearTimeout(dwellT); clearTimeout(leaveT);
-  st.selection = null; setHighlight(null);
-  if (st.focus !== s) setFocus(s);
-  if (!st.pinned && !savedCam) savedCam = { k: cam.tk, x: cam.tx, y: cam.ty, avail: availW() };
-  st.pinned = true;
-  openPanel("screen", s);
-  flyTo(st.anchor.x, st.anchor.y);
-  arrangeAfterFly = true;
-}
-// 固定一张图时记住原视角；用户没有手动移动过镜头，退出时就飞回去
-let savedCam = null;
-function reset() {
-  const back = savedCam; savedCam = null;
-  st.pinned = false; st.selection = null; setHighlight(null); clearFocus(); closePanel();
-  if (back) { cam.tk = back.k; cam.tx = back.x + (availW() - back.avail) / 2; cam.ty = back.y; }
-}
-function openPattern(pid) {
-  st.pinned = false; st.selection = null; clearFocus();
-  st.patternId = pid;
-  setHighlight(membersOf(pid));
-  openPanel("pattern", pid);
-}
-function openOverview() {
-  st.pinned = false; st.selection = null; clearFocus(); setHighlight(null);
-  openPanel("overview");
-}
-
-// ---------- 镜头 ----------
-const toScreen = (x, y) => [x * cam.k + cam.x, y * cam.k + cam.y];
-const toWorld = (sx, sy) => [(sx - cam.x) / cam.k, (sy - cam.y) / cam.k];
-const availW = () => W - (st.panel ? PANEL_W : 0);
-function fitTarget() {
-  const R = L.outer + 70;
-  const k = Math.min(availW() / (2 * R + 64), (H - 150) / (2 * R));
-  return { k, x: availW() / 2, y: H / 2 + 8 };
-}
-function fit(instant) {
-  const t = fitTarget(); cam.tk = t.k; cam.tx = t.x; cam.ty = t.y;
-  if (instant) Object.assign(cam, { k: t.k, x: t.x, y: t.y });
-}
-function flyTo(wx, wy, k = cam.tk) {
-  cam.tk = k; cam.tx = availW() / 2 - wx * k; cam.ty = H / 2 - wy * k;
-}
+function diveAt(wx, wy) { flyCam({ k: DIVE_K, x: availW() / 2 - wx * DIVE_K, y: H / 2 - wy * DIVE_K }, 1700); }
+function surface() { const t = fitTarget(); flyCam(t, 1200); }
+const isDeep = () => cam.tk > fitTarget().k * 1.8;
+function stopIntro() { clearTimeout(introT); tween = null; }
 function zoomAt(sx, sy, f, instant) {
-  const k = Math.max(.25, Math.min(4, cam.tk * f));
-  const [wx, wy] = [(sx - cam.tx) / cam.tk, (sy - cam.ty) / cam.tk];
+  const k = clamp(cam.tk * f, fitTarget().k * .8, 3), wx = (sx - cam.tx) / cam.tk, wy = (sy - cam.ty) / cam.tk;
   cam.tk = k; cam.tx = sx - wx * k; cam.ty = sy - wy * k;
   if (instant) Object.assign(cam, { k: cam.tk, x: cam.tx, y: cam.ty });
-  if (st.focus) arrangeCluster();
 }
 
-// ---------- 指针：平移、框选、离开簇团 ----------
-let drag = null, moved = false, arrangeAfterFly = false;
+// ---------- 鱼眼：以光标为中心的单调径向放大，图片之间不会互相遮挡 ----------
+const FR = 260, FM = 2.2;
+let fishR = 1;
+function fish(x, y) {
+  if (st.fish < .001) return [x, y, 1];
+  const dx = x - ptr.sx, dy = y - ptr.sy, d = Math.hypot(dx, dy);
+  if (d >= FR * fishR) return [x, y, 1];
+  const m = FM * st.fish * clamp((1.7 - cam.k) / 1.25, .32, 1);
+  if (d < .01) return [x, y, m + 1];
+  const R = FR * fishR, u = d / R, nd = R * ((m + 1) * u) / (m * u + 1);
+  return [ptr.sx + dx / d * nd, ptr.sy + dy / d * nd, Math.min((m + 1) / Math.pow(m * u + 1, 2), nd / d)];
+}
+
+// 海面的涌动：一道从中心向外的慢涌，叠加一道斜向的交叉波
+const wave = (x, y, T) => .6 * Math.sin(Math.hypot(x, y) * .011 - T * 1.1) + .4 * Math.sin(x * .007 - y * .009 + T * .7);
+
+// ---------- 帧 ----------
+const GRAYS = 12, buckets = Array.from({ length: GRAYS }, () => []);
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
+  const T = now / 1000, amb = REDUCED ? 0 : 1;
+  fishR = clamp(cam.k / .55, 1, 1.5);
+  if (tween) {
+    const p = clamp((now - tween.t0) / tween.dur, 0, 1), e = easeInOut(p), cw = availW() / 2;
+    const k = Math.exp(Math.log(tween.k0) + (Math.log(tween.k1) - Math.log(tween.k0)) * e);
+    const cx = tween.c0[0] + (tween.c1[0] - tween.c0[0]) * e, cy = tween.c0[1] + (tween.c1[1] - tween.c0[1]) * e;
+    Object.assign(cam, { k, tk: k, x: cw - cx * k, tx: cw - cx * k, y: H / 2 - cy * k, ty: H / 2 - cy * k });
+    if (p >= 1) tween = null;
+  }
+  // 松手后的滑行：速度按指数衰减
+  if (glide) {
+    cam.x = cam.tx = cam.x + glide.vx * dt * 1000; cam.y = cam.ty = cam.y + glide.vy * dt * 1000;
+    const f = Math.exp(-dt * 3.2); glide.vx *= f; glide.vy *= f;
+    if (Math.hypot(glide.vx, glide.vy) < .01) glide = null;
+  }
+  const ck = 1 - Math.exp(-dt * 11);
+  cam.k += (cam.tk - cam.k) * ck; cam.x += (cam.tx - cam.x) * ck; cam.y += (cam.ty - cam.y) * ck;
+  // 磁吸透镜：光标附近最近的那张图被吸到透镜中心，放到最大
+  near = nearest(ptr.x, ptr.y);
+  let lx = ptr.x, ly = ptr.y;
+  if (near) { const m = .75 * (1 - near.d / near.range); lx += (near.bx - ptr.x) * m; ly += (near.by - ptr.y) * m; }
+  const pk = REDUCED ? 1 : 1 - Math.exp(-dt * 14);
+  ptr.sx += (lx - ptr.sx) * pk; ptr.sy += (ly - ptr.sy) * pk;
+  st.fish += ((ptr.inside && !drag ? 1 : 0) - st.fish) * (REDUCED ? 1 : 1 - Math.exp(-dt * 7));
+  ptr.wake += (Math.min(1, ptr.speed / 2.2) - ptr.wake) * (1 - Math.exp(-dt * 6));
+  ptr.speed *= Math.exp(-dt * 5);
+
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
+  const k = cam.k, ox = cam.x, oy = cam.y;
+  const enterFront = REDUCED ? 1e9 : (now - st.enterT) * .9;
+  const rFront = st.rippleT >= 0 ? (now - st.rippleT) * .95 : -1;
+  const rFade = rFront >= 0 ? Math.max(0, 1 - rFront / 1500) : 0;
+
+  // 点阵海面：按亮度分桶，每桶一次填充
+  for (const b of buckets) b.length = 0;
+  const step = k < .22 ? 2 : 1;
+  const i0 = Math.floor(-ox / k / G) - 1, i1 = Math.ceil((W - ox) / k / G) + 1;
+  const j0 = Math.floor(-oy / k / G) - 1, j1 = Math.ceil((H - oy) / k / G) + 1;
+  const dotR = clamp(1.1 * Math.sqrt(k / .5), .65, 1.7);
+  for (let i = i0 - (i0 % step); i <= i1; i += step) for (let j = j0 - (j0 % step); j <= j1; j += step) {
+    if (covered.has(`${i},${j}`)) continue;
+    const wx = i * G, wy = j * G, bx = wx * k + ox, by = wy * k + oy;
+    const dc = Math.hypot(wx, wy) * k;
+    if (dc > enterFront) continue;
+    const f = wave(wx, wy, T) * amb;
+    const [sx, sy, mag] = fish(bx, by);
+    let band = 0;
+    if (rFront >= 0) { const d = Math.hypot(bx - st.rippleAt.x, by - st.rippleAt.y); band = Math.exp(-Math.pow((d - rFront) / 34, 2)) * rFade; }
+    const wake = st.fish > .01 ? ptr.wake * Math.max(0, 1 - Math.hypot(bx - ptr.sx, by - ptr.sy) / (FR * fishR)) : 0;
+    const edge = clamp((enterFront - dc) / 160, 0, 1);
+    const v = clamp((.2 + f * .11 + band * .55 + wake * .35 + (mag - 1) * .05) * edge, 0, .999);
+    buckets[Math.floor(v * GRAYS)].push(sx, sy, dotR * Math.sqrt(mag) * (1 + f * .42 + band * .9));
+  }
+  for (let b = 0; b < GRAYS; b++) {
+    const arr = buckets[b]; if (!arr.length) continue;
+    const g = Math.round(255 * (b + .5) / GRAYS);
+    ctx.fillStyle = `rgb(${g},${g},${g})`; ctx.beginPath();
+    for (let n = 0; n < arr.length; n += 3) { ctx.moveTo(arr[n] + arr[n + 2], arr[n + 1]); ctx.arc(arr[n], arr[n + 1], arr[n + 2], 0, Math.PI * 2); }
+    ctx.fill();
+  }
+
+  // 还没走过的线索：海岸线外一粒橙色的光
+  st.leadRects = [];
+  for (const L of leadDots) {
+    if (Math.hypot(L.x, L.y) * k > enterFront) continue;
+    const [sx, sy, mag] = fish(L.x * k + ox, L.y * k + oy);
+    const open = L.lead.status === "open";
+    ctx.globalAlpha = open ? (REDUCED ? 1 : .55 + .45 * Math.sin(T * 3.9 + L.x)) : .6;
+    ctx.fillStyle = open ? "#f26522" : "#666";
+    ctx.beginPath(); ctx.arc(sx, sy, 2.4 * Math.pow(mag, .6), 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+    st.leadRects.push({ L, sx, sy });
+  }
+
+  // 截图
+  const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * 9);
+  for (const s of screens) {
+    const bx = s.cx * k + ox, by = s.cy * k + oy;
+    if (s.cd * k > enterFront) { s.rect = null; continue; }
+    if (!s.bornAt) s.bornAt = now;
+    const age = REDUCED ? 1 : clamp((now - s.bornAt) / 520, 0, 1);
+    const f = wave(s.cx, s.cy, T) * amb;
+    const [sx, sy, mag] = fish(bx, by);
+    let band = 0, reached = true;
+    if (rFront >= 0) { const d = Math.hypot(bx - st.rippleAt.x, by - st.rippleAt.y); band = Math.exp(-Math.pow((d - rFront) / 40, 2)) * rFade; reached = REDUCED || rFront > d; }
+    let tl = 0, td = 0;
+    if (st.focus) {
+      if (s === st.focus) tl = 1;
+      else if (st.relMap.has(s)) tl = reached ? 1 : 0;
+      else td = reached ? 1 : 0;
+    } else if (hl) { tl = hl.has(s.id) ? 1 : 0; td = 1 - tl; }
+    s.lit += (tl - s.lit) * lk; s.dim += (td - s.dim) * lk;
+    const sc = mag * (1 + f * .02 + band * .22 + s.lit * .12) * (.55 + .45 * backOut(age));
+    const w = TW * k * sc, h = TH * k * sc;
+    s.rect = { x: sx - w / 2, y: sy - h / 2, w, h };
+    draws.push({ s, sx, sy, w, h, alpha: (1 - s.dim * .8) * Math.min(1, age * 2.2), z: sc + s.lit });
+  }
+  draws.sort((a, b) => a.z - b.z);
+  ctx.textAlign = "center";
+  for (const d of draws) {
+    const { s, sx, sy, w, h } = d, r = Math.min(8, Math.max(1.5, w * .1));
+    ctx.globalAlpha = d.alpha;
+    if (s.img.complete && s.img.naturalWidth) {
+      ctx.save(); ctx.beginPath(); ctx.roundRect(sx - w / 2, sy - h / 2, w, h, r); ctx.clip();
+      ctx.drawImage(s.img, sx - w / 2, sy - h / 2, w, h); ctx.restore();
+    } else { ctx.fillStyle = "#1a1a1a"; ctx.beginPath(); ctx.roundRect(sx - w / 2, sy - h / 2, w, h, r); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    // 焦点：一圈细框；被关联的图：头顶一粒白点，够大时下方再加一枚机器标签
+    if (s.lit > .03) {
+      if (s === st.focus) {
+        ctx.strokeStyle = `rgba(255,255,255,${.85 * s.lit})`; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.roundRect(sx - w / 2 - 2.5, sy - h / 2 - 2.5, w + 5, h + 5, r + 2.5); ctx.stroke();
+      } else {
+        ctx.globalAlpha = s.lit; ctx.fillStyle = "#fff";
+        ctx.beginPath(); ctx.arc(sx, sy - h / 2 - 7, 1.8, 0, Math.PI * 2); ctx.fill();
+        const rel = st.relMap.get(s);
+        if (rel && w > 40) { ctx.fillStyle = "#777"; ctx.font = '700 8.5px "Space Mono", monospace'; ctx.fillText(rel.tag.split("").join(" "), sx, sy + h / 2 + 14); }
+        ctx.globalAlpha = 1;
+      }
+    }
+    if (st.pinned && s === st.focus) brackets(sx, sy, w, h);
+  }
+  const deep = clamp((cam.k / fitTarget().k - 1) / 1.5, 0, 1);
+  if (deep > .01 && vignette) { ctx.globalAlpha = deep; ctx.fillStyle = vignette; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  hoverTick(now);
+  drawHud();
+  syncDepth();
+  requestAnimationFrame(frame);
+}
+function brackets(x, y, w, h) {
+  const o = 9, l = Math.min(14, w * .3);
+  ctx.strokeStyle = "#fff"; ctx.lineWidth = 1.5; ctx.beginPath();
+  for (const [cx, cy, dx, dy] of [[x - w / 2 - o, y - h / 2 - o, 1, 1], [x + w / 2 + o, y - h / 2 - o, -1, 1], [x - w / 2 - o, y + h / 2 + o, 1, -1], [x + w / 2 + o, y + h / 2 + o, -1, -1]]) {
+    ctx.moveTo(cx, cy + dy * l); ctx.lineTo(cx, cy); ctx.lineTo(cx + dx * l, cy);
+  }
+  ctx.stroke();
+}
+
+// ---------- 悬停：停留才唤醒，离开才平息 ----------
+let hoverTile = null, hoverSince = 0, emptySince = 0, near = null;
+// 按未变形的位置找离光标最近的图，范围约一个格子
+function nearest(x, y) {
+  if (!ptr.inside || drag) return null;
+  const k = cam.k, range = Math.max(SX, SY) * k * .62;
+  let best = null;
+  for (const s of screens) {
+    if (!s.rect) continue;
+    const bx = s.cx * k + cam.x, by = s.cy * k + cam.y, d = Math.hypot((bx - x) * 1.4, by - y);
+    if (d < range && (!best || d < best.d)) best = { s, bx, by, d, range };
+  }
+  return best;
+}
+function hit(x, y) {
+  let best = null;
+  for (const s of screens) { const r = s.rect; if (r && x >= r.x - 2 && x <= r.x + r.w + 2 && y >= r.y - 2 && y <= r.y + r.h + 2 && (!best || r.w > best.rect.w)) best = s; }
+  return best;
+}
+function hoverTick(now) {
+  if (!ptr.inside || drag) { hoverTile = null; st.hoverLead = null; return; }
+  const t = near ? near.s : null;
+  if (t !== hoverTile) { hoverTile = t; hoverSince = now; }
+  emptySince = t ? 0 : emptySince || now;
+  st.hoverLead = t ? null : st.leadRects.find(r => Math.hypot(r.sx - ptr.x, r.sy - ptr.y) < 12) || null;
+  if (st.pinned || st.highlight) return;
+  if (t && t !== st.focus && now - hoverSince > (st.focus ? 180 : 120) && ptr.speed < .9) setFocus(t);
+  if (!t && st.focus && now - emptySince > 340) setFocus(null);
+}
+function setFocus(s) {
+  st.focus = s;
+  st.related = s ? relatedOf(s) : [];
+  st.relMap = new Map(st.related.map(o => [o.s, o]));
+  if (s && s.rect) { st.rippleT = performance.now(); st.rippleAt = { x: s.rect.x + s.rect.w / 2, y: s.rect.y + s.rect.h / 2 }; }
+  else st.rippleT = -1;
+}
+
+// ---------- HUD：光标下是什么 ----------
+const hudMeta = document.getElementById("hud-meta"), hudLine = document.getElementById("hud-line");
+let hudKey = "";
+const segs = (n, on) => `<span class="segs">${Array.from({ length: n }, (_, i) => `<i class="${i < on ? "on" : ""}"></i>`).join("")}</span>`;
+function drawHud() {
+  const s = hoverTile || st.focus, L = st.hoverLead;
+  const key = s ? `s${s.id}${st.focus === s}` : L ? `l${L.lead.id}` : "idle";
+  if (key === hudKey) return; hudKey = key;
+  if (s) {
+    const n = st.focus === s ? st.related.length : null;
+    hudMeta.innerHTML = `<span style="color:var(--text-primary)">Frame ${pad(s.id)}</span><span>Depth</span>${segs(4, depth(s))}${n != null ? `<span>${pad(n, 2)} related</span>` : ""}`;
+    hudLine.textContent = `${s.app} — ${s.screen_type} · ${s.patterns.map(p => patById.get(p)?.name || p).join(" / ")}`;
+  } else if (L) {
+    hudMeta.innerHTML = `<span style="color:var(--utility-orange)">${L.lead.status === "open" ? "Open lead" : "Empty lead"}</span><span>From frame ${pad(L.lead.from)}</span>`;
+    hudLine.textContent = L.lead.text + (L.lead.reason ? ` — ${L.lead.reason}` : "");
+  } else {
+    hudMeta.innerHTML = `<span>Drag to drift</span><span class="dim">/</span><span>Scroll to dive</span><span class="dim">/</span><span>Hold to relate</span><span class="dim">/</span><span>Click to pin</span>`;
+    hudLine.textContent = "";
+  }
+}
+
+// ---------- 指针 ----------
+let drag = null, moved = false;
 const marquee = document.getElementById("marquee");
-stage.addEventListener("pointerdown", e => {
-  if (e.button !== 0) return;
-  moved = false;
-  drag = { sx: e.clientX, sy: e.clientY, x: cam.x, y: cam.y, box: e.shiftKey, id: e.pointerId };
-  if (!e.target.closest(".node, .sector")) stage.setPointerCapture(e.pointerId);
-});
-stage.addEventListener("pointermove", e => {
-  if (drag) {
-    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-    if (!moved && Math.hypot(dx, dy) > 4) { moved = true; drag.box = drag.box || e.shiftKey; hideHint(); if (!drag.box) stage.classList.add("panning"); clearTimeout(dwellT); }
-    if (!moved) return;
-    if (drag.box) {
-      Object.assign(marquee.style, { display: "block", left: Math.min(e.clientX, drag.sx) + "px", top: Math.min(e.clientY, drag.sy) + "px", width: Math.abs(dx) + "px", height: Math.abs(dy) + "px" });
-    } else {
-      cam.x = cam.tx = drag.x + dx; cam.y = cam.ty = drag.y + dy; savedCam = null;
-    }
-    return;
-  }
-  // 指针离开焦点和簇成员一段距离后，才松开簇团
-  if (st.focus && !st.pinned && !e.target.closest(".node")) {
-    const near = [st.focus, ...st.cluster.map(o => o.s)].some(s => {
-      const [sx, sy] = toScreen(s.x, s.y), hw = NODE_W * cam.k * s.s / 2 + 40, hh = NODE_H * cam.k * s.s / 2 + 40;
-      return Math.abs(e.clientX - sx) < hw && Math.abs(e.clientY - sy) < hh;
-    });
-    clearTimeout(leaveT);
-    if (!near) leaveT = setTimeout(clearFocus, 260);
-  }
-});
-stage.addEventListener("pointerup", e => {
+cv.addEventListener("pointermove", e => {
+  const t = performance.now(), dt = Math.max(1, t - ptr.lastT);
+  if (ptr.inside) ptr.speed = Math.max(ptr.speed * .6, Math.hypot(e.clientX - ptr.x, e.clientY - ptr.y) / dt);
+  ptr.lastT = t; ptr.x = e.clientX; ptr.y = e.clientY;
+  if (!ptr.inside) { ptr.sx = ptr.x; ptr.sy = ptr.y; ptr.inside = true; }
   if (!drag) return;
-  stage.classList.remove("panning");
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (!moved && Math.hypot(dx, dy) > 4) { moved = true; drag.box = drag.box || e.shiftKey; if (!drag.box) cv.classList.add("panning"); }
+  if (!moved) return;
+  if (drag.box) Object.assign(marquee.style, { display: "block", left: Math.min(e.clientX, drag.sx) + "px", top: Math.min(e.clientY, drag.sy) + "px", width: Math.abs(dx) + "px", height: Math.abs(dy) + "px" });
+  else {
+    const nx = drag.x + dx, ny = drag.y + dy, t = performance.now(), dtm = Math.max(1, t - (drag.t || t - 16));
+    drag.vx = (nx - cam.x) / dtm; drag.vy = (ny - cam.y) / dtm; drag.t = t;
+    cam.x = cam.tx = nx; cam.y = cam.ty = ny;
+  }
+});
+cv.addEventListener("pointerdown", e => {
+  if (e.button !== 0) return;
+  stopIntro(); glide = null;
+  moved = false; drag = { sx: e.clientX, sy: e.clientY, x: cam.x, y: cam.y, box: e.shiftKey };
+  if (e.isTrusted) cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener("pointerup", e => {
+  if (!drag) return;
+  cv.classList.remove("panning");
   if (drag.box && moved) {
-    const [x0, y0] = toWorld(Math.min(e.clientX, drag.sx), Math.min(e.clientY, drag.sy));
-    const [x1, y1] = toWorld(Math.max(e.clientX, drag.sx), Math.max(e.clientY, drag.sy));
-    const sel = screens.filter(s => s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1);
+    const x0 = Math.min(e.clientX, drag.sx), x1 = Math.max(e.clientX, drag.sx), y0 = Math.min(e.clientY, drag.sy), y1 = Math.max(e.clientY, drag.sy);
+    const inBox = s => { const r = s.rect, cx = r && r.x + r.w / 2, cy = r && r.y + r.h / 2; return r && cx > x0 && cx < x1 && cy > y0 && cy < y1; };
+    const sel = screens.filter(inBox);
     marquee.style.display = "none";
-    if (sel.length) {
-      clearFocus(); st.pinned = false;
-      st.selection = new Set(sel.map(s => s.id)); setHighlight(st.selection);
-      openPanel("selection", sel);
-    }
-  } else if (!moved && !e.target.closest(".node, .sector")) {
-    reset();
+    if (sel.length) { unpin(); st.highlight = new Set(sel.map(s => s.id)); openPanel("selection", sel); }
+  } else if (moved && !drag.box && !REDUCED && performance.now() - drag.t < 80) {
+    glide = { vx: drag.vx, vy: drag.vy };
+  } else if (!moved) {
+    const t = hit(e.clientX, e.clientY) || (near && near.s);
+    if (t) pin(t); else reset();
   }
   drag = null;
 });
-stage.addEventListener("pointerleave", () => { if (!st.pinned && !drag) { clearTimeout(leaveT); leaveT = setTimeout(clearFocus, 260); } });
-stage.addEventListener("wheel", e => {
-  e.preventDefault(); hideHint();
-  const mouseWheel = e.deltaMode !== 0 || (e.deltaX === 0 && Math.abs(e.deltaY) >= 40 && Number.isInteger(e.deltaY));
-  if (e.ctrlKey || e.metaKey || mouseWheel) zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * (e.ctrlKey ? .012 : .0018)), !mouseWheel);
-  else { cam.x = cam.tx = cam.x - e.deltaX; cam.y = cam.ty = cam.y - e.deltaY; }
-  savedCam = null;
+cv.addEventListener("pointerleave", () => { ptr.inside = false; if (!st.pinned && !st.highlight) setFocus(null); });
+// 滚轮只控制深度：拖拽在海里移动，滚轮下潜或上浮
+cv.addEventListener("wheel", e => {
+  e.preventDefault(); stopIntro(); glide = null;
+  const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+  // 向下滚动 = 潜得更深；触控板捏合保留张开放大的习惯
+  zoomAt(e.clientX, e.clientY, e.ctrlKey ? Math.exp(-dy * .012) : Math.exp(dy * .0022), false);
 }, { passive: false });
-
 addEventListener("keydown", e => {
-  if (e.target.closest("input, textarea")) return;
   if (e.key === "Escape") reset();
-  else if (e.key === "f" || e.key === "F") fit();
-  else if (e.key === "i" || e.key === "I") st.panel === "overview" ? closePanel() : openOverview();
+  else if (e.key === "f" || e.key === "F") { stopIntro(); surface(); }
+  else if (e.key === "d" || e.key === "D") { stopIntro(); diveAt(0, 0); }
+  else if (e.key === "i" || e.key === "I") toggleOverview();
 });
-document.getElementById("t-fit").onclick = () => fit();
-document.getElementById("z-pct").onclick = () => fit();
-document.getElementById("z-in").onclick = () => zoomAt(availW() / 2, H / 2, 1.25);
-document.getElementById("z-out").onclick = () => zoomAt(availW() / 2, H / 2, .8);
-document.getElementById("t-insight").onclick = () => st.panel === "overview" ? closePanel() : openOverview();
-document.getElementById("t-replay").onclick = () => { reset(); grow(); };
-document.getElementById("panel-close").onclick = () => reset();
-let hintGone = false;
-function hideHint() { if (hintGone) return; hintGone = true; document.getElementById("hint").style.opacity = 0; }
+const gauge = document.getElementById("gauge");
+gauge.innerHTML = Array.from({ length: 14 }, () => "<i></i>").join("") + "<span>Depth</span>";
+const ticks = [...gauge.querySelectorAll("i")];
+let gaugeOn = -1;
+const depthBtn = document.getElementById("t-depth");
+let depthKey = "";
+function syncDepth() {
+  const fk = fitTarget().k, lv = Math.round(clamp(Math.log(cam.k / (fk * .8)) / Math.log(3 / (fk * .8)), 0, 1) * ticks.length);
+  if (lv !== gaugeOn) { gaugeOn = lv; ticks.forEach((t, i) => t.classList.toggle("on", ticks.length - 1 - i < lv)); }
+  const deep = isDeep(); if (depthKey === String(deep)) return; depthKey = String(deep);
+  depthBtn.innerHTML = deep ? `${glyph("surface")}<span>Surface</span>` : `${glyph("dive")}<span>Dive</span>`;
+}
+depthBtn.onclick = () => { stopIntro(); isDeep() ? surface() : diveAt(0, 0); };
+document.getElementById("t-insight").onclick = toggleOverview;
+document.getElementById("t-replay").onclick = () => { reset(); stopIntro(); fit(true); enter(); };
+cv.addEventListener("dblclick", e => { if (isDeep() || hit(e.clientX, e.clientY)) return; stopIntro(); diveAt((e.clientX - cam.x) / cam.k, (e.clientY - cam.y) / cam.k); });
+
+function pin(s) { st.highlight = null; setFocus(s); st.pinned = true; openPanel("screen", s); }
+function unpin() { st.pinned = false; setFocus(null); }
+function reset() { unpin(); st.highlight = null; closePanel(); }
+function toggleOverview() { if (st.panel === "overview") reset(); else { unpin(); st.highlight = null; openPanel("overview"); } }
+function openPattern(pid) { unpin(); st.highlight = new Set(screens.filter(s => s.patterns.includes(pid)).map(s => s.id)); openPanel("pattern", pid); }
+
+// ---------- 模式索引：右下角的分段条 ----------
+const indexEl = document.getElementById("index");
+for (const p of DATA.patterns) {
+  const ids = new Set(screens.filter(s => s.patterns.includes(p.id)).map(s => s.id)), n = Math.min(24, ids.size);
+  const b = document.createElement("button");
+  b.className = "idx"; b.dataset.pid = p.id;
+  b.innerHTML = `<span>${esc(p.name)}</span>${segs(n, n)}`;
+  b.addEventListener("pointerenter", () => { if (!st.panel) { setFocus(null); st.highlight = ids; } });
+  b.addEventListener("pointerleave", () => { if (!st.panel) st.highlight = null; });
+  b.addEventListener("click", () => openPattern(p.id));
+  indexEl.appendChild(b);
+}
+const syncIndex = () => indexEl.querySelectorAll(".idx").forEach(b => b.classList.toggle("is-on", st.panel === "pattern" && st.panelArg === b.dataset.pid));
 
 // ---------- 面板 ----------
 const panel = document.getElementById("panel"), body = document.getElementById("panel-body");
-let panelAnim = null, panelKey = null;
+let lastAvail = null;
+function recenter() { const a = availW(); if (lastAvail != null) cam.tx += (a - lastAvail) / 2; lastAvail = a; }
 function openPanel(mode, arg) {
-  const key = mode + ":" + (arg && arg.id != null ? arg.id : Array.isArray(arg) ? arg.length + arg[0].id : arg || "");
-  const html = render[mode](arg);
+  const was = st.panel;
+  st.panel = mode; st.panelArg = arg;
   document.getElementById("t-insight").setAttribute("aria-pressed", mode === "overview");
-  if (st.panel) {
-    if (key === panelKey) return;
-    panelKey = key; st.panel = mode;
-    swapContent(html); return;
+  syncIndex();
+  const html = render[mode](arg);
+  if (!was) {
+    panel.style.display = "block"; document.body.classList.add("panel-open"); recenter();
+    body.innerHTML = html; bind(); panel.scrollTop = 0; slam();
+  } else {
+    const out = body.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(2px)" }], { duration: 110, easing: "ease-out", fill: "forwards" });
+    out.onfinish = () => { body.innerHTML = html; bind(); panel.scrollTop = 0; out.cancel(); slam(); };
   }
-  st.panel = mode; panelKey = key;
-  body.innerHTML = html; bindPanel(); body.scrollTop = 0;
-  panel.style.visibility = "visible";
-  document.body.classList.add("panel-open");
-  panelAnim?.cancel();
-  panelAnim = panel.animate(
-    REDUCED ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateX(20px) scale(.985)" }, { opacity: 1, transform: "none" }],
-    { duration: 340, easing: "cubic-bezier(.32,.72,0,1)", fill: "both" });
-  stagger();
-  recenter();
 }
 function closePanel() {
   if (!st.panel) return;
-  st.panel = null; panelKey = null;
-  document.body.classList.remove("panel-open");
+  st.panel = null; st.panelArg = null; syncIndex();
   document.getElementById("t-insight").setAttribute("aria-pressed", "false");
-  panelAnim?.cancel();
-  panelAnim = panel.animate(
-    REDUCED ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(12px) scale(.99)" }],
-    { duration: 200, easing: "cubic-bezier(.23,1,.32,1)", fill: "both" });
-  panelAnim.onfinish = () => { if (!st.panel) panel.style.visibility = "hidden"; };
-  recenter();
+  document.body.classList.remove("panel-open"); recenter();
+  const a = panel.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(14px)" }], { duration: 200, easing: "cubic-bezier(.4,0,.2,1)" });
+  a.onfinish = () => { if (!st.panel) panel.style.display = "none"; };
 }
-// 面板开合时，把画布中心平移到剩余区域的中心
-let lastAvail = null;
-function recenter() {
-  const a = availW(); if (lastAvail == null) { lastAvail = a; return; }
-  cam.tx += (a - lastAvail) / 2; lastAvail = a;
-}
-function swapContent(html) {
-  const out = body.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(2px)" }], { duration: 110, easing: "ease-out", fill: "forwards" });
-  out.onfinish = () => { body.innerHTML = html; bindPanel(); body.scrollTop = 0; out.cancel(); stagger(); };
-}
-function stagger() {
-  if (REDUCED) return;
+// 卡片依次砸下再稳住
+function slam() {
   [...body.children].forEach((el, i) => el.animate(
-    [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }],
-    { duration: 280, delay: Math.min(i, 10) * 24, easing: "cubic-bezier(.23,1,.32,1)", fill: "backwards" }));
+    REDUCED ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateY(22px) scale(.93)" }, { opacity: 1, transform: "none" }],
+    { duration: 520, delay: i * 55, easing: "cubic-bezier(.34,1.56,.64,1)", fill: "backwards" }));
 }
-function bindPanel() {
-  body.querySelectorAll("[data-goto]").forEach(el => {
-    const s = byId.get(+el.dataset.goto);
-    el.addEventListener("click", () => { pin(s); });
-    el.addEventListener("pointerenter", () => { st.peek = s; });
-    el.addEventListener("pointerleave", () => { if (st.peek === s) st.peek = null; });
+function bind() {
+  body.querySelectorAll(".card").forEach(c => {
+    const sh = document.createElement("span"); sh.className = "shine"; c.prepend(sh);
+    sh.addEventListener("animationend", () => sh.classList.remove("play"));
+    c.addEventListener("mouseenter", () => { if (!REDUCED) sh.classList.add("play"); });
   });
+  body.querySelectorAll("[data-goto]").forEach(el => el.addEventListener("click", () => pin(byId.get(+el.dataset.goto))));
   body.querySelectorAll("[data-pattern]").forEach(el => el.addEventListener("click", () => openPattern(el.dataset.pattern)));
+  body.querySelectorAll("[data-close]").forEach(el => el.addEventListener("click", reset));
   body.querySelectorAll("[data-insight]").forEach(el => {
-    const ins = DATA.insights.find(i => i.id === el.dataset.insight), set = new Set(ins.evidence);
-    el.addEventListener("pointerenter", () => setHighlight(set));
-    el.addEventListener("pointerleave", () => { if (st.panel === "overview") setHighlight(null); });
-    el.addEventListener("click", () => { setHighlight(set); fitTo(ins.evidence.map(id => byId.get(id))); });
+    const set = new Set(DATA.insights.find(i => i.id === el.dataset.insight).evidence);
+    el.addEventListener("pointerenter", () => { st.highlight = set; });
+    el.addEventListener("pointerleave", () => { if (st.panel === "overview") st.highlight = null; });
   });
 }
-function fitTo(list) {
-  const xs = list.map(s => s.bx), ys = list.map(s => s.by);
-  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
-  const span = Math.max(Math.max(...xs) - Math.min(...xs) + 160, (Math.max(...ys) - Math.min(...ys) + 240) * availW() / H);
-  flyTo(cx, cy, Math.max(.4, Math.min(1.8, availW() / span)));
-}
-const ringTag = r => `${r} ${RING_NAME[r]}`;
-const thumbBtn = (s, tag, clay) => `<button class="thumb" data-goto="${s.id}" title="${esc(s.app)} · ${esc(s.screen_type)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">${tag ? `<span class="tag${clay ? " is-clay" : ""}">${esc(tag)}</span>` : ""}</button>`;
-const pid = id => "#" + String(id).padStart(3, "0");
-
+const closeBtn = `<button class="meta" id="panel-close" data-close>Esc ${glyph("close")}</button>`;
+const thumb = (s, tag) => `<button class="thumb" data-goto="${s.id}" title="${esc(s.app)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">${tag ? `<span class="tag">${tag}</span>` : ""}</button>`;
+const bar = (label, n, total) => `<div class="bar"><span>${esc(label)}</span><em>${pad(n, 2)}</em><span class="segs">${Array.from({ length: 12 }, (_, i) => `<i class="${i < Math.round(n / Math.max(1, total) * 12) ? "on" : ""}"></i>`).join("")}</span></div>`;
 const render = {
   screen(s) {
-    const chain = ancestors(s);
-    const rels = (echoes.get(s.id) || []).map(e => `<p class="relnote"><b>${e.kind === "contrast" ? "对照" : "呼应"} ${pid(e.other)} ${esc(byId.get(e.other).app)}</b> · ${esc(e.note)}</p>`).join("");
+    const tr = trail(s), ech = echoes.get(s.id) || [];
     return `
-      <div class="hero"><img class="bg" src="${esc(s.thumb)}" alt=""><img class="main" src="${esc(s.image || s.thumb)}" alt="${esc(s.app)}"></div>
-      <div><div class="eyebrow">${pid(s.id)} · ${ringTag(s.ring)} · ${esc(s.screen_type)}</div><h2 class="p-title">${esc(s.app)}</h2></div>
-      <p class="voice">${esc(s.insight)}</p>
-      <div class="note"><div class="eyebrow">Agent 笔记 · 第 ${s.round ?? "?"} 轮</div><p>${esc(s.why_saved)}</p></div>
-      <div class="chips">${s.patterns.map(p => `<button class="chip" data-pattern="${esc(p)}">${esc(patById.get(p)?.name || p)}</button>`).join("")}</div>
-      <div class="sec"><span>它是怎么被找到的</span><span>${chain.length} 步</span></div>
-      <ol class="thread">${chain.map((c, i) => `<li data-goto="${c.id}" class="${c === s ? "is-self" : ""}"><img src="${esc(c.thumb)}" alt=""><div class="t"><b>${esc(c.app)}</b><span>${esc(c.lead ? c.lead.text : "起点")}</span>${c.lead && c.lead.reason && i > 0 ? `<em>${esc(c.lead.reason)}</em>` : ""}</div></li>`).join("")}</ol>
-      <div class="sec"><span>这一簇</span><span>${st.cluster.length} 张</span></div>
-      <div class="thumbs">${st.cluster.map(o => thumbBtn(o.s, o.rel, o.clay)).join("")}</div>
-      ${rels}
-      ${s.source_url ? `<a class="source" href="${esc(s.source_url)}" target="_blank" rel="noopener">在 Mobbin 中打开<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>` : ""}`;
+      <section class="card"><div class="row meta"><span><i class="led"></i>Frame ${pad(s.id)}</span>${closeBtn}</div>
+        <div class="frame"><img src="${esc(s.image || s.thumb)}" alt="${esc(s.app)}"></div></section>
+      <section class="card"><div class="title">${esc(s.app)}</div><div class="meta" style="margin-top:6px">${esc(s.screen_type)}</div>
+        <div class="chips">${s.patterns.map(p => `<button class="chip" data-pattern="${esc(p)}">${esc(patById.get(p)?.name || p)}</button>`).join("")}</div></section>
+      <div class="stats">
+        <section class="card"><div class="meta">Depth</div><div class="big-segs">${[1, 2, 3, 4].map(i => `<i class="${i <= depth(s) ? "on" : ""}"></i>`).join("")}</div></section>
+        <section class="card"><div class="meta">Related</div><div class="dot-num">${pad(st.related.length, 2)}</div></section>
+      </div>
+      <section class="card"><div class="meta">Insight</div><p class="body-text">${esc(s.insight)}</p>
+        <div class="note"><div class="meta dim">Agent note / round ${pad(s.round ?? 0, 2)}</div><p>${esc(s.why_saved)}</p></div></section>
+      <section class="card"><div class="row meta"><span>Trail</span><span class="dim">${pad(tr.length, 2)} steps</span></div>
+        <ol class="trail">${tr.map((c, i) => `<li data-goto="${c.id}" class="${c === s ? "self" : ""}"><span class="n">${pad(i + 1, 2)}</span><img src="${esc(c.thumb)}" alt=""><div><b>${esc(c.app)}</b><span>${esc(c.lead ? c.lead.text : "起点")}</span>${c.lead && c.lead.reason && i > 0 ? `<em>${esc(c.lead.reason)}</em>` : ""}</div></li>`).join("")}</ol></section>
+      <section class="card"><div class="row meta"><span>Related</span><span class="dim">${pad(st.related.length, 2)}</span></div>
+        <div class="thumbs">${st.related.map(o => thumb(o.s, o.tag)).join("")}</div>
+        ${ech.map(e => `<p class="echo"><b>${e.kind === "contrast" ? "CONTRAST" : "ECHO"} ${pad(e.other)}</b>${esc(e.note)}</p>`).join("")}</section>
+      ${s.source_url ? `<a class="card source" href="${esc(s.source_url)}" target="_blank" rel="noopener"><span class="meta">Open in Mobbin</span>${glyph("out")}</a>` : ""}`;
   },
   selection(list) {
-    const rc = RINGS.map(r => [r, list.filter(s => s.ring === r).length]);
     const pc = new Map(); list.forEach(s => s.patterns.forEach(p => pc.set(p, (pc.get(p) || 0) + 1)));
-    const pats = [...pc].sort((a, b) => b[1] - a[1]).slice(0, 5);
-    const ids = new Set(list.map(s => s.id));
-    const ins = (DATA.insights || []).filter(i => i.evidence.some(x => ids.has(x)));
+    const ids = new Set(list.map(s => s.id)), ins = (DATA.insights || []).filter(i => i.evidence.some(x => ids.has(x)));
     return `
-      <div><div class="eyebrow">框选</div><h2 class="p-title">${list.length} 张图</h2></div>
-      <div class="bars">${rc.map(([r, n]) => `<div class="bar"><span>${ringTag(r)}</span><i style="--w:${n / list.length * 100}%"></i><em>${n}</em></div>`).join("")}</div>
-      <div class="sec"><span>共有的模式</span></div>
-      <div class="bars">${pats.map(([p, n]) => `<div class="bar"><span>${esc(patById.get(p)?.name || p)}</span><i style="--w:${n / list.length * 100}%"></i><em>${n}</em></div>`).join("")}</div>
-      ${ins.length ? `<div class="sec"><span>涉及的洞察</span></div>${ins.map(i => `<p class="voice" style="font-size:15px">${esc(i.text)}</p>`).join("")}` : ""}
-      <div class="sec"><span>选中的图</span></div>
-      <div class="thumbs">${list.map(s => thumbBtn(s)).join("")}</div>`;
+      <section class="card"><div class="row meta"><span>Selection</span>${closeBtn}</div><div class="dot-num">${pad(list.length, 2)}</div><div class="meta" style="margin-top:8px">frames</div></section>
+      <section class="card"><div class="meta">Depth</div><div class="bars">${[1, 2, 3, 4].map(d => bar("Depth " + pad(d, 2), list.filter(s => depth(s) === d).length, list.length)).join("")}</div></section>
+      <section class="card"><div class="meta">Patterns</div><div class="bars">${[...pc].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([p, n]) => bar(patById.get(p)?.name || p, n, list.length)).join("")}</div></section>
+      ${ins.length ? `<section class="card"><div class="meta">Insights</div>${ins.map(i => `<div class="list-item"><p class="body-text">${esc(i.text)}</p></div>`).join("")}</section>` : ""}
+      <section class="card"><div class="meta">Frames</div><div class="thumbs">${list.map(s => thumb(s)).join("")}</div></section>`;
   },
   pattern(id) {
     const p = patById.get(id), m = screens.filter(s => s.patterns.includes(id));
-    const part = (t, v) => v ? `<div class="pat-part"><div class="eyebrow">${t}</div><p>${esc(v)}</p></div>` : "";
+    const part = (t, v) => v ? `<section class="card"><div class="meta">${t}</div><p class="body-text">${esc(v)}</p></section>` : "";
     return `
-      <div><div class="eyebrow">设计模式 · ${m.length} 张</div><h2 class="p-title">${esc(p.name)}</h2></div>
-      <p class="voice">${esc(p.summary)}</p>
-      ${part("共性", p.common)}${part("分叉", p.forks)}${part("例外", p.exceptions)}
-      <div class="bars">${RINGS.map(r => { const n = m.filter(s => s.ring === r).length; return `<div class="bar"><span>${ringTag(r)}</span><i style="--w:${n / Math.max(1, m.length) * 100}%"></i><em>${n}</em></div>`; }).join("")}</div>
-      <div class="sec"><span>成员</span></div>
-      <div class="thumbs">${m.map(s => thumbBtn(s)).join("")}</div>`;
+      <section class="card"><div class="row meta"><span>Pattern</span>${closeBtn}</div><div class="title">${esc(p.name)}</div><p class="sub-text" style="margin-top:8px">${esc(p.summary)}</p></section>
+      <div class="stats">
+        <section class="card"><div class="meta">Frames</div><div class="dot-num">${pad(m.length, 2)}</div></section>
+        <section class="card"><div class="meta">Avg depth</div><div class="dot-num">${(m.reduce((t, s) => t + depth(s), 0) / Math.max(1, m.length)).toFixed(1)}</div></section>
+      </div>
+      ${part("Common", p.common)}${part("Forks", p.forks)}${part("Exceptions", p.exceptions)}
+      <section class="card"><div class="meta">Members</div><div class="thumbs">${m.map(s => thumb(s)).join("")}</div></section>`;
   },
   overview() {
     const b = DATA.brief || {};
     return `
-      <div><div class="eyebrow">调研简报 · ${esc(b.date || "")}</div><h2 class="p-title">${esc(b.product || "调研")}</h2></div>
-      ${b.users ? `<p class="muted">${esc(b.users)}</p>` : ""}
-      ${(b.questions || []).length ? `<ol class="questions">${b.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ol>` : ""}
-      <div class="sec"><span>洞察</span><span>${(DATA.insights || []).length}</span></div>
-      ${(DATA.insights || []).map(i => `<button class="insight" data-insight="${esc(i.id)}"><p class="voice" style="margin:0">${esc(i.text)}</p><div class="ev">${i.evidence.slice(0, 6).map(id => `<img src="${esc(byId.get(id)?.thumb)}" alt="">`).join("")}<span>${i.evidence.length} 张证据</span></div></button>`).join("")}
-      ${(DATA.checkpoints || []).length ? `<div class="sec"><span>Agent 的思考轨迹</span></div><ol class="timeline">${DATA.checkpoints.map(c => `<li><span class="at">${c.at}%</span><div><p>${esc(c.note)}</p>${c.next ? `<p class="next">→ ${esc(c.next)}</p>` : ""}</div></li>`).join("")}</ol>` : ""}
-      ${(DATA.picks || []).length ? `<div class="sec"><span>值得深挖</span><span>${DATA.picks.length}</span></div><div class="thumbs">${DATA.picks.map(p => byId.get(p.id)).filter(Boolean).map(s => thumbBtn(s)).join("")}</div>` : ""}
-      ${(DATA.gaps || []).length ? `<div class="sec"><span>缺口</span></div><ul class="gaps">${DATA.gaps.map(g => `<li>${esc(g)}</li>`).join("")}</ul>` : ""}`;
+      <section class="card"><div class="row meta"><span>Brief / ${esc(b.date || "")}</span>${closeBtn}</div><div class="title">${esc(b.product || "Research")}</div>
+        ${b.users ? `<p class="sub-text" style="margin-top:8px">${esc(b.users)}</p>` : ""}
+        ${(b.questions || []).length ? `<ol class="qs">${b.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ol>` : ""}</section>
+      <section class="card"><div class="row meta"><span>Insights</span><span class="dim">${pad((DATA.insights || []).length, 2)}</span></div>
+        ${(DATA.insights || []).map(i => `<button class="list-item" data-insight="${esc(i.id)}"><p class="body-text">${esc(i.text)}</p><div class="meta dim">${pad(i.evidence.length, 2)} frames</div></button>`).join("")}</section>
+      ${(DATA.checkpoints || []).length ? `<section class="card"><div class="meta">Agent log</div>${DATA.checkpoints.map(c => `<div class="list-item"><div class="meta">${pad(c.at)}% / round ${pad(c.round, 2)}</div><p class="body-text" style="margin-top:6px">${esc(c.note)}</p>${c.next ? `<p class="sub-text" style="margin-top:4px">→ ${esc(c.next)}</p>` : ""}</div>`).join("")}</section>` : ""}
+      ${(DATA.picks || []).length ? `<section class="card"><div class="meta">Picks</div><div class="thumbs">${DATA.picks.map(p => byId.get(p.id)).filter(Boolean).map(s => thumb(s)).join("")}</div></section>` : ""}
+      ${(DATA.gaps || []).length ? `<section class="card"><div class="meta">Gaps</div>${DATA.gaps.map(g => `<div class="list-item"><p class="body-text">${esc(g)}</p></div>`).join("")}</section>` : ""}`;
   },
 };
 
-// ---------- 入场：按保存顺序，从父节点长出 ----------
-function grow() {
-  st.t0 = performance.now() + 250;
-  for (const s of screens) {
-    const p = s.parent != null ? byId.get(s.parent) : null;
-    s.x = p ? p.bx : s.bx * .2; s.y = p ? p.by : s.by * .2; s.vx = s.vy = 0; s.s = .4; s.o = 0;
-  }
-}
-const born = s => REDUCED ? true : performance.now() > st.t0 + (s.id - 1) * 14;
-
-// ---------- 帧循环：弹簧 ----------
-let last = performance.now();
-function frame(now) {
-  const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
-  // 镜头指数趋近
-  const ck = 1 - Math.exp(-dt * 11);
-  cam.k += (cam.tk - cam.k) * ck; cam.x += (cam.tx - cam.x) * ck; cam.y += (cam.ty - cam.y) * ck;
-  if (arrangeAfterFly) { arrangeAfterFly = false; arrangeCluster(); }
-
-  const f = st.focus, slots = new Map(st.cluster.map(o => [o.s, o]));
-  const hl = st.highlight, t = now / 1000;
-  for (const s of screens) {
-    let tx = s.bx, ty = s.by, ts = 1, to = 1;
-    if (!born(s)) { to = 0; ts = .4; const p = s.parent != null ? byId.get(s.parent) : null; tx = p ? p.x : s.x; ty = p ? p.y : s.y; }
-    else if (f) {
-      if (s === f) { tx = st.anchorShown.x; ty = st.anchorShown.y; ts = st.sF; }
-      else if (slots.has(s)) { const o = slots.get(s); tx = o.slot.x; ty = o.slot.y; ts = st.sM; }
-      else {
-        // 簇团外的节点：被焦点轻轻推开，并退到背景里
-        const dx = s.bx - st.anchorShown.x, dy = s.by - st.anchorShown.y, d = Math.hypot(dx, dy) || 1;
-        if (d < st.pushR) { const push = (st.pushR - d) * .42; tx += dx / d * push; ty += dy / d * push; }
-        ts = .86; to = .16;
-      }
-    } else {
-      if (hl) { to = hl.has(s.id) ? 1 : .18; ts = hl.has(s.id) ? 1.08 : .92; }
-      if (st.hover === s && !st.selection) ts *= 1.1;
-      if (st.peek === s) { ts = 1.6; to = 1; }
-      if (!REDUCED) { tx += Math.sin(t * Math.PI * 2 / s.per + s.phase) * 1.6; ty += Math.cos(t * Math.PI * 2 / (s.per * 1.3) + s.phase) * 1.6; }
-    }
-    if (f && st.peek === s) to = 1;
-    if (REDUCED) { s.x = tx; s.y = ty; s.s = ts; }
-    else {
-      const K = 210, D = 26;
-      s.vx += ((tx - s.x) * K - s.vx * D) * dt; s.x += s.vx * dt;
-      s.vy += ((ty - s.y) * K - s.vy * D) * dt; s.y += s.vy * dt;
-      s.vs += ((ts - s.s) * 260 - s.vs * 30) * dt; s.s += s.vs * dt;
-    }
-    s.o += (to - s.o) * (1 - Math.exp(-dt * 12));
-    const [sx, sy] = toScreen(s.x, s.y), sc = NODE_W * cam.k * s.s / EL_W;
-    const tr = `translate3d(${(sx - 120).toFixed(1)}px,${(sy - 260).toFixed(1)}px,0) scale(${sc.toFixed(4)})`;
-    if (tr !== s._t) { s.el.style.transform = tr; s._t = tr; }
-    const op = s.o.toFixed(2); if (op !== s._o) { s.el.style.opacity = op; s._o = op; }
-    const z = s === f ? "1000" : slots.has(s) ? "600" : st.peek === s ? "900" : String(Math.round(s.s * 100));
-    if (z !== s._z) { s.el.style.zIndex = z; s._z = z; s.el.classList.toggle("is-focus", s === f); }
-  }
-  if (f) {
-    const [sx, sy] = toScreen(f.x, f.y);
-    caption.style.transform = `translate3d(calc(${sx.toFixed(1)}px - 50%), ${(sy + NODE_H * cam.k * f.s / 2 + 14).toFixed(1)}px, 0)`;
-  }
-  drawLinks(now);
-  placeLabels();
-  document.getElementById("z-pct").textContent = Math.round(cam.k / fitTarget().k * 100) + "%";
-  requestAnimationFrame(frame);
+// ---------- 入场：一道从中心荡开的波 ----------
+function enter() {
+  st.enterT = performance.now(); for (const s of screens) s.bornAt = 0;
+  const wave = Math.hypot(W, H) / 2 / .9;
+  introT = setTimeout(() => diveAt(0, 0), Math.min(wave, seaR * fitTarget().k / .9 + 300) + 700);
 }
 
-function placeLabels() {
-  const dim = !!(st.focus || st.selection);
-  for (const { p, el } of sectorEls) {
-    const r = L.outer + 34 / Math.max(.6, cam.k) + 10, [sx, sy] = toScreen(Math.cos(p.ac) * r, Math.sin(p.ac) * r);
-    const ax = Math.cos(p.ac), ay = Math.sin(p.ac);
-    el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(${(-50 + ax * 50).toFixed(0)}%, ${(-50 + ay * 50).toFixed(0)}%)`;
-    el.classList.toggle("is-dim", dim || (st.panel === "pattern" && st.patternId !== p.id));
-  }
-  for (const { r, el } of ringEls) {
-    const rad = L.bands[r][1] + 17, [sx, sy] = toScreen(Math.cos(L.ringAngle) * rad, Math.sin(L.ringAngle) * rad);
-    el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, -50%)`;
-    el.style.opacity = dim || st.highlight ? 0 : 1;
-  }
-}
-
-function curve(a, b, bend) {
-  const [x1, y1] = toScreen(a.x, a.y), [x2, y2] = toScreen(b.x, b.y);
-  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1;
-  return [x1, y1, mx - dy * bend, my + dx * bend, x2, y2];
-}
-function drawLinks(now) {
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  ctx.clearRect(0, 0, W, H);
-  const f = st.focus, quiet = !!(f || st.highlight);
-  // 参考圆与扇区边界
-  const ga = Math.min(1, Math.max(0, (now - st.t0 + 250) / 600));
-  ctx.strokeStyle = colors.line; ctx.lineWidth = 1; ctx.globalAlpha = ga * (quiet ? .5 : 1);
-  const [cx, cy] = toScreen(0, 0);
-  ctx.setLineDash([2, 5]);
-  for (const r of RINGS) { ctx.beginPath(); ctx.arc(cx, cy, (L.bands[r][1] + 17) * cam.k, 0, Math.PI * 2); ctx.stroke(); }
-  ctx.setLineDash([]);
-  for (const p of L.order) {
-    const r0 = 30 * cam.k, r1 = (L.outer + 26) * cam.k;
-    ctx.beginPath(); ctx.moveTo(cx + Math.cos(p.a0) * r0, cy + Math.sin(p.a0) * r0); ctx.lineTo(cx + Math.cos(p.a0) * r1, cy + Math.sin(p.a0) * r1); ctx.stroke();
-  }
-  // 线索网
-  ctx.strokeStyle = colors.ink; ctx.lineWidth = 1;
-  for (const s of screens) {
-    if (s.parent == null) continue;
-    const p = byId.get(s.parent), a = Math.min(s.o, p.o);
-    if (a < .02) continue;
-    ctx.globalAlpha = a * (quiet ? .05 : .13);
-    const c = curve(p, s, .12);
-    ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.quadraticCurveTo(c[2], c[3], c[4], c[5]); ctx.stroke();
-  }
-  // 焦点到簇成员：依次画出
-  if (f) {
-    st.cluster.forEach((o, i) => {
-      const p = REDUCED ? 1 : Math.min(1, Math.max(0, (now - st.edgeT - 80 - i * 35) / 320));
-      if (p <= 0) return;
-      const e = 1 - Math.pow(1 - p, 3), c = curve(f, o.s, .08);
-      ctx.globalAlpha = .75 * e;
-      ctx.strokeStyle = o.clay ? colors.clay : o.rel === "同模式" ? colors.ink2 : colors.ink;
-      ctx.lineWidth = o.clay || o.rel === "线索" ? 1.5 : 1;
-      ctx.setLineDash(o.rel === "同模式" ? [3, 4] : []);
-      ctx.beginPath(); ctx.moveTo(c[0], c[1]);
-      // 二次曲线按进度截断
-      const q = e, ax = c[0] + (c[2] - c[0]) * q, ay = c[1] + (c[3] - c[1]) * q, bx = c[2] + (c[4] - c[2]) * q, by = c[3] + (c[5] - c[3]) * q;
-      ctx.quadraticCurveTo(ax, ay, ax + (bx - ax) * q, ay + (by - ay) * q); ctx.stroke();
-    });
-    ctx.setLineDash([]);
-  }
-  ctx.globalAlpha = 1;
-}
-
-// ---------- 启动 ----------
-document.querySelector("#masthead h1").textContent = DATA.brief?.product || "调研网";
-document.querySelector("#masthead p").textContent = `${screens.length} 张 · ${DATA.patterns.length} 个模式 · ${(DATA.leads || []).length} 条线索${DATA.brief?.date ? " · " + DATA.brief.date : ""}`;
-document.title = (DATA.brief?.product || "调研") + " · 调研网";
-readColors(); resize(); fit(true); lastAvail = availW();
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readColors);
-addEventListener("resize", () => { resize(); fit(); lastAvail = availW(); });
-grow();
+document.querySelector("#masthead .title").textContent = DATA.brief?.product || "Research";
+document.getElementById("mast-sub").textContent = `${screens.length} frames · ${DATA.patterns.length} patterns · ${(DATA.leads || []).length} leads${DATA.brief?.date ? " · " + DATA.brief.date : ""}`;
+document.title = (DATA.brief?.product || "Research") + " · Research Sea";
+resize(); fit(true); lastAvail = availW();
+addEventListener("resize", () => { resize(); if (!isDeep()) fit(); lastAvail = availW(); });
+enter();
 requestAnimationFrame(frame);
 })();
 </script>
