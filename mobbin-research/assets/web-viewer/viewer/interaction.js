@@ -8,7 +8,7 @@
   "use strict";
 
   function create(app) {
-    const { config, util, research, stage, camera, canvas } = app;
+    const { config, util, stage, camera, canvas } = app;
     const F = config.focus, Wk = config.wake, REDUCED = config.reduced;
     const cam = camera.state;
     const marquee = document.getElementById("marquee");
@@ -46,7 +46,7 @@
       // 从一张图切到另一张时，直接在现有明暗上过渡，不重新扩散，避免已失焦的图先亮再暗
       const switching = !!(state.woken && s);
       state.woken = s;
-      state.related = s ? research.relatedOf(s) : [];
+      state.related = s ? app.research.relatedOf(s) : [];
       state.relMap = new Map(state.related.map(o => [o.s, o]));
       const n = s && nodeOf(s);
       if (s && n.rect && !state.focused && !switching) { state.rippleT = performance.now(); state.rippleAt = centerOfRect(n.rect); }
@@ -89,8 +89,15 @@
       }
     }
     function highlight(set) { state.highlight = set; }
+    // 调研数据更新后：唤醒或聚焦的那张图换成新数据里的同一张，关联随之重算；那张图不在了就离开
+    function remap() {
+      if (!state.woken) return;
+      const s = app.research.byId.get(state.woken.id);
+      if (!s) return state.focused ? leave() : wake(null);
+      state.woken = s; state.related = app.research.relatedOf(s); state.relMap = new Map(state.related.map(o => [o.s, o]));
+    }
     function toggleOverview() { if (app.ui.panelMode === "overview") leave(); else { unfocus(); state.highlight = null; app.ui.openPanel("overview"); } }
-    function openPattern(pid) { unfocus(); state.highlight = new Set(research.membersOf(pid).map(s => s.id)); app.ui.openPanel("pattern", pid); }
+    function openPattern(pid) { unfocus(); state.highlight = new Set(app.research.membersOf(pid).map(s => s.id)); app.ui.openPanel("pattern", pid); }
     function select(list) { unfocus(); state.highlight = new Set(list.map(s => s.id)); app.ui.openPanel("selection", list); }
 
     // ---------- 每帧 ----------
@@ -200,8 +207,9 @@
       get dragging() { return !!drag; },
       get hoverTile() { return hoverTile; },
       get hoverLead() { return hoverLead; },
+      get idleFor() { return performance.now() - lastInteract; },
       touch(now) { lastInteract = now; },
-      wake, focus, release, leave, highlight, toggleOverview, openPattern, cancelClose,
+      wake, focus, release, leave, highlight, remap, toggleOverview, openPattern, cancelClose,
       beforeDraw, afterDraw,
     };
   }

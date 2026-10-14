@@ -34,6 +34,8 @@
     panel: { width: 400, gap: 16 },
     // 卡片内滚动条：停止滚动后多久淡出、光标离开卡片后多久淡出、滑块最短长度（ms / px）
     scrollbar: { idle: 900, leave: 300, minThumb: 24 },
+    // 实时更新：读取间隔、用户停手多久后才并入新数据（ms）
+    live: { poll: 1500, settle: 1200 },
 
     reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
   });

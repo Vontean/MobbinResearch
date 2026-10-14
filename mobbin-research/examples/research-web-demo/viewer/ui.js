@@ -3,20 +3,21 @@
   "use strict";
 
   function create(app) {
-    const { config, util, research, camera, stage } = app, { esc, pad, clamp } = util, glyph = Sea.glyph;
+    const { config, util, camera, stage } = app, { esc, pad, clamp } = util, glyph = Sea.glyph;
     const REDUCED = config.reduced, $ = id => document.getElementById(id);
     const ix = () => app.interaction;
-    const cards = Sea.cards.create(research);
     const segs = (n, on) => `<span class="segs">${Array.from({ length: n }, (_, i) => `<i class="${i < on ? "on" : ""}"></i>`).join("")}</span>`;
     let panelMode = null, panelArg = null;
 
     document.querySelectorAll(".glyph[data-g]").forEach(el => { el.outerHTML = glyph(el.dataset.g); });
 
     // ---------- 标题 ----------
-    const brief = research.data.brief || {};
-    document.querySelector("#masthead .title").textContent = brief.product || "Research";
-    $("mast-sub").textContent = `${research.screens.length} frames · ${research.data.patterns.length} patterns${brief.date ? " · " + brief.date : ""}`;
-    document.title = (brief.product || "Research") + " · Research Sea";
+    function syncMast() {
+      const { data, screens } = app.research, brief = data.brief || {};
+      document.querySelector("#masthead .title").textContent = brief.product || "Research";
+      $("mast-sub").textContent = `${screens.length} frames · ${data.patterns.length} patterns${brief.date ? " · " + brief.date : ""}`;
+      document.title = (brief.product || "Research") + " · Research Sea";
+    }
 
     // ---------- HUD：光标下是什么 ----------
     const hudMeta = $("hud-meta"), hudLine = $("hud-line");
@@ -28,8 +29,8 @@
       if (key === hudKey) return; hudKey = key;
       if (s) {
         const n = st.woken === s ? st.related.length : null;
-        hudMeta.innerHTML = `<span style="color:var(--text-primary)">Frame ${pad(s.id)}</span><span>Distance</span>${segs(4, research.distance(s))}${n != null ? `<span>${pad(n, 2)} related</span>` : ""}`;
-        hudLine.textContent = `${s.app} — ${s.screen_type} · ${s.patterns.map(p => research.patternById.get(p)?.name || p).join(" / ")}`;
+        hudMeta.innerHTML = `<span style="color:var(--text-primary)">Frame ${pad(s.id)}</span><span>Distance</span>${segs(4, app.research.distance(s))}${n != null ? `<span>${pad(n, 2)} related</span>` : ""}`;
+        hudLine.textContent = `${s.app} — ${s.screen_type} · ${s.patterns.map(p => app.research.patternById.get(p)?.name || p).join(" / ")}`;
       } else if (L) {
         hudMeta.innerHTML = `<span style="color:var(--utility-orange)">${L.lead.status === "open" ? "Open lead" : "Empty lead"}</span><span>From frame ${pad(L.lead.from)}</span>`;
         hudLine.textContent = L.lead.text + (L.lead.reason ? ` — ${L.lead.reason}` : "");
@@ -69,25 +70,28 @@
 
     // ---------- 模式索引：右下角，可原地滚动 ----------
     const indexEl = $("index"), indexMore = $("index-more");
-    const byCount = research.data.patterns.map(p => ({ p, ids: new Set(research.membersOf(p.id).map(s => s.id)) })).sort((a, b) => b.ids.size - a.ids.size);
-    const maxN = Math.max(1, ...byCount.map(x => x.ids.size));
-    for (const { p, ids } of byCount) {
-      // 分段条最多 16 段，按比例缩放，避免数量悬殊时撑得过长
-      const n = Math.max(1, Math.round(ids.size / maxN * 16));
-      const b = document.createElement("button");
-      b.className = "idx"; b.dataset.pid = p.id; b.title = `${p.name} · ${ids.size}`;
-      b.innerHTML = `<span class="name">${esc(p.name)}</span>${segs(n, n)}`;
-      b.addEventListener("pointerenter", () => { if (!panelMode) { ix().wake(null); ix().highlight(ids); } });
-      b.addEventListener("pointerleave", () => { if (!panelMode) ix().highlight(null); });
-      b.addEventListener("click", () => ix().openPattern(p.id));
-      indexEl.appendChild(b);
+    function buildIndex() {
+      const research = app.research;
+      const byCount = research.data.patterns.map(p => ({ p, ids: new Set(research.membersOf(p.id).map(s => s.id)) })).sort((a, b) => b.ids.size - a.ids.size);
+      const maxN = Math.max(1, ...byCount.map(x => x.ids.size));
+      indexEl.replaceChildren(...byCount.map(({ p, ids }) => {
+        // 分段条最多 16 段，按比例缩放，避免数量悬殊时撑得过长
+        const n = Math.max(1, Math.round(ids.size / maxN * 16));
+        const b = document.createElement("button");
+        b.className = "idx"; b.dataset.pid = p.id; b.title = `${p.name} · ${ids.size}`;
+        b.innerHTML = `<span class="name">${esc(p.name)}</span>${segs(n, n)}`;
+        b.addEventListener("pointerenter", () => { if (!panelMode) { ix().wake(null); ix().highlight(ids); } });
+        b.addEventListener("pointerleave", () => { if (!panelMode) ix().highlight(null); });
+        b.addEventListener("click", () => ix().openPattern(p.id));
+        return b;
+      }));
+      syncIndex(); requestAnimationFrame(syncIndexScroll);
     }
     // 下方还有内容时，显示一个向下的点阵箭头
     indexMore.innerHTML = glyph("down");
     const syncIndexScroll = () => { syncClip(indexEl); indexMore.classList.toggle("on", indexEl.classList.contains("fade-b")); };
     indexEl.addEventListener("scroll", syncIndexScroll, { passive: true });
     indexMore.addEventListener("click", () => indexEl.scrollBy({ top: 66, behavior: REDUCED ? "auto" : "smooth" }));
-    requestAnimationFrame(syncIndexScroll);
     const syncIndex = () => indexEl.querySelectorAll(".idx").forEach(b => b.classList.toggle("is-on", panelMode === "pattern" && panelArg === b.dataset.pid));
 
     // 有被截断的内容时才显示渐隐：上方有内容露出顶部渐隐，下方有内容露出底部渐隐
@@ -131,7 +135,7 @@
     const panel = $("panel"), body = $("panel-body");
     const panelInset = config.panel.width + config.panel.gap;
     panel.addEventListener("scroll", hideTip, { passive: true });
-    const renderPanel = (mode, arg) => mode === "screen" ? cards.screen(arg, ix().state.related) : cards[mode](arg);
+    const renderPanel = (mode, arg) => { const cards = Sea.cards.create(app.research); return mode === "screen" ? cards.screen(arg, ix().state.related) : cards[mode](arg); };
 
     function openPanel(mode, arg) {
       ix().cancelClose(); hideTip();
@@ -178,19 +182,23 @@
         sh.addEventListener("animationend", () => sh.classList.remove("play"));
         c.addEventListener("mouseenter", () => { if (!REDUCED) sh.classList.add("play"); });
       });
-      body.querySelectorAll("[data-goto]").forEach(el => el.addEventListener("click", () => ix().focus(research.byId.get(+el.dataset.goto))));
+      body.querySelectorAll("[data-goto]").forEach(el => el.addEventListener("click", () => ix().focus(app.research.byId.get(+el.dataset.goto))));
       body.querySelectorAll("[data-pattern]").forEach(el => el.addEventListener("click", () => ix().openPattern(el.dataset.pattern)));
       body.querySelectorAll("[data-close]").forEach(el => el.addEventListener("click", () => ix().leave()));
       body.querySelectorAll("[data-insight]").forEach(el => {
-        const set = new Set(research.data.insights.find(i => i.id === el.dataset.insight).evidence);
+        const set = new Set(app.research.data.insights.find(i => i.id === el.dataset.insight).evidence);
         el.addEventListener("pointerenter", () => ix().highlight(set));
         el.addEventListener("pointerleave", () => { if (panelMode === "overview") ix().highlight(null); });
       });
     }
 
+    syncMast(); buildIndex();
+
     return {
       get panelMode() { return panelMode; },
       openPanel, closePanel, syncTools, syncSwitch,
+      // 调研数据更新后：标题与模式索引跟上；打开着的面板不重排，下次打开时用新数据
+      refresh() { syncMast(); buildIndex(); },
       tick() { drawHud(); syncDepth(); },
     };
   }

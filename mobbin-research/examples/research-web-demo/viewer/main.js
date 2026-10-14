@@ -5,7 +5,7 @@
   const DATA = window.RESEARCH;
   if (!DATA) return fail("没有找到 research.js。请先运行 python3 scripts/build_web.py &lt;调研目录&gt;。");
   // 任何一层没有加载成功，都直接说明缺了哪个文件，而不是留下一块黑屏
-  const missing = ["util", "config", "glyph", "domain", "layout", "camera", "stage", "render", "cards", "interaction", "ui"].filter(m => !Sea[m]);
+  const missing = ["util", "config", "glyph", "domain", "layout", "camera", "stage", "render", "cards", "interaction", "ui", "live"].filter(m => !Sea[m]);
   if (missing.length) return fail(`查看器文件不完整，缺少：${missing.map(m => `viewer/${m}.js`).join("、")}。请重新运行 build_web.py。`);
 
   const { config } = Sea;
@@ -31,6 +31,7 @@
   app.render = Sea.render.create(app);
   app.interaction = Sea.interaction.create(app);
   app.ui = Sea.ui.create(app);
+  app.live = Sea.live.create(app);
 
   // 入场：一道从核心荡开的波，铺开后自动下潜到直接竞品的重心
   // 播放期间（波纹到下潜落定）不唤醒景深；用户任何直接操作都会提前结束入场
@@ -62,12 +63,14 @@
     app.render.draw(now, dt);
     app.interaction.afterDraw(now);
     app.ui.tick();
+    app.live.tick();
   }
 
-  app.stage.apply(false); resize(); app.camera.fit(true); app.ui.syncSwitch();
+  app.stage.sync(); app.stage.apply(false); resize(); app.camera.fit(true); app.ui.syncSwitch();
   addEventListener("resize", () => { resize(); app.ui.syncTools(); if (!app.camera.isDeep()) app.camera.fit(); });
   const deepLink = app.research.byId.get(+params.get("frame"));
   if (deepLink) { app.stage.enterT = performance.now() - 1e5; app.camera.fit(true); requestAnimationFrame(() => app.interaction.focus(deepLink, config.camera.fly.deepLink)); }
-  else app.intro.start();
+  else if (app.stage.nodes.length) app.intro.start();
+  app.live.start();
   requestAnimationFrame(frame);
 })(window.Sea = window.Sea || {});

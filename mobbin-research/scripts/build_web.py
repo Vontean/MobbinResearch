@@ -110,7 +110,10 @@ def main():
     if errors:
         return 1
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
-    (root / "research.js").write_text(f"window.RESEARCH = {payload};\n", encoding="utf-8")
+    # 先写临时文件再替换：Loop 进行中页面会反复读取它，不能读到写了一半的文件
+    tmp = root / "research.js.tmp"
+    tmp.write_text(f"window.RESEARCH = {payload};\n", encoding="utf-8")
+    tmp.replace(root / "research.js")
     # 查看器是模板：每次构建都整体替换，已有的调研目录也能拿到最新版本
     shutil.copy(VIEWER / "index.html", root / "index.html")
     shutil.rmtree(root / "viewer", ignore_errors=True)

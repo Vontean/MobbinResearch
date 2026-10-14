@@ -8,6 +8,7 @@
   // 模式顺序：常一起出现的模式相邻
   function patternOrder(research) {
     const { screens, data } = research;
+    if (!data.patterns.length) return [];
     const pats = data.patterns.map(p => ({ id: p.id, name: p.name, n: screens.filter(s => s.patterns[0] === p.id).length }));
     const co = new Map(), key = (a, b) => [a, b].sort().join("|");
     for (const s of screens) for (const p of s.patterns.slice(1)) co.set(key(s.patterns[0], p), (co.get(key(s.patterns[0], p)) || 0) + 1);
@@ -22,6 +23,7 @@
   // 岛屿：圈层定半径、模式定方向，关系弹簧拉近相关的图，再把每张图分配进一个对称的点阵圆
   function islandPositions(research, order) {
     const { screens } = research;
+    if (!screens.length) return new Map();
     const total = order.reduce((t, p) => t + Math.max(p.n, 2), 0);
     const sec = new Map(); let a = -Math.PI / 2;
     for (const p of order) { const w = Math.max(p.n, 2) / total * Math.PI * 2; sec.set(p.id, { a0: a, w, idx: sec.size }); a += w; }
@@ -127,13 +129,14 @@
       for (let i = Math.ceil((gx - TW / 2 - 6) / G); i <= Math.floor((gx + TW / 2 + 6) / G); i++)
         for (let j = Math.ceil((gy - TH / 2 - 6) / G); j <= Math.floor((gy + TH / 2 + 6) / G); j++) covered.add(`${i},${j}`);
     }
-    const xs = screens.map(s => at(s)[0]), ys = screens.map(s => at(s)[1]);
+    // 还没有图（Loop 刚开始）：一片以原点为中心的空海
+    const xs = screens.length ? screens.map(s => at(s)[0]) : [0], ys = screens.length ? screens.map(s => at(s)[1]) : [0];
     const bounds = { x0: Math.min(...xs) - TW, x1: Math.max(...xs) + TW, y0: Math.min(...ys) - TH, y1: Math.max(...ys) + TH };
     if (layout === "lanes") bounds.x0 -= CX * 3;
     const cs = screens.filter(s => s.ring === "R1").length ? screens.filter(s => s.ring === "R1") : screens;
-    const core = { x: cs.reduce((t, s) => t + at(s)[0], 0) / cs.length, y: cs.reduce((t, s) => t + at(s)[1], 0) / cs.length };
+    const core = cs.length ? { x: cs.reduce((t, s) => t + at(s)[0], 0) / cs.length, y: cs.reduce((t, s) => t + at(s)[1], 0) / cs.length } : { x: 0, y: 0 };
     const coreDist = new Map(screens.map(s => [s, Math.hypot(at(s)[0] - core.x, at(s)[1] - core.y)]));
-    const seaR = Math.max(...coreDist.values()) + CY;
+    const seaR = Math.max(0, ...coreDist.values()) + CY;
 
     // 还没走过的线索：岛屿里漂到海岸线外，航道里排在航道的尽头
     const open = research.leads.filter(l => l.status !== "done" && l.from != null && byId.get(l.from));

@@ -48,9 +48,11 @@ R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图�
 
 - `screens/`：截图，命名为 `{三位序号}_{圈层}_{App}_{屏幕类型}`，每张图存缩略图和大图两份，例如 `007_R1_Norton360_dashboard_thumb.jpg` 和 `007_R1_Norton360_dashboard.png`
 - `research.json`：这张网的唯一事实来源，包括简报、模式、截图、线索、呼应、检查点和洞察。字段说明见 [`references/data-contract.md`](references/data-contract.md)
-- `index.html` 和 `viewer/`：查看器，由构建脚本复制。用户可以在 Loop 进行中随时打开 `index.html`，看网一点点长出来
+- `index.html` 和 `viewer/`：查看器，由构建脚本复制
 
 每次写完 `research.json`，运行 `python3 scripts/build_web.py <调研目录>`。它会校验数据、生成查看器读取的 `research.js`，并把最新的查看器复制过去。
+
+写完简报、第一次构建之后，**把调研之海打开给用户看**，让他看着网一点点长出来：在后台运行 `python3 -m http.server <端口> --directory <调研目录>`（端口任选一个空闲的，如 4310），再用当前环境的内置浏览器打开 `http://localhost:<端口>`；没有内置浏览器时，把这个地址告诉用户。页面每隔一两秒读取一次 `research.js`，每次构建后自动更新，你不需要刷新它。内置浏览器打不开 `file://`，所以 Loop 期间用本地地址；调研结束后，双击 `index.html` 照样能看。
 
 如果目录已经存在，**先读取 `research.json`，从上次的位置继续**（断点续跑），不要从头开始。
 

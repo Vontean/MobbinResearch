@@ -28,7 +28,7 @@ flowchart LR
 | 3 | `camera.js` `stage.js` | 镜头运动；视图节点（位置、明暗、图片）与布局过渡 | 有状态 |
 | 4 | `render.js` | 画出一帧，不做交互决策 | 有状态 |
 | 5 | `cards.js` `interaction.js` `ui.js` | 面板模板（纯）；交互状态机；界面外壳与面板 | 有状态 |
-| 6 | `main.js` | 组装、入场与深链接、帧循环 | 入口 |
+| 6 | `main.js` `live.js` | 组装、入场与深链接、帧循环；Loop 进行中的实时更新 | 入口 |
 
 几个设计决定：
 
@@ -37,8 +37,10 @@ flowchart LR
 - **调参只有一处**：时序、阈值、尺寸都在 `config.js`；`DESIGN.md` 解释意图，不重复数值的出处。
 - **帧循环先调度下一帧**：单帧出错不会冻住画布；缺失任何一层时，`main.js` 直接在页面上说明缺了哪个文件。
 - **交互动词即领域语言**：`wake` / `focus` / `release` / `leave` / `highlight`，与 CONTEXT.md 对应。
+- **调研数据可整体替换**：`app.research` 是一份不可变快照，各层用时再取，不在创建时抓进闭包。实时更新时换上新快照，`stage.sync()` 按 id 沿用已有节点，`interaction.remap()` 把唤醒和聚焦换到新对象上。
+- **实时更新只在停手时落地**：页面经由 `http://` 打开时，`live.js` 轮询 `research.js`，新数据先排队；用户拖拽、缩放、运镜、入场期间不并入，停手后一次并入。`build_web.py` 先写临时文件再替换，页面不会读到写了一半的数据。
 
-每帧顺序（`main.js`）：镜头推进 → 布局过渡 → 预判聚焦与指针平滑 → 绘制 → 悬停唤醒 → HUD 与深度计。
+每帧顺序（`main.js`）：镜头推进 → 布局过渡 → 预判聚焦与指针平滑 → 绘制 → 悬停唤醒 → HUD 与深度计 → 并入排队的实时数据。
 
 ## 路由表
 
@@ -59,9 +61,11 @@ flowchart LR
 | 改 HUD、深度计、工具栏、模式索引、面板开合 | `viewer/ui.js`、`index.html` |
 | 加图标 | `viewer/glyph.js` |
 | 改入场、深链接、帧循环 | `viewer/main.js` |
+| 改实时更新的读取与并入时机 | `viewer/live.js`，时序在 `config.js` 的 `live` |
 | 改视觉与动效的设计意图 | `assets/web-viewer/DESIGN.md` |
 | 更新演示 | `tools/make_demo.py`，再运行 `build_web.py` |
 | 压测边界 | `tools/make_stress.py` |
+| 模拟 Loop 进行中的实时更新 | `tools/simulate_live.py` |
 
 ## 验证
 
@@ -75,4 +79,9 @@ node tools/check_viewer.mjs
 python3 mobbin-research/scripts/build_web.py mobbin-research/examples/research-web-demo
 ```
 
-演示构建应无错误、无提醒。交互改动还需要在浏览器里打开演示，检查：入场下潜；悬停唤醒；点击聚焦；Esc 拉远；滚轮预判聚焦；快速推拉时面板不抖；框选；布局切换；`?frame=` 深链接。边界改动用 `make_stress.py` 的数据再看一遍。
+演示构建应无错误、无提醒。交互改动还需要在浏览器里打开演示，检查：入场下潜；悬停唤醒；点击聚焦；Esc 拉远；滚轮预判聚焦；快速推拉时面板不抖；框选；布局切换；`?frame=` 深链接。边界改动用 `make_stress.py` 的数据再看一遍。实时更新的改动，用模拟脚本边写边看：
+
+```bash
+python3 tools/simulate_live.py .live-demo --every 2 --batch 3
+python3 -m http.server 4320 --directory .live-demo
+```
