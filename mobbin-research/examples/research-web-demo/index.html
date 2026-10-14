@@ -37,7 +37,7 @@ img { display: block; }
 .title { font: 500 20px/1.2 var(--font-human); letter-spacing: -.01em; color: var(--text-display); }
 
 /* 点阵字形：图标由 5×5 点构成 */
-.glyph { display: inline-grid; grid-template-columns: repeat(5, 2px); grid-auto-rows: 2px; gap: 1px; flex: none; }
+.glyph { display: inline-grid; grid-auto-rows: 2px; gap: 1px; flex: none; }
 .glyph i { border-radius: 50%; background: currentColor; opacity: .14; transition: opacity .14s var(--ease); }
 .glyph i.on { opacity: 1; }
 
@@ -56,22 +56,22 @@ body.panel-open #masthead { opacity: 0; transform: translateY(-6px); }
 body.focused #hud { opacity: 0; transform: translateY(6px); }
 #hud { left: var(--s-6); bottom: var(--s-5); max-width: min(560px, 60vw); pointer-events: none; }
 #hud .meta { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+#hud .key { display: inline-flex; align-items: center; gap: 7px; margin-right: 10px; color: var(--text-secondary); }
+#hud .key .glyph { color: var(--text-primary); }
 #hud .line { margin-top: 4px; font: 400 14px/1.4 var(--font-human); color: var(--text-primary); min-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .segs { display: inline-flex; gap: 2px; }
 .segs i { width: 6px; height: 10px; background: #242424; }
 .segs i.on { background: var(--text-primary); }
 
-#index { right: var(--s-6); bottom: var(--s-5); display: grid; gap: 2px; justify-items: end; max-height: 44vh; overflow-y: auto; scrollbar-width: none; opacity: .72; }
-#index::-webkit-scrollbar { display: none; }
-#index:hover, #index.expanded { opacity: 1; }
-#index.expanded + #gauge { opacity: 0; }
-#index .idx.is-extra { display: none; }
-#index.expanded .idx.is-extra { display: grid; }
-#index.expanded { mask-image: linear-gradient(to bottom, transparent, #000 24px); }
+#index-box { right: var(--s-6); bottom: var(--s-5); display: grid; justify-items: end; opacity: .72; transition: opacity .3s var(--ease), transform .42s var(--ease-back); }
+#index-box:hover { opacity: 1; }
+#index { --clip: 132px; display: grid; gap: 2px; justify-items: end; padding-right: 1px; }
 .idx .name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.idx-more { padding: 4px 0 0; color: var(--text-disabled); }
-.idx-more:hover { color: var(--text-primary); }
-body.panel-open #index { opacity: 0; pointer-events: none; transform: translateX(12px); }
+#index-more { height: 14px; padding-top: 6px; color: var(--text-secondary); opacity: 0; transition: opacity .2s ease-out, transform .2s var(--ease); pointer-events: none; }
+#index-more.on { opacity: 1; pointer-events: auto; animation: nudge 1.8s var(--ease) infinite; }
+#index-more:hover { color: var(--text-primary); }
+@keyframes nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2px); } }
+body.panel-open #index-box { opacity: 0; pointer-events: none; transform: translateX(12px); }
 .idx { display: grid; grid-template-columns: auto auto; align-items: center; justify-content: end; gap: 12px; padding: 3px 0; font-size: 12px; color: var(--text-disabled); transition: color .2s ease-out; }
 .idx .segs i { width: 3px; height: 9px; transform: scaleY(.5); transition: transform .3s var(--ease-back), background-color .2s ease-out; }
 .idx .segs i.on { background: var(--text-disabled); }
@@ -185,7 +185,7 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
   <div class="meta" id="hud-meta"></div>
   <div class="line" id="hud-line"></div>
 </div>
-<div id="index" class="chrome"></div>
+<div id="index-box" class="chrome"><div id="index" class="clip"></div><button id="index-more" aria-label="向下滚动模式列表"></button></div>
 <div id="gauge" class="chrome shift" aria-hidden="true"></div>
 <div id="switch" class="chrome" role="group" aria-label="视图对比">
   <div class="seg" data-key="layout"><button data-v="island">Island</button><button data-v="lanes">Lanes</button></div>
@@ -202,12 +202,21 @@ if (!DATA) { document.body.innerHTML = '<p style="padding:32px;font:14px system-
 
 // ---------- 点阵字形 ----------
 const GLYPHS = {
-  insight: "..#...###.#####.###...#..",
-  replay:  ".###.#...##.#.##...#.###.",
-  close:   "#...#.#.#...#...#.#.#...#",
-  out:     "..###...##..#.#.#...#....",
+  insight: "..#..|.###.|#####|.###.|..#..",
+  replay:  ".###.|#...#|#.#.#|#...#|.###.",
+  close:   "#...#|.#.#.|..#..|.#.#.|#...#",
+  out:     "..###|...##|..#.#|.#...|#....",
+  down:    "#...#|.#.#.|..#..",
+  // 操作提示：拖拽、滚轮、停留、点击
+  drift:   "...#...|..###..|.#.#.#.|#######|.#.#.#.|..###..|...#...",
+  dive:    ".###.|#.#.#|#.#.#|#...#|#...#|#...#|.###.",
+  relate:  "#####|#...#|.#.#.|..#..|.#.#.|#...#|#####",
+  focus:   ".###.|###.#|###.#|#####|#...#|#...#|.###.",
 };
-const glyph = name => `<span class="glyph">${[...GLYPHS[name]].map(c => `<i class="${c === "#" ? "on" : ""}"></i>`).join("")}</span>`;
+const glyph = name => {
+  const rows = GLYPHS[name].split("|");
+  return `<span class="glyph" style="grid-template-columns:repeat(${rows[0].length},2px)">${rows.join("").split("").map(c => `<i class="${c === "#" ? "on" : ""}"></i>`).join("")}</span>`;
+};
 document.querySelectorAll(".glyph[data-g]").forEach(el => { el.outerHTML = glyph(el.dataset.g); });
 
 // ---------- 常量 ----------
@@ -731,7 +740,7 @@ function drawHud() {
     hudMeta.innerHTML = `<span style="color:var(--utility-orange)">${L.lead.status === "open" ? "Open lead" : "Empty lead"}</span><span>From frame ${pad(L.lead.from)}</span>`;
     hudLine.textContent = L.lead.text + (L.lead.reason ? ` — ${L.lead.reason}` : "");
   } else {
-    hudMeta.innerHTML = `<span>Drag to drift</span><span class="dim">/</span><span>Scroll to dive</span><span class="dim">/</span><span>Hold to relate</span><span class="dim">/</span><span>Click to pin</span>`;
+    hudMeta.innerHTML = [["drift", "Drift"], ["dive", "Dive"], ["relate", "Relate"], ["focus", "Focus"]].map(([g, t]) => `<span class="key">${glyph(g)}${t}</span>`).join("");
     hudLine.textContent = "";
   }
 }
@@ -855,26 +864,26 @@ document.querySelectorAll("#switch .seg button").forEach(b => b.addEventListener
 }));
 
 // ---------- 模式索引：右下角的分段条 ----------
-const indexEl = document.getElementById("index"), INDEX_MAX = 6;
+const indexEl = document.getElementById("index"), indexMore = document.getElementById("index-more");
 const byCount = DATA.patterns.map(p => ({ p, ids: new Set(screens.filter(s => s.patterns.includes(p.id)).map(s => s.id)) })).sort((a, b) => b.ids.size - a.ids.size);
 const maxN = Math.max(1, ...byCount.map(x => x.ids.size));
-byCount.forEach(({ p, ids }, i) => {
+for (const { p, ids } of byCount) {
   // 分段条最多 16 段，按比例缩放，避免数量悬殊时撑得过长
   const n = Math.max(1, Math.round(ids.size / maxN * 16));
   const b = document.createElement("button");
-  b.className = "idx" + (i >= INDEX_MAX ? " is-extra" : ""); b.dataset.pid = p.id; b.title = `${p.name} · ${ids.size}`;
+  b.className = "idx"; b.dataset.pid = p.id; b.title = `${p.name} · ${ids.size}`;
   b.innerHTML = `<span class="name">${esc(p.name)}</span>${segs(n, n)}`;
   b.addEventListener("pointerenter", () => { if (!st.panel) { setFocus(null); st.highlight = ids; } });
   b.addEventListener("pointerleave", () => { if (!st.panel) st.highlight = null; });
   b.addEventListener("click", () => openPattern(p.id));
   indexEl.appendChild(b);
-});
-if (byCount.length > INDEX_MAX) {
-  const more = document.createElement("button");
-  more.className = "idx-more meta"; more.textContent = `+${byCount.length - INDEX_MAX} more`;
-  more.addEventListener("click", () => { const open = indexEl.classList.toggle("expanded"); more.textContent = open ? "Less" : `+${byCount.length - INDEX_MAX} more`; });
-  indexEl.appendChild(more);
 }
+// 列表本身可滚动；下方还有内容时，显示一个向下的点阵箭头
+indexMore.innerHTML = glyph("down");
+const syncIndexScroll = () => { syncClip(indexEl); indexMore.classList.toggle("on", indexEl.classList.contains("fade-b")); };
+indexEl.addEventListener("scroll", syncIndexScroll, { passive: true });
+indexMore.addEventListener("click", () => indexEl.scrollBy({ top: 66, behavior: REDUCED ? "auto" : "smooth" }));
+requestAnimationFrame(syncIndexScroll);
 const syncIndex = () => indexEl.querySelectorAll(".idx").forEach(b => b.classList.toggle("is-on", st.panel === "pattern" && st.panelArg === b.dataset.pid));
 
 // ---------- 面板 ----------
@@ -1002,7 +1011,7 @@ function enter() {
 }
 
 document.querySelector("#masthead .title").textContent = DATA.brief?.product || "Research";
-document.getElementById("mast-sub").textContent = `${screens.length} frames · ${DATA.patterns.length} patterns · ${(DATA.leads || []).length} leads${DATA.brief?.date ? " · " + DATA.brief.date : ""}`;
+document.getElementById("mast-sub").textContent = `${screens.length} frames · ${DATA.patterns.length} patterns${DATA.brief?.date ? " · " + DATA.brief.date : ""}`;
 document.title = (DATA.brief?.product || "Research") + " · Research Sea";
 applyLayout(false); resize(); fit(true); lastAvail = availW(); syncSwitch();
 addEventListener("resize", () => { resize(); syncTools(); if (!isDeep()) fit(); lastAvail = availW(); });
