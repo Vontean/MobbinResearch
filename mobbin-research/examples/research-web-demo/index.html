@@ -50,8 +50,9 @@ body.panel-open .shift { transform: translateX(calc(-1 * var(--panel-w) - var(--
 .tool:active { transform: scale(.96); }
 .tool[aria-pressed="true"] { color: var(--text-display); border-color: var(--border-visible); }
 @media (hover: hover) and (pointer: fine) { .tool:hover { color: var(--text-primary); border-color: var(--border-visible); } }
-#t-depth { min-width: 96px; }
 
+body.focused #masthead { opacity: 0; transform: translateY(-6px); }
+body.focused #hud { opacity: 0; transform: translateY(6px); }
 #hud { left: var(--s-6); bottom: var(--s-5); max-width: min(560px, 60vw); pointer-events: none; }
 #hud .meta { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
 #hud .line { margin-top: 4px; font: 400 14px/1.4 var(--font-human); color: var(--text-primary); min-height: 20px; }
@@ -157,14 +158,13 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 <div id="marquee"></div>
 
 <header id="masthead" class="chrome">
-  <div class="meta">Research sea <span class="dim">/ Mobbin</span></div>
+  <div class="meta">Research sea</div>
   <h1 class="title"></h1>
   <div class="meta dim" id="mast-sub"></div>
 </header>
 <nav id="tools" class="chrome shift">
   <button class="tool" id="t-insight" aria-pressed="false" title="洞察（I）"><span class="glyph" data-g="insight"></span>Insight</button>
   <button class="tool" id="t-replay" title="重播入场"><span class="glyph" data-g="replay"></span>Replay</button>
-  <button class="tool" id="t-depth" title="潜入（D）/ 浮上海面（F）"><span class="glyph" data-g="dive"></span><span>Dive</span></button>
 </nav>
 <div id="hud" class="chrome">
   <div class="meta" id="hud-meta"></div>
@@ -191,8 +191,6 @@ const GLYPHS = {
   replay:  ".###.#...##.#.##...#.###.",
   close:   "#...#.#.#...#...#.#.#...#",
   out:     "..###...##..#.#.#...#....",
-  dive:    "..#....#..#.#.#.###...#..",
-  surface: "..#...###.#.#.#..#....#..",
 };
 const glyph = name => `<span class="glyph">${[...GLYPHS[name]].map(c => `<i class="${c === "#" ? "on" : ""}"></i>`).join("")}</span>`;
 document.querySelectorAll(".glyph[data-g]").forEach(el => { el.outerHTML = glyph(el.dataset.g); });
@@ -433,7 +431,7 @@ function fitTarget() {
   return { k, x: availW() / 2 - (bounds.x0 + bw / 2) * k, y: H / 2 - (bounds.y0 + bh / 2) * k };
 }
 function fit(instant) { const t = fitTarget(); cam.tk = t.k; cam.tx = t.x; cam.ty = t.y; if (instant) Object.assign(cam, { k: t.k, x: t.x, y: t.y }); }
-let tween = null, introT = 0, glide = null, lastInteract = 0;
+let tween = null, introT = 0, glide = null, lastInteract = 0, settled = 0;
 // 下潜：入场时每张图约占画面高度 18%；最深一档（点击聚焦）约占 75%
 const diveK = () => H * .18 / TH, maxK = () => H * .75 / TH;
 const easeInOut = t => t < .5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2;
@@ -487,6 +485,23 @@ function frame(now) {
       if (p < 1) done = false;
     }
     if (done) layoutT = 0;
+  }
+  // 预判：停手后，已接近最深、且有一张图靠近画面中央（或就在光标下），就轻轻吸附过去聚焦；
+  // 拖到空海或缩回较浅处，就松开聚焦
+  if (!tween && !drag && !glide && !layoutT && lastInteract && lastInteract !== settled && now - lastInteract > 160) {
+    settled = lastInteract;
+    const mk = maxK();
+    if (cam.tk >= mk * .55) {
+      const cx = availW() / 2, cy = H / 2;
+      let best = null, bd = 1;
+      for (const s of screens) {
+        const d = Math.hypot((s.cx * cam.tk + cam.tx - cx) / (TW * cam.tk * .9), (s.cy * cam.tk + cam.ty - cy) / (TH * cam.tk * .7));
+        if (d < bd) { bd = d; best = s; }
+      }
+      if (!best && cam.tk >= mk * .85 && hoverTile) best = hoverTile;
+      if (best) pin(best, 650);
+      else if (st.pinned) reset();
+    } else if (st.pinned) reset();
   }
   const pk = REDUCED ? 1 : 1 - Math.exp(-dt * 10);
   ptr.sx += (ptr.x - ptr.sx) * pk; ptr.sy += (ptr.y - ptr.sy) * pk;
@@ -552,7 +567,7 @@ function frame(now) {
   }
 
   // 截图
-  const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * 5), rk = REDUCED ? 1 : 1 - Math.exp(-dt * 4.5);
+  const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * 11), rk = REDUCED ? 1 : 1 - Math.exp(-dt * 4.5);
   for (const s of screens) {
     const sx = s.cx * k + ox, sy = s.cy * k + oy;
     if (s.cd * k > enterFront) { s.rect = null; continue; }
@@ -652,7 +667,7 @@ function hoverTick(now) {
   st.hoverLead = t ? null : st.leadRects.find(r => Math.hypot(r.sx - ptr.x, r.sy - ptr.y) < 12) || null;
   if (st.pinned || st.highlight) return;
   // 只有光标真正停下来、且刚才没有在拖拽或缩放，才去唤醒关联
-  if (t && t !== st.focus && now - hoverSince > (st.focus ? 300 : 380) && ptr.speed < .25 && !tween && !layoutT && now - lastInteract > 500) setFocus(t);
+  if (t && t !== st.focus && now - hoverSince > (st.focus ? 220 : 260) && ptr.speed < .25 && !tween && !layoutT && now - lastInteract > 500) setFocus(t);
   if (!t && st.focus && now - emptySince > 450) setFocus(null);
 }
 function setFocus(s) {
@@ -735,6 +750,7 @@ cv.addEventListener("wheel", e => {
   const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
   // 向下滚动 = 潜得更深；触控板捏合保留张开放大的习惯
   zoomAt(e.clientX, e.clientY, e.ctrlKey ? Math.exp(-dy * .012) : Math.exp(dy * .0022), false);
+  if (st.pinned && cam.tk < maxK() * .72) reset();
 }, { passive: false });
 addEventListener("keydown", e => {
   if (e.key === "Escape") reset();
@@ -746,27 +762,26 @@ const gauge = document.getElementById("gauge");
 gauge.innerHTML = Array.from({ length: 14 }, () => "<i></i>").join("") + "<span>Depth</span>";
 const ticks = [...gauge.querySelectorAll("i")];
 let gaugeOn = -1;
-const depthBtn = document.getElementById("t-depth");
-let depthKey = "";
 function syncDepth() {
   const fk = fitTarget().k, lv = Math.round(clamp(Math.log(cam.k / (fk * .8)) / Math.log(maxK() / (fk * .8)), 0, 1) * ticks.length);
   if (lv !== gaugeOn) { gaugeOn = lv; ticks.forEach((t, i) => t.classList.toggle("on", ticks.length - 1 - i < lv)); }
-  const deep = isDeep(); if (depthKey === String(deep)) return; depthKey = String(deep);
-  depthBtn.innerHTML = deep ? `${glyph("surface")}<span>Surface</span>` : `${glyph("dive")}<span>Dive</span>`;
 }
-depthBtn.onclick = () => { stopIntro(); isDeep() ? surface() : diveAt(core.x, core.y); };
 document.getElementById("t-insight").onclick = toggleOverview;
 document.getElementById("t-replay").onclick = () => { reset(); stopIntro(); fit(true); enter(); };
 cv.addEventListener("dblclick", e => { if (isDeep() || hit(e.clientX, e.clientY)) return; stopIntro(); diveAt((e.clientX - cam.x) / cam.k, (e.clientY - cam.y) / cam.k); });
 
 // 点击：固定这张图，镜头飞过去并潜到最深一档
-function pin(s) {
-  st.highlight = null; st.pinned = true; setFocus(s); openPanel("screen", s);
-  stopIntro(); glide = null;
+// 聚焦一张图：镜头推到最深并居中，面板只在这时出现，标题和 HUD 让位
+function pin(s, dur = 1300) {
+  const fresh = !(st.pinned && st.focus === s);
+  st.highlight = null; st.pinned = true;
+  if (fresh) { setFocus(s); openPanel("screen", s); }
+  document.body.classList.add("focused");
+  stopIntro(); glide = null; settled = lastInteract;
   const k = maxK();
-  flyCam({ k, x: availW() / 2 - s.cx * k, y: H / 2 - s.cy * k }, 1300);
+  flyCam({ k, x: availW() / 2 - s.cx * k, y: H / 2 - s.cy * k }, dur);
 }
-function unpin() { st.pinned = false; setFocus(null); }
+function unpin() { st.pinned = false; setFocus(null); document.body.classList.remove("focused"); }
 function reset() { unpin(); st.highlight = null; closePanel(); }
 function toggleOverview() { if (st.panel === "overview") reset(); else { unpin(); st.highlight = null; openPanel("overview"); } }
 function openPattern(pid) { unpin(); st.highlight = new Set(screens.filter(s => s.patterns.includes(pid)).map(s => s.id)); openPanel("pattern", pid); }
