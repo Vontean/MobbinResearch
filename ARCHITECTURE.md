@@ -13,7 +13,7 @@ flowchart LR
 ```
 
 - **一个事实来源**：调研的全部内容都在 `research.json`，字段由 `references/data-contract.md` 定义。查看器只读它，不另存状态。
-- **查看器是模板**：`build_web.py` 每次构建都把 `index.html` 和 `viewer/` 整体复制到调研目录，调研目录里的这些文件不手动改。
+- **查看器是模板**：`build_web.py` 每次构建都把 `index.html` 和 `viewer/` 整体复制到调研目录，调研目录里的这些文件不手动改。`index.html` 里的脚本、样式和 `research.js` 地址都带内容版本号（`?v=`），Loop 进行中刷新页面时，浏览器不会把缓存里的旧脚本和新脚本混用。
 - **校验在构建时做**：引用断裂、文件缺失是错误；配额、模式数量等是提醒，也是 Loop 能否结束的判断依据。查看器因此可以信任数据。
 
 ## 查看器分层
@@ -74,7 +74,7 @@ flowchart LR
 node tools/check_viewer.mjs
 ```
 
-纯函数层的快照比对。有意改变布局、关联或卡片内容后，用 `--update` 更新快照，并在提交说明里写明原因。
+先对 `viewer/` 下所有脚本做语法检查，再做纯函数层的快照比对。有意改变布局、关联或卡片内容后，用 `--update` 更新快照，并在提交说明里写明原因。
 
 ```bash
 python3 mobbin-research/scripts/build_web.py mobbin-research/examples/research-web-demo
