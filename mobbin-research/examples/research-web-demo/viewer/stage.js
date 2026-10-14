@@ -53,9 +53,8 @@
     // 岛屿坐标。Loop 进行中（实时打开、未完成、未达目标数量）用生长中的岛屿：
     // 平时新图只落进空格子；每多一个检查点整理一次；完成后回到完整调研的布局，与 file:// 打开时一致
     function island(research, order) {
-      const { data, screens } = research, target = (data.brief || {}).target || 0;
-      const growing = app.view.live && !(data.now && data.now.done) && screens.length < target;
-      if (!growing) { grown = null; return Sea.layout.islandPositions(research, order); }
+      const { data, screens, target } = research;
+      if (!app.view.live || research.complete) { grown = null; return Sea.layout.islandPositions(research, order); }
       const cps = (data.checkpoints || []).length, capacity = Math.max(target, screens.length);
       const pos = !grown || cps !== settledAt ? Sea.layout.settleIsland(research, order, capacity) : Sea.layout.growIsland(research, order, capacity, grown);
       settledAt = cps; grown = new Map([...pos].map(([s, p]) => [s.id, p]));

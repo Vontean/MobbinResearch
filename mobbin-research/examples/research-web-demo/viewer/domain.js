@@ -64,8 +64,12 @@
       return out.sort((x, y) => y.score - x.score);
     }
 
+    // 调研是否已完成：Agent 标记了 now.done，或已达到目标数量（没有目标时视为完成）
+    const target = (data.brief || {}).target || 0;
+    const complete = !!(data.now && data.now.done) || !target || screens.length >= target;
+
     return Object.freeze({
-      data, screens, leads, byId, patternById,
+      data, screens, leads, byId, patternById, target, complete,
       echoesOf: id => echoes.get(id) || [],
       leadOf: s => leadOf.get(s),
       parentOf: s => parentOf.get(s),

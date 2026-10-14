@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Doto:wght@400;700&family=Space+Grotesk:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="viewer/viewer.css">
+<link rel="stylesheet" href="viewer/viewer.css?v=9ade0e75">
 </head>
 <body>
 <canvas id="sea"></canvas>
@@ -17,6 +17,7 @@
 <header id="masthead" class="chrome">
   <h1 class="title"></h1>
   <div class="meta dim" id="mast-sub"></div>
+  <div class="meta" id="mast-now"></div>
 </header>
 <nav id="tools" class="chrome">
   <button class="tool" id="t-insight" aria-pressed="false" title="洞察（I）"><span class="glyph" data-g="insight"></span>Insight</button>
@@ -36,19 +37,19 @@
 <div id="tip" role="tooltip"></div>
 
 <!-- 调研数据由 scripts/build_web.py 生成；查看器各层按依赖顺序加载，见仓库根目录 ARCHITECTURE.md -->
-<script src="research.js"></script>
-<script src="viewer/util.js"></script>
-<script src="viewer/config.js"></script>
-<script src="viewer/glyph.js"></script>
-<script src="viewer/domain.js"></script>
-<script src="viewer/layout.js"></script>
-<script src="viewer/camera.js"></script>
-<script src="viewer/stage.js"></script>
-<script src="viewer/render.js"></script>
-<script src="viewer/cards.js"></script>
-<script src="viewer/interaction.js"></script>
-<script src="viewer/ui.js"></script>
-<script src="viewer/live.js"></script>
-<script src="viewer/main.js"></script>
+<script src="research.js?v=1a045e12"></script>
+<script src="viewer/util.js?v=9ade0e75"></script>
+<script src="viewer/config.js?v=9ade0e75"></script>
+<script src="viewer/glyph.js?v=9ade0e75"></script>
+<script src="viewer/domain.js?v=9ade0e75"></script>
+<script src="viewer/layout.js?v=9ade0e75"></script>
+<script src="viewer/camera.js?v=9ade0e75"></script>
+<script src="viewer/stage.js?v=9ade0e75"></script>
+<script src="viewer/render.js?v=9ade0e75"></script>
+<script src="viewer/cards.js?v=9ade0e75"></script>
+<script src="viewer/interaction.js?v=9ade0e75"></script>
+<script src="viewer/ui.js?v=9ade0e75"></script>
+<script src="viewer/live.js?v=9ade0e75"></script>
+<script src="viewer/main.js?v=9ade0e75"></script>
 </body>
 </html>

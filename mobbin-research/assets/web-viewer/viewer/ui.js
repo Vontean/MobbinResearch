@@ -13,10 +13,24 @@
 
     // ---------- 标题 ----------
     function syncMast() {
-      const { data, screens } = app.research, brief = data.brief || {};
+      const { data, screens, target, complete } = app.research, brief = data.brief || {};
+      const frames = app.view.live && !complete ? `${pad(screens.length, 2)} / ${target} frames` : `${screens.length} frames`;
       document.querySelector("#masthead .title").textContent = brief.product || "Research";
-      $("mast-sub").textContent = `${screens.length} frames · ${data.patterns.length} patterns${brief.date ? " · " + brief.date : ""}`;
+      $("mast-sub").textContent = `${frames} · ${data.patterns.length} patterns${brief.date ? " · " + brief.date : ""}`;
       document.title = (brief.product || "Research") + " · Research Sea";
+    }
+
+    // ---------- Agent 此刻：第几轮、在追哪条线索、还有几张图等着落地 ----------
+    const mastNow = $("mast-now");
+    let nowKey = "";
+    function drawNow() {
+      const data = app.live.latest, now = data.now, more = app.live.pendingCount;
+      const on = app.view.live && now && !now.done;
+      const lead = on && now.lead ? (data.leads || []).find(l => l.id === now.lead) : null;
+      const say = on ? now.note || (lead && lead.text) || "" : "";
+      const key = on ? `${now.round}|${say}|${more}` : "";
+      if (key === nowKey) return; nowKey = key;
+      mastNow.innerHTML = on ? `<i class="gaze"></i><span>Round ${pad(now.round || 0, 2)}</span><span class="say">${esc(say)}</span>${more > 0 ? `<span class="more">+${more}</span>` : ""}` : "";
     }
 
     // ---------- HUD：光标下是什么 ----------
@@ -199,7 +213,7 @@
       openPanel, closePanel, syncTools, syncSwitch,
       // 调研数据更新后：标题与模式索引跟上；打开着的面板不重排，下次打开时用新数据
       refresh() { syncMast(); buildIndex(); },
-      tick() { drawHud(); syncDepth(); },
+      tick() { drawHud(); syncDepth(); drawNow(); },
     };
   }
 

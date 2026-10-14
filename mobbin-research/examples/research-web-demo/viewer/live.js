@@ -31,6 +31,10 @@
 
     return {
       on,
+      // 最新读到的数据：Agent 的"此刻"只是信息，不挪动画面，不必等落地
+      get latest() { return pending || app.research.data; },
+      // 已经读到、还没落地的新图数量
+      get pendingCount() { return pending ? Math.max(0, pending.screens.length - app.research.screens.length) : 0; },
       start() { if (on) poll(); },
       // 每帧检查：有排队的数据，且用户已停手、镜头静止，才并入
       tick() {

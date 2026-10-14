@@ -86,12 +86,19 @@
 
       // 还没走过的线索：一粒橙色的光
       render.leadRects = [];
+      // Agent 此刻正在追的线索：光点外荡开一圈细环，像视线落在这里
+      const agent = app.view.live && app.research.data.now, gazeAt = agent && !agent.done ? agent.lead : null;
       for (const L of scene.leadDots) {
         if (Math.hypot(L.x - core.x, L.y - core.y) * k > enterFront) continue;
         const sx = L.x * k + ox, sy = L.y * k + oy, open = L.lead.status === "open";
         ctx.globalAlpha = open ? (REDUCED ? 1 : .55 + .45 * Math.sin(T * 3.9 + L.x)) : .6;
         ctx.fillStyle = open ? "#f26522" : "#666";
         ctx.beginPath(); ctx.arc(sx, sy, 2.4, 0, Math.PI * 2); ctx.fill();
+        if (L.lead.id === gazeAt) {
+          const p = REDUCED ? .35 : (T * .8) % 1;
+          ctx.globalAlpha = (1 - p) * .85; ctx.strokeStyle = "#f26522"; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.arc(sx, sy, 3 + p * 12, 0, Math.PI * 2); ctx.stroke();
+        }
         ctx.globalAlpha = 1;
         render.leadRects.push({ L, sx, sy });
       }

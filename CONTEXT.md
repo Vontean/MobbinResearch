@@ -15,6 +15,7 @@
 | 线索 Lead | 从一张截图长出的下一步方向，带理由；状态 open / done / empty | `leads[]` |
 | 线索链 Trail | 从调研起点沿线索走到某张截图的路径 | `domain.trail(s)` |
 | 呼应 / 对照 Echo / Contrast | Agent 主动标注的两张截图之间的关系 | `echoes[]` |
+| 此刻 Now | Agent 当前的轮次、正在追的线索和一句话；完成时标记 done | `now` |
 | 检查点 Checkpoint | 每满 25% 写下的阶段小结 | `checkpoints[]` |
 | 洞察 Insight | 一句可以直接用于设计决策的判断，附证据截图 | `insights[]`；单张截图的 `insight` |
 | 笔记 Note | Agent 保存截图时的现场观察（`why_saved`） | `why_saved` |

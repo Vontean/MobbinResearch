@@ -43,6 +43,12 @@ def snapshot(full, n, done):
         "echoes": [e for e in full.get("echoes", []) if e["a"] in ids and e["b"] in ids],
         "checkpoints": [c for c in full.get("checkpoints", []) if c["at"] <= n * 100 / target],
     }
+    # 此刻：正在追下一张图的线索
+    nxt = full["screens"][n] if n < len(full["screens"]) else None
+    lead = next((l for l in leads if nxt and l["id"] == nxt.get("found_via")), None)
+    out["now"] = {"round": n // 3 + 1, "done": done}
+    if lead:
+        out["now"].update(lead=lead["id"], note=lead["text"])
     if not done:
         out.update(insights=[], picks=[], gaps=[])
     return out

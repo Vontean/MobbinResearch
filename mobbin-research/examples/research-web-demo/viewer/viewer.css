@@ -35,6 +35,12 @@ body.panel-open .shift { transform: translateX(calc(-1 * var(--panel-w) - var(--
 #masthead { left: var(--s-6); top: var(--s-4); pointer-events: none; max-width: min(480px, 32vw); }
 #masthead .title, #masthead .meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #masthead .title + .meta { margin-top: 2px; }
+/* Agent 此刻在做什么：只在 Loop 进行中出现 */
+#mast-now { margin-top: 12px; display: flex; align-items: center; gap: 8px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; }
+#mast-now:empty { display: none; }
+#mast-now .gaze { flex: none; width: 5px; height: 5px; border-radius: 50%; background: var(--utility-orange); animation: pulse 1.6s var(--ease) infinite; }
+#mast-now .say { overflow: hidden; text-overflow: ellipsis; text-transform: none; letter-spacing: 0; font-family: var(--font-human); font-size: 12px; color: var(--text-primary); }
+#mast-now .more { flex: none; color: var(--utility-orange); }
 #tools { right: var(--s-6); top: var(--s-5); display: flex; gap: 6px; transition: transform .56s var(--ease-drawer), opacity .3s var(--ease); }
 .tool { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font: 400 11px/1 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); transition: border-color .2s ease-out, color .2s ease-out, transform .16s var(--ease); }
 .tool:active { transform: scale(.96); }
@@ -177,6 +183,6 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 .source .meta { color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
-  .shine.play, .led, .big-segs i { animation: none; }
+  .shine.play, .led, .big-segs i, #mast-now .gaze { animation: none; }
   .big-segs i { transform: none; opacity: 1; }
 }

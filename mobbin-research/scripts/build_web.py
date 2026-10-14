@@ -76,6 +76,12 @@ def check(data, root):
     for p in data.get("picks", []):
         if p.get("id") not in sid:
             errors.append(f"pick {p.get('id')}: 不存在的 screen")
+    now = data.get("now")
+    if now is not None:
+        if now.get("lead") is not None and now["lead"] not in leads:
+            errors.append(f"now: lead 指向不存在的线索 {now['lead']}")
+        if not isinstance(now.get("done", False), bool):
+            errors.append("now: done 必须是 true 或 false")
 
     # 以下是进度提醒，用来判断 Loop 能否结束
     target = brief.get("target")
