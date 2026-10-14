@@ -17,7 +17,7 @@
     const ptr = { x: -9999, y: -9999, sx: -9999, sy: -9999, inside: false, speed: 0, wake: 0, lastT: 0 };
     let drag = null, moved = false;
     let hoverTile = null, hoverLead = null, hoverSince = 0, emptySince = 0, near = null;
-    let lastInteract = 0, settled = 0, closeT = 0, pullUntil = 0;
+    let lastInteract = 0, settled = 0, closeT = 0, pullUntil = 0, lastWheel = 0;
 
     const nodeOf = s => stage.nodeOf.get(s);
     const centerOfRect = r => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
@@ -185,7 +185,10 @@
     // 滚轮只控制深度：拖拽在海里移动，滚轮下潜或上浮
     canvas.addEventListener("wheel", e => {
       e.preventDefault();
-      if (performance.now() < pullUntil) return;   // 离开时的快速拉远进行中，不和滚轮抢镜头
+      // 滚轮离开聚焦后，吞掉这一次手势剩下的滚动（含触控板惯性），直到滚动停下一小会儿；否则拉远停住后又会自己退一段
+      const now = performance.now(), gap = now - lastWheel; lastWheel = now;
+      if (pullUntil && (now < pullUntil || gap < F.wheelGap)) return;
+      pullUntil = 0;
       app.intro.stop(); camera.stopGlide(); lastInteract = performance.now();
       if (!state.focused) wake(null);
       const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
