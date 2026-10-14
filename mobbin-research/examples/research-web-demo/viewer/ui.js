@@ -102,7 +102,7 @@
     // 聚焦图片上叠一张透明的原图：平时不接收光标，只在右键按下的那一刻接住这次右键，
     // 浏览器就会弹出它自带的图片菜单（拷贝图像、存储图像）
     const shot = $("focus-img");
-    let shotRect = null;
+    let shotRect = null, navAt = "", shotAt = "", shotSize = "";
     const releaseShot = () => shot.classList.remove("grab");
     app.canvas.addEventListener("pointerdown", e => {
       const r = shotRect;
@@ -116,15 +116,20 @@
       const st = ix().state, n = st.focused && st.woken && stage.nodeOf.get(st.woken);
       nav.classList.toggle("on", !!n);
       shotRect = n && n.rect;
-      if (!n) return;
+      if (!n) { navAt = shotAt = ""; return; }
       const c = camera.state, { TH } = config.grid;
       // 按钮在图片下方 48px；窗口太矮时最多贴到离底边 16px
       // 聚焦的图画出来会浮起约 3%，按浮起后的底边算；不跟随涌动的细微起伏，按钮保持稳定
       const y = Math.min((n.y + TH * 1.03 / 2) * c.k + c.y + config.focusNav.gap, camera.view.H - config.focusNav.size - 16);
-      nav.style.transform = `translate(${n.x * c.k + c.x}px, ${y}px) translateX(-50%)`;
-      navPrev.disabled = !ix().neighbor(-1); navNext.disabled = !ix().neighbor(1);
+      // 只在位置真的变了时才写样式：镜头静止时每帧零样式计算、零排版；透明图用 transform 移动，不触发排版
+      const at = `translate(${Math.round(n.x * c.k + c.x)}px, ${Math.round(y)}px) translateX(-50%)`;
+      if (at !== navAt) { nav.style.transform = navAt = at; navPrev.disabled = !ix().neighbor(-1); navNext.disabled = !ix().neighbor(1); }
       if (n.s.image && shot.dataset.id !== String(n.s.id)) { shot.src = n.s.image; shot.alt = `${n.s.app} — ${n.s.screen_type}`; shot.dataset.id = n.s.id; }
-      if (shotRect) Object.assign(shot.style, { left: shotRect.x + "px", top: shotRect.y + "px", width: shotRect.w + "px", height: shotRect.h + "px" });
+      // 透明图看不见，不必跟着涌动起伏：按聚焦时的稳定尺寸摆放，镜头不动它就不动
+      const { TW } = config.grid, w = Math.round(TW * 1.03 * c.k), h = Math.round(TH * 1.03 * c.k);
+      const size = `${w}x${h}`, pos = `translate(${Math.round(n.x * c.k + c.x - w / 2)}px, ${Math.round(n.y * c.k + c.y - h / 2)}px)`;
+      if (size !== shotSize) { shot.style.width = w + "px"; shot.style.height = h + "px"; shotSize = size; }
+      if (pos !== shotAt) shot.style.transform = shotAt = pos;
     }
 
     // ---------- 模式索引：右下角，可原地滚动 ----------
