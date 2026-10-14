@@ -68,6 +68,7 @@ flowchart LR
 | 更新演示 | `tools/make_demo.py`，再运行 `build_web.py` |
 | 压测边界 | `tools/make_stress.py` |
 | 模拟 Loop 进行中的实时更新 | `tools/simulate_live.py` |
+| 重新录制产品演示（MOV 母版、MP4、README 动图） | `tools/record_demo.cjs`，产物在 `docs/media/`（MOV 不进版本库） |
 
 ## 验证
 

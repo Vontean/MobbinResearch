@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Replay the demo research as if an agent were running the loop.
 
-    python3 tools/simulate_live.py [out-dir] [--every SECONDS] [--batch N]
+    python3 tools/simulate_live.py [out-dir] [--every SECONDS] [--batch N] [--manual]
 
 Writes the demo's research.json into out-dir step by step (brief first, then
 N screens per step with their leads, echoes and checkpoints; insights, picks
 and gaps at the end) and runs build_web.py after each step. Serve out-dir and
-open it to watch the viewer update live:
+open it to watch the viewer update live. With --manual, each line on stdin
+advances one step (tools/record_demo.cjs drives it this way):
 
     python3 -m http.server 4320 --directory .live-demo
 """
@@ -59,6 +60,7 @@ def main():
     ap.add_argument("out", nargs="?", default=str(ROOT / ".live-demo"))
     ap.add_argument("--every", type=float, default=2.0, help="seconds between steps")
     ap.add_argument("--batch", type=int, default=3, help="screens saved per step")
+    ap.add_argument("--manual", action="store_true", help="advance one step per line on stdin")
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -75,7 +77,12 @@ def main():
         (out / "research.json").write_text(json.dumps(data, ensure_ascii=False, indent=1), encoding="utf-8")
         subprocess.run([sys.executable, str(BUILD), str(out)], check=True, stdout=subprocess.DEVNULL)
         print(f"{n:>3}/{total}", flush=True)
-        if not done:
+        if done:
+            break
+        if args.manual:
+            if not sys.stdin.readline():
+                break
+        else:
             time.sleep(args.every * (2 if i == 0 else 1))
 
 
