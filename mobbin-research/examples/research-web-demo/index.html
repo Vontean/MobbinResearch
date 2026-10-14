@@ -113,7 +113,14 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stats .card { padding: var(--s-4) var(--s-5); }
 .dot-num { font: 400 52px/1 var(--font-dot); color: var(--text-display); font-variant-numeric: tabular-nums; margin-top: 10px; }
-.big-segs { display: flex; gap: 3px; height: 14px; margin-top: 26px; }
+.big-segs { display: flex; gap: 3px; height: 14px; margin-top: 4px; }
+.ttl { display: inline-flex; align-items: center; gap: 8px; }
+.rel-n { font: 400 22px/1 var(--font-dot); color: var(--text-display); letter-spacing: 0; }
+/* 说明图标：细描边圆里一个机器字体的 i */
+.info { display: inline-grid; place-items: center; width: 14px; height: 14px; margin: -2px 0; border: 1px solid var(--border-visible); border-radius: 50%; font: 700 9px/1 var(--font-machine); letter-spacing: 0; text-transform: none; color: var(--text-disabled); cursor: help; transition: color .16s ease-out, border-color .16s ease-out; }
+.info:hover, .info:focus-visible { color: var(--text-display); border-color: var(--text-secondary); outline: none; }
+#tip { position: fixed; z-index: 40; max-width: 260px; padding: 10px 12px; border: 1px solid var(--border-visible); border-radius: 10px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1.6 var(--font-human); pointer-events: none; opacity: 0; transform: translateY(-4px); transition: opacity .14s var(--ease), transform .2s var(--ease); }
+#tip.on { opacity: 1; transform: none; }
 .big-segs i { flex: 1; background: #242424; transform: scale(.3); opacity: 0; animation: seg-in .3s var(--ease-back) forwards; }
 .big-segs i:nth-child(2) { animation-delay: 40ms; } .big-segs i:nth-child(3) { animation-delay: 80ms; } .big-segs i:nth-child(4) { animation-delay: 120ms; }
 .big-segs i.on { background: var(--text-primary); }
@@ -192,6 +199,7 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 </div>
 
 <aside id="panel"><div id="panel-body"></div></aside>
+<div id="tip" role="tooltip"></div>
 
 <script src="research.js"></script>
 <script>
@@ -500,6 +508,7 @@ const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t
 const GRAYS = 12, buckets = Array.from({ length: GRAYS }, () => []);
 let last = performance.now();
 function frame(now) {
+  requestAnimationFrame(frame);
   const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
   const T = now / 1000, amb = REDUCED ? 0 : 1;
   if (tween) {
@@ -673,7 +682,6 @@ function frame(now) {
   hoverTick(now);
   drawHud();
   syncDepth();
-  requestAnimationFrame(frame);
 }
 function brackets(x, y, w, h) {
   const o = 9, l = Math.min(14, w * .3);
@@ -729,12 +737,12 @@ const hudMeta = document.getElementById("hud-meta"), hudLine = document.getEleme
 let hudKey = "";
 const segs = (n, on) => `<span class="segs">${Array.from({ length: n }, (_, i) => `<i class="${i < on ? "on" : ""}"></i>`).join("")}</span>`;
 function drawHud() {
-  const s = hoverTile || st.focus, L = st.hoverLead;
+  const s = hoverTile || st.focus, L = st.hoverLead ? st.hoverLead.L : null;
   const key = s ? `s${s.id}${st.focus === s}` : L ? `l${L.lead.id}` : "idle";
   if (key === hudKey) return; hudKey = key;
   if (s) {
     const n = st.focus === s ? st.related.length : null;
-    hudMeta.innerHTML = `<span style="color:var(--text-primary)">Frame ${pad(s.id)}</span><span>Depth</span>${segs(4, depth(s))}${n != null ? `<span>${pad(n, 2)} related</span>` : ""}`;
+    hudMeta.innerHTML = `<span style="color:var(--text-primary)">Frame ${pad(s.id)}</span><span>Distance</span>${segs(4, depth(s))}${n != null ? `<span>${pad(n, 2)} related</span>` : ""}`;
     hudLine.textContent = `${s.app} — ${s.screen_type} · ${s.patterns.map(p => patById.get(p)?.name || p).join(" / ")}`;
   } else if (L) {
     hudMeta.innerHTML = `<span style="color:var(--utility-orange)">${L.lead.status === "open" ? "Open lead" : "Empty lead"}</span><span>From frame ${pad(L.lead.from)}</span>`;
@@ -891,7 +899,7 @@ const panel = document.getElementById("panel"), body = document.getElementById("
 let lastAvail = null;
 function recenter() { const a = availW(); if (lastAvail != null) cam.tx += (a - lastAvail) / 2; lastAvail = a; }
 function openPanel(mode, arg) {
-  clearTimeout(closeT);
+  clearTimeout(closeT); hideTip();
   if (mode !== "screen") document.body.classList.remove("focused");
   const was = st.panel;
   st.panel = mode; st.panelArg = arg;
@@ -910,6 +918,7 @@ function openPanel(mode, arg) {
 const toolsEl = document.getElementById("tools");
 function syncTools() { toolsEl.style.transform = st.panel ? `translateX(${-(W - toolsEl.offsetWidth - 48)}px)` : ""; }
 function closePanel() {
+  hideTip();
   if (!st.panel) return;
   st.panel = null; st.panelArg = null; syncIndex();
   document.getElementById("t-insight").setAttribute("aria-pressed", "false");
@@ -928,7 +937,25 @@ function syncClip(el) {
   el.classList.toggle("fade-t", el.scrollTop > 2);
   el.classList.toggle("fade-b", el.scrollTop + el.clientHeight < el.scrollHeight - 2);
 }
+// 说明提示：悬停或键盘聚焦 120ms 后出现在图标下方；第一次之后，相邻的图标立即显示
+const tip = document.getElementById("tip");
+let tipT = 0, tipWarm = 0;
+function showTip(el) {
+  clearTimeout(tipT);
+  tipT = setTimeout(() => {
+    tip.textContent = TIPS[el.dataset.tip];
+    const r = el.getBoundingClientRect(), w = Math.min(260, innerWidth - 24);
+    tip.style.left = clamp(r.left - 12, 12, innerWidth - w - 12) + "px"; tip.style.top = r.bottom + 8 + "px";
+    tip.classList.add("on"); tipWarm = performance.now();
+  }, performance.now() - tipWarm < 600 ? 0 : 120);
+}
+function hideTip() { clearTimeout(tipT); if (tip.classList.contains("on")) tipWarm = performance.now(); tip.classList.remove("on"); }
+document.getElementById("panel").addEventListener("scroll", hideTip, { passive: true });
 function bind() {
+  body.querySelectorAll("[data-tip]").forEach(el => {
+    el.addEventListener("pointerenter", () => showTip(el)); el.addEventListener("pointerleave", hideTip);
+    el.addEventListener("focus", () => showTip(el)); el.addEventListener("blur", hideTip);
+  });
   body.querySelectorAll(".clip").forEach(el => { el.addEventListener("scroll", () => syncClip(el), { passive: true }); requestAnimationFrame(() => syncClip(el)); });
   body.querySelectorAll(".card").forEach(c => {
     const sh = document.createElement("span"); sh.className = "shine"; c.prepend(sh);
@@ -944,6 +971,12 @@ function bind() {
     el.addEventListener("pointerleave", () => { if (st.panel === "overview") st.highlight = null; });
   });
 }
+const TIPS = {
+  distance: "这张图离直接竞品有多远。1 格是同类产品，2 格是解决同一需求的其他产品，3 格是结构相似的产品，4 格是来自任意品类的表达启发。在画布上，格数越多，离中心越远。",
+  trail: "这张图是怎么被找到的。从调研起点开始，Agent 每看到一张图，就顺着它想到下一条线索，一路走到这里。点任意一步可以跳过去。",
+  related: "和这张图最相关的几张，最多 8 张。标签说明关系：LEAD 由它的线索直接引出；SIBLING 来自同一条线索；ECHO 和 CONTRAST 是 Agent 标注的呼应与对照；PATTERN 属于同一设计模式；APP 来自同一个 App。",
+};
+const info = key => `<span class="info" tabindex="0" data-tip="${key}" aria-label="${esc(TIPS[key])}">i</span>`;
 const closeBtn = `<button class="meta" id="panel-close" data-close>Esc ${glyph("close")}</button>`;
 const thumb = (s, tag) => `<button class="thumb" data-goto="${s.id}" title="${esc(s.app)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">${tag ? `<span class="tag">${tag}</span>` : ""}</button>`;
 const bar = (label, n, total) => `<div class="bar"><span>${esc(label)}</span><em>${pad(n, 2)}</em><span class="segs">${Array.from({ length: 12 }, (_, i) => `<i class="${i < Math.round(n / Math.max(1, total) * 12) ? "on" : ""}"></i>`).join("")}</span></div>`;
@@ -954,15 +987,12 @@ const render = {
       <section class="card"><div class="row meta"><span><i class="led"></i>Frame ${pad(s.id)}</span>${closeBtn}</div>
         <div class="title">${esc(s.app)}</div><div class="meta" style="margin-top:6px">${esc(s.screen_type)}</div>
         <div class="chips">${s.patterns.map(p => `<button class="chip" data-pattern="${esc(p)}">${esc(patById.get(p)?.name || p)}</button>`).join("")}</div></section>
-      <div class="stats">
-        <section class="card"><div class="meta">Depth</div><div class="big-segs">${[1, 2, 3, 4].map(i => `<i class="${i <= depth(s) ? "on" : ""}"></i>`).join("")}</div></section>
-        <section class="card"><div class="meta">Related</div><div class="dot-num">${pad(st.related.length, 2)}</div></section>
-      </div>
+      <section class="card"><div class="row meta"><span class="ttl">Distance ${info("distance")}</span><span class="dim">${pad(depth(s), 2)} / 04</span></div><div class="big-segs">${[1, 2, 3, 4].map(i => `<i class="${i <= depth(s) ? "on" : ""}"></i>`).join("")}</div></section>
       <section class="card"><div class="meta">Insight</div><div class="clip" style="--clip:168px"><p class="body-text">${esc(s.insight)}</p></div>
         <div class="note"><div class="meta dim">Agent note / round ${pad(s.round ?? 0, 2)}</div><div class="clip" style="--clip:132px"><p>${esc(s.why_saved)}</p></div></div></section>
-      <section class="card"><div class="row meta"><span>Trail</span><span class="dim">${pad(tr.length, 2)} steps</span></div>
+      <section class="card"><div class="row meta"><span class="ttl">Trail ${info("trail")}</span><span class="dim">${pad(tr.length, 2)} steps</span></div>
         <ol class="trail clip" style="--clip:300px">${tr.map((c, i) => `<li data-goto="${c.id}" class="${c === s ? "self" : ""}"><span class="n">${pad(i + 1, 2)}</span><img src="${esc(c.thumb)}" alt=""><div><b>${esc(c.app)}</b><span>${esc(c.lead ? c.lead.text : "起点")}</span>${c.lead && c.lead.reason && i > 0 ? `<em>${esc(c.lead.reason)}</em>` : ""}</div></li>`).join("")}</ol></section>
-      <section class="card"><div class="row meta"><span>Related</span><span class="dim">${pad(st.related.length, 2)}</span></div>
+      <section class="card"><div class="row meta"><span class="ttl">Related ${info("related")}</span><span class="rel-n">${pad(st.related.length, 2)}</span></div>
         <div class="thumbs">${st.related.map(o => thumb(o.s, o.tag)).join("")}</div>
         ${ech.length ? `<div class="clip" style="--clip:168px">${ech.map(e => `<p class="echo"><b>${e.kind === "contrast" ? "CONTRAST" : "ECHO"} ${pad(e.other)}</b>${esc(e.note)}</p>`).join("")}</div>` : ""}</section>
       ${s.source_url ? `<a class="card source" href="${esc(s.source_url)}" target="_blank" rel="noopener"><span class="meta">Open in Mobbin</span>${glyph("out")}</a>` : ""}`;
@@ -972,7 +1002,7 @@ const render = {
     const ids = new Set(list.map(s => s.id)), ins = (DATA.insights || []).filter(i => i.evidence.some(x => ids.has(x)));
     return `
       <section class="card"><div class="row meta"><span>Selection</span>${closeBtn}</div><div class="dot-num">${pad(list.length, 2)}</div><div class="meta" style="margin-top:8px">frames</div></section>
-      <section class="card"><div class="meta">Depth</div><div class="bars">${[1, 2, 3, 4].map(d => bar("Depth " + pad(d, 2), list.filter(s => depth(s) === d).length, list.length)).join("")}</div></section>
+      <section class="card"><div class="meta">Distance</div><div class="bars">${[1, 2, 3, 4].map(d => bar("Distance " + pad(d, 2), list.filter(s => depth(s) === d).length, list.length)).join("")}</div></section>
       <section class="card"><div class="meta">Patterns</div><div class="bars">${[...pc].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([p, n]) => bar(patById.get(p)?.name || p, n, list.length)).join("")}</div></section>
       ${ins.length ? `<section class="card"><div class="meta">Insights</div><div class="clip" style="--clip:260px">${ins.map(i => `<div class="list-item"><p class="body-text">${esc(i.text)}</p></div>`).join("")}</div></section>` : ""}
       <section class="card"><div class="meta">Frames</div><div class="thumbs clip" style="--clip:380px">${list.map(s => thumb(s)).join("")}</div></section>`;
@@ -984,7 +1014,7 @@ const render = {
       <section class="card"><div class="row meta"><span>Pattern</span>${closeBtn}</div><div class="title">${esc(p.name)}</div><div class="clip" style="--clip:120px;margin-top:8px"><p class="sub-text">${esc(p.summary)}</p></div></section>
       <div class="stats">
         <section class="card"><div class="meta">Frames</div><div class="dot-num">${pad(m.length, 2)}</div></section>
-        <section class="card"><div class="meta">Avg depth</div><div class="dot-num">${(m.reduce((t, s) => t + depth(s), 0) / Math.max(1, m.length)).toFixed(1)}</div></section>
+        <section class="card"><div class="meta">Avg distance</div><div class="dot-num">${(m.reduce((t, s) => t + depth(s), 0) / Math.max(1, m.length)).toFixed(1)}</div></section>
       </div>
       ${part("Common", p.common)}${part("Forks", p.forks)}${part("Exceptions", p.exceptions)}
       <section class="card"><div class="meta">Members</div><div class="thumbs clip" style="--clip:380px">${m.map(s => thumb(s)).join("")}</div></section>`;
