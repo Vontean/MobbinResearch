@@ -23,7 +23,8 @@
     function remember() {
       try { grown ? sessionStorage.setItem(memoKey(), JSON.stringify({ cps: settledAt, pos: [...grown] })) : sessionStorage.removeItem(memoKey()); } catch { /* 存不了就算了 */ }
     }
-    const stage = { order: [], nodes: [], nodeOf: new Map(), scene: null, layoutT: 0, enterT: 0, finaleT: 0 };
+    // filter：筛选（只看一条洞察的证据或精选），{ key, ids, title, note }；为空时是整片海
+    const stage = { order: [], nodes: [], nodeOf: new Map(), scene: null, layoutT: 0, enterT: 0, finaleT: 0, filter: null };
 
     function load(n) {
       const img = new Image(); img.decoding = "async"; img.src = n.s.thumb;
@@ -36,6 +37,7 @@
         x: null, y: null,        // 当前显示位置（布局切换时在两种布局之间插值）
         gx: 0, gy: 0, x0: 0, y0: 0, cd: 0,
         lit: 0, dim: 0,          // 被唤醒的程度 / 失焦的程度，0–1
+        out: false, vis: 1,      // 是否被筛选挡在外面 / 当前可见程度，0–1
         rect: null, bornAt: 0,
         img: null, soft: null, full: null,
       };
@@ -81,20 +83,37 @@
       return pn ? [pn.x, pn.y] : [prev.core.x, prev.core.y];
     }
 
-    // 切换布局或数据更新：计算新场景，节点从当前位置出发；animate 时由 step() 插值过去
+    // 筛选：只把选中的图重新排成一座完整的小岛；其余的图原地淡出
+    function filtered(f) {
+      const sub = Sea.domain.createResearch({ ...app.research.data, screens: app.research.screens.filter(s => f.ids.has(s.id)) });
+      const order = Sea.layout.patternOrder(sub), positions = Sea.layout.islandPositions(sub, order);
+      return { positions, scene: Sea.layout.composeScene(sub, "island", positions, null, order) };
+    }
+
+    // 切换布局、筛选或数据更新：计算新场景，节点从当前位置出发；animate 时由 step() 插值过去
     stage.apply = animate => {
-      let positions, lanes = null;
+      let positions, lanes = null, scene;
       const research = app.research, order = stage.order, prev = stage.scene;
-      if (app.view.layout === "lanes") ({ positions, info: lanes } = Sea.layout.lanePositions(research, order));
-      else positions = islandCache ||= island(research, order);
-      const scene = Sea.layout.composeScene(research, app.view.layout, positions, lanes, order);
+      if (stage.filter) ({ positions, scene } = filtered(stage.filter));
+      else {
+        if (app.view.layout === "lanes") ({ positions, info: lanes } = Sea.layout.lanePositions(research, order));
+        else positions = islandCache ||= island(research, order);
+        scene = Sea.layout.composeScene(research, app.view.layout, positions, lanes, order);
+      }
       // 生长中的岛屿：取景按最终的轮廓，图从中央小小地长起，镜头不必跟着一次次拉远
-      if (app.view.layout === "island" && outline) {
+      if (!stage.filter && app.view.layout === "island" && outline) {
         const { TW, TH } = config.grid, b = scene.bounds;
         Object.assign(b, { x0: Math.min(b.x0, -outline - TW), x1: Math.max(b.x1, outline + TW), y0: Math.min(b.y0, -outline - TH), y1: Math.max(b.y1, outline + TH) });
       }
       for (const n of stage.nodes) {
-        const [x, y] = positions.get(n.s);
+        const p = positions.get(n.s);
+        n.out = !p;
+        if (n.out) {                          // 被筛掉：留在原地淡出
+          if (n.x == null) { n.x = n.gx = scene.core.x; n.y = n.gy = scene.core.y; n.vis = 0; }
+          n.gx = n.x; n.gy = n.y; n.x0 = n.x; n.y0 = n.y;
+          continue;
+        }
+        const [x, y] = p;
         n.gx = x; n.gy = y;
         if (n.x == null && animate && prev && !config.reduced) [n.x, n.y] = birthplace(n.s, prev);
         else if (!animate || n.x == null) { n.x = x; n.y = y; }
@@ -105,6 +124,8 @@
       stage.scene = scene;
       app.camera.setBounds(scene.bounds);
     };
+
+    stage.setFilter = f => { stage.filter = f; stage.apply(true); };
 
     // 布局切换的过渡：每张图带一点错落，滑向新位置
     stage.step = now => {

@@ -20,7 +20,7 @@
       deepFitRatio: 1.8,   // 超过适配视图这么多倍，算"已潜入"
       follow: 11,          // 镜头跟随的指数速率
       glideFriction: 3.2,  // 松手滑行的衰减
-      fly: { dive: 1300, surface: 1200, focus: 850, snap: 480, leave: 700, deepLink: 900, finale: 1600 },
+      fly: { dive: 1300, surface: 1200, focus: 850, snap: 480, leave: 700, deepLink: 900, finale: 1600, filter: 900 },
     },
 
     // 聚焦：迟滞区间（进入 60%、松开 45%），预判容差，延迟收起；聚焦时用滚轮往回缩到 85% 以下就当作离开

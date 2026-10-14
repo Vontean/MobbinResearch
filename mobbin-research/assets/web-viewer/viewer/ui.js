@@ -39,7 +39,7 @@
     function drawHud() {
       const { state: st, hoverTile, hoverLead } = ix();
       const s = hoverTile || st.woken, L = hoverLead ? hoverLead.L : null;
-      const key = s ? `s${s.id}${st.woken === s}` : L ? `l${L.lead.id}` : "idle";
+      const f = stage.filter, key = s ? `s${s.id}${st.woken === s}` : L ? `l${L.lead.id}` : `idle${f ? f.key : ""}`;
       if (key === hudKey) return; hudKey = key;
       if (s) {
         const n = st.woken === s ? st.related.length : null;
@@ -50,7 +50,8 @@
         hudLine.textContent = L.lead.text + (L.lead.reason ? ` — ${L.lead.reason}` : "");
       } else {
         hudMeta.innerHTML = [["drift", "Drift"], ["dive", "Dive"], ["relate", "Relate"], ["focus", "Focus"]].map(([g, t]) => `<span class="key">${glyph(g)}${t}</span>`).join("");
-        hudLine.textContent = "";
+        // 筛选中：左下角用浅灰小字写这次筛选的全局说明
+        hudLine.innerHTML = f && f.note ? `<span class="filter-note">${esc(f.note)}</span>` : "";
       }
     }
 
@@ -81,6 +82,18 @@
       app.view[key] = b.dataset.v; syncSwitch();
       if (key === "layout") { ix().leave(); app.intro.stop(); stage.apply(true); setTimeout(() => camera.surface(), 250); }
     }));
+
+    // ---------- 筛选：顶部的布局开关换成筛选标题与 Close ----------
+    $("filter-close").innerHTML = `${glyph("close")}Close`;
+    $("filter-close").onclick = () => ix().clearFilter();
+    function syncFilter() {
+      const f = stage.filter;
+      document.body.classList.toggle("filtered", !!f);
+      $("filter-title").textContent = f ? f.title : "";
+      body.querySelectorAll("[data-insight]").forEach(el => el.classList.toggle("is-on", !!f && f.key === `insight:${el.dataset.insight}`));
+      body.querySelectorAll("[data-filter]").forEach(el => el.setAttribute("aria-pressed", !!f && f.key === el.dataset.filter));
+      hudKey = "";
+    }
 
     // ---------- 模式索引：右下角，可原地滚动 ----------
     const indexEl = $("index"), indexMore = $("index-more");
@@ -199,18 +212,25 @@
       body.querySelectorAll("[data-goto]").forEach(el => el.addEventListener("click", () => ix().focus(app.research.byId.get(+el.dataset.goto))));
       body.querySelectorAll("[data-pattern]").forEach(el => el.addEventListener("click", () => ix().openPattern(el.dataset.pattern)));
       body.querySelectorAll("[data-close]").forEach(el => el.addEventListener("click", () => ix().leave()));
+      const insights = app.research.data.insights || [];
       body.querySelectorAll("[data-insight]").forEach(el => {
-        const set = new Set(app.research.data.insights.find(i => i.id === el.dataset.insight).evidence);
+        const i = insights.findIndex(x => x.id === el.dataset.insight), ins = insights[i], set = new Set(ins.evidence);
         el.addEventListener("pointerenter", () => ix().highlight(set));
         el.addEventListener("pointerleave", () => { if (panelMode === "overview") ix().highlight(null); });
+        el.addEventListener("click", () => ix().filter({ key: `insight:${ins.id}`, ids: set, title: `Insight ${pad(i + 1, 2)} · ${pad(set.size, 2)} frames`, note: ins.text }));
       });
+      body.querySelectorAll("[data-filter=picks]").forEach(el => el.addEventListener("click", () => {
+        const ids = new Set((app.research.data.picks || []).map(p => p.id));
+        ix().filter({ key: "picks", ids, title: `Picks · ${pad(ids.size, 2)} frames`, note: `Agent 挑出的最值得深挖的 ${ids.size} 张` });
+      }));
+      syncFilter();
     }
 
     syncMast(); buildIndex();
 
     return {
       get panelMode() { return panelMode; },
-      openPanel, closePanel, syncTools, syncSwitch,
+      openPanel, closePanel, syncTools, syncSwitch, syncFilter,
       // 调研数据更新后：标题与模式索引跟上；打开着的面板不重排，下次打开时用新数据
       refresh() { syncMast(); buildIndex(); },
       tick() { drawHud(); syncDepth(); drawNow(); },

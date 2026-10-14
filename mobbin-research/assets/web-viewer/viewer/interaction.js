@@ -55,6 +55,8 @@
 
     // 聚焦：镜头推到最深并居中，面板只在这时出现，标题和 HUD 让位
     function focus(s, dur = config.camera.fly.focus) {
+      // 跳到筛选之外的图（比如从关联、线索链点过去）：先退出筛选
+      if (stage.filter && !stage.filter.ids.has(s.id)) { stage.setFilter(null); app.ui.syncFilter(); }
       const fresh = !(state.focused && state.woken === s);
       state.highlight = null; state.focused = true;
       if (fresh) { wake(s); app.ui.openPanel("screen", s); }
@@ -92,6 +94,18 @@
       }
     }
     function highlight(set) { state.highlight = set; }
+    // 筛选：只看一组图（一条洞察的证据、精选）；它们聚成一座小岛，镜头取景到它。再次选中同一组即退出
+    function filter(f) {
+      if (stage.filter && stage.filter.key === f.key) return clearFilter();
+      unfocus(); state.highlight = null;
+      stage.setFilter(f); app.ui.syncFilter(); frame();
+    }
+    function clearFilter() {
+      if (!stage.filter) return;
+      unfocus(); state.highlight = null;
+      stage.setFilter(null); app.ui.syncFilter(); frame();
+    }
+    const frame = () => { app.intro.stop(); camera.stopGlide(); camera.fly(camera.fitTarget(), config.camera.fly.filter); };
     // 调研数据更新后：唤醒或聚焦的那张图换成新数据里的同一张，关联随之重算；那张图不在了就离开
     function remap() {
       if (!state.woken) return;
@@ -200,7 +214,8 @@
       app.intro.stop(); camera.diveAt((e.clientX - cam.x) / cam.k, (e.clientY - cam.y) / cam.k);
     });
     addEventListener("keydown", e => {
-      if (e.key === "Escape") leave();
+      // Esc：先收起面板或聚焦；什么都没打开时，退出筛选
+      if (e.key === "Escape") { if (!state.focused && !app.ui.panelMode && stage.filter) clearFilter(); else leave(); }
       else if (e.key === "f" || e.key === "F") { app.intro.stop(); camera.surface(); }
       else if (e.key === "d" || e.key === "D") { app.intro.stop(); camera.diveAt(stage.scene.core.x, stage.scene.core.y); }
       else if (e.key === "i" || e.key === "I") toggleOverview();
@@ -213,7 +228,7 @@
       get hoverLead() { return hoverLead; },
       get idleFor() { return performance.now() - lastInteract; },
       touch(now) { lastInteract = now; },
-      wake, focus, release, leave, highlight, remap, toggleOverview, openPattern, cancelClose,
+      wake, focus, release, leave, highlight, filter, clearFilter, remap, toggleOverview, openPattern, cancelClose,
       beforeDraw, afterDraw,
     };
   }

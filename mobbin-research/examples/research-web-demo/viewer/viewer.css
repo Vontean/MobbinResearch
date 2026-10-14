@@ -81,6 +81,20 @@ body.panel-open #gauge { transform: translate(calc(-1 * var(--panel-w) - var(--s
 #gauge span { margin-top: 6px; font: 400 10px/1 var(--font-machine); letter-spacing: .08em; color: var(--text-disabled); writing-mode: vertical-rl; transform: rotate(180deg); }
 #switch { left: 50%; top: var(--s-5); transform: translateX(-50%); display: flex; gap: 8px; }
 body.panel-open #switch { opacity: 0; pointer-events: none; }
+/* 筛选：布局开关的位置换成筛选标题与 Close；面板打开时居中在剩余的画面里 */
+#filterbar { left: 50%; top: var(--s-5); transform: translateX(-50%); display: none; align-items: center; gap: var(--s-3); height: 34px; padding: 0 3px 0 var(--s-4); border: 1px solid var(--border-visible); border-radius: 999px; background: var(--surface); }
+body.filtered #filterbar { display: flex; }
+body.filtered #switch { display: none; }
+body.panel-open #filterbar { left: calc((100% - var(--panel-w) - var(--s-4)) / 2); }
+#filter-title { max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 400 11px/1 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-display); }
+#filter-close { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--surface-raised); font: 400 11px/1 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); transition: color .2s ease-out; }
+#filter-close:hover { color: var(--text-primary); }
+#hud .line .filter-note { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; font-size: 12px; line-height: 1.5; color: var(--text-disabled); }
+/* 卡片标题右侧的图标按钮（如 Picks 的筛选） */
+.icon-btn { display: inline-grid; place-items: center; width: 26px; height: 26px; margin: -6px -4px -6px 0; border: 1px solid var(--border); border-radius: 50%; color: var(--text-secondary); transition: color .2s ease-out, border-color .2s ease-out; }
+.icon-btn:hover, .icon-btn[aria-pressed="true"] { color: var(--text-display); border-color: var(--border-visible); }
+button.list-item.is-on .body-text { color: var(--text-display); }
+button.list-item.is-on { box-shadow: inset 2px 0 0 var(--text-display); padding-left: var(--s-3); }
 .seg { display: flex; padding: 3px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
 .seg button { height: 26px; padding: 0 12px; border-radius: 999px; font: 400 11px/1 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-disabled); transition: color .2s ease-out, background-color .2s ease-out; }
 .seg button:hover { color: var(--text-primary); }

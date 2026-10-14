@@ -108,10 +108,13 @@
       }
 
       // 截图：先更新每个节点的唤醒 / 失焦程度和屏幕矩形，再按层级绘制
-      const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * config.wake.rate);
+      const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * config.wake.rate), vk = REDUCED ? 1 : 1 - Math.exp(-dt * 7);
       for (const n of stage.nodes) {
         const s = n.s, sx = n.x * k + ox, sy = n.y * k + oy;
         if (n.cd * k > enterFront) { n.rect = null; continue; }
+        // 筛选：被挡在外面的图淡出、略微缩小，且不再响应光标
+        n.vis += ((n.out ? 0 : 1) - n.vis) * vk;
+        if (n.vis < .02) { n.rect = null; continue; }
         if (!n.bornAt) n.bornAt = now;
         const age = REDUCED ? 1 : clamp((now - n.bornAt) / 520, 0, 1);
         const f = wave(n.x, n.y, T) * amb;
@@ -126,10 +129,10 @@
         n.lit += (tl - n.lit) * lk; n.dim += (td - n.dim) * lk;
         const hovered = s === ix.hoverTile && live;
         // 景深：焦点与相关图保持清晰，其余的失焦、略微退后
-        const sc = (1 + f * .01 + (hovered ? .04 : 0) + n.lit * .03 + sweep(n.cd * k) * .04) * (.55 + .45 * util.ease.back(age)) * (1 - n.dim * .04);
+        const sc = (1 + f * .01 + (hovered ? .04 : 0) + n.lit * .03 + sweep(n.cd * k) * .04) * (.55 + .45 * util.ease.back(age)) * (1 - n.dim * .04) * (.9 + .1 * n.vis);
         const w = TW * k * sc, h = TH * k * sc;
-        n.rect = { x: sx - w / 2, y: sy - h / 2, w, h };
-        draws.push({ n, sx, sy, w, h, alpha: Math.min(1, age * 2.2), z: sc + n.lit });
+        n.rect = n.out ? null : { x: sx - w / 2, y: sy - h / 2, w, h };
+        draws.push({ n, sx, sy, w, h, alpha: Math.min(1, age * 2.2) * n.vis, z: sc + n.lit });
       }
       draws.sort((a, b) => a.z - b.z);
       ctx.textAlign = "center";

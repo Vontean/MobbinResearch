@@ -39,6 +39,7 @@
 | 预判聚焦 | 缩放接近最深、某张截图接近画面中央时，自动聚焦它 | `interaction.beforeDraw()` |
 | 松开 Release | 因缩放或拖拽离开聚焦；面板等用户停手后才收起 | `interaction.release()` |
 | 离开 Leave | Esc、关闭、点击空白：收起面板，镜头往后拉 | `interaction.leave()` |
+| 筛选 Filter | 只看一组图（一条洞察的证据、精选）：它们聚成一座小岛，其余淡出；顶部显示筛选标题与 Close | `interaction.filter()` / `stage.filter` |
 | 高亮 Highlight | 一组截图保持清晰：来自模式、洞察或框选 | `interaction.highlight()` |
 | 面板 Panel | 右侧的一列卡片；只在聚焦、模式、框选、概览时出现 | `ui.js`、`cards.js` |
 | 开场 Boot | 任务刚启动、还没有图时，任务书在画布中央逐字打出；第一批图到来时收进左上角标题 | `boot.js` |

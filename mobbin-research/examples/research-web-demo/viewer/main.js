@@ -40,7 +40,7 @@
   let introT = 0, playing = false, diving = false;
   app.intro = {
     // 回放：回到全貌，重新入场。进入页面（包括刷新）也是一次回放
-    replay() { app.interaction.leave(); app.intro.stop(); app.camera.fit(true); app.intro.start(); },
+    replay() { app.interaction.leave(); app.interaction.clearFilter(); app.intro.stop(); app.camera.fit(true); app.intro.start(); },
     start() {
       const { camera, stage } = app, E = config.entrance;
       stage.enter(); playing = true; diving = false;

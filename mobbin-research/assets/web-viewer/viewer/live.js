@@ -35,7 +35,7 @@
     // 镜头落定后，一道光波从核心荡过整片海
     function finale() {
       const { camera, stage, interaction, config } = app;
-      interaction.leave(); app.intro.stop();
+      interaction.leave(); interaction.clearFilter(); app.intro.stop();
       camera.fly(camera.fitTarget(), config.camera.fly.finale);
       stage.finaleT = performance.now() + config.camera.fly.finale + config.finale.delay;
     }

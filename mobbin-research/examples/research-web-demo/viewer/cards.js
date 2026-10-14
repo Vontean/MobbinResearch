@@ -89,8 +89,8 @@
         ${(b.questions || []).length ? `<ol class="qs">${b.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ol>` : ""}</section>
       <section class="card"><div class="row meta"><span>Insights</span><span class="dim">${pad((DATA.insights || []).length, 2)}</span></div>
         <div class="clip" style="--clip:380px">${(DATA.insights || []).map(i => `<button class="list-item" data-insight="${esc(i.id)}"><p class="body-text">${esc(i.text)}</p><div class="meta dim">${pad(i.evidence.length, 2)} frames</div></button>`).join("")}</div></section>
+      ${(DATA.picks || []).length ? `<section class="card"><div class="row meta"><span>Picks</span><button class="icon-btn" data-filter="picks" aria-pressed="false" aria-label="只看精选" title="只看精选">${glyph("filter")}</button></div><div class="thumbs clip" style="--clip:320px">${DATA.picks.map(p => byId.get(p.id)).filter(Boolean).map(s => thumb(s)).join("")}</div></section>` : ""}
       ${(DATA.checkpoints || []).length ? `<section class="card"><div class="meta">Agent log</div><div class="clip" style="--clip:340px">${DATA.checkpoints.map(c => `<div class="list-item"><div class="meta">${pad(c.at)}% / round ${pad(c.round, 2)}</div><div style="margin-top:6px">${rich(c.note, "body-text")}</div>${c.next ? `<p class="sub-text" style="margin-top:4px">→ ${esc(c.next)}</p>` : ""}</div>`).join("")}</div></section>` : ""}
-      ${(DATA.picks || []).length ? `<section class="card"><div class="meta">Picks</div><div class="thumbs clip" style="--clip:320px">${DATA.picks.map(p => byId.get(p.id)).filter(Boolean).map(s => thumb(s)).join("")}</div></section>` : ""}
       ${(DATA.gaps || []).length ? `<section class="card"><div class="meta">Gaps</div><div class="clip" style="--clip:260px">${DATA.gaps.map(g => `<div class="list-item">${rich(g, "body-text")}</div>`).join("")}</div></section>` : ""}`;
       },
     };
