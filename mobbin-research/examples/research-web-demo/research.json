@@ -91,7 +91,7 @@
     "score-ring"
    ],
    "insight": "把待处理事项挂在分数下面，分数就成了任务入口",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v02_thumb.jpg",
    "image": "screens/v02.jpg",
    "source_url": "https://mobbin.com/screens/demo-001",
@@ -107,7 +107,7 @@
     "severity-color"
    ],
    "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
-   "why_saved": "在 Bitdefender 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Bitdefender 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Bitdefender 里最完整的一张",
    "thumb": "screens/v07_thumb.jpg",
    "image": "screens/v07.jpg",
    "source_url": "https://mobbin.com/screens/demo-002",
@@ -124,7 +124,7 @@
     "score-ring"
    ],
    "insight": "允许在扫描时离开，完成后用通知召回",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v12_thumb.jpg",
    "image": "screens/v12.jpg",
    "source_url": "https://mobbin.com/screens/demo-003",
@@ -141,7 +141,7 @@
     "score-ring"
    ],
    "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v17_thumb.jpg",
    "image": "screens/v17.jpg",
    "source_url": "https://mobbin.com/screens/demo-004",
@@ -157,7 +157,7 @@
     "single-cta"
    ],
    "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v14_thumb.jpg",
    "image": "screens/v14.jpg",
    "source_url": "https://mobbin.com/screens/demo-005",
@@ -173,7 +173,7 @@
     "score-ring"
    ],
    "insight": "把待处理事项挂在分数下面，分数就成了任务入口",
-   "why_saved": "在 Oura 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Oura 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Oura 里最完整的一张",
    "thumb": "screens/v03_thumb.jpg",
    "image": "screens/v03.jpg",
    "source_url": "https://mobbin.com/screens/demo-006",
@@ -189,7 +189,7 @@
     "score-ring"
    ],
    "insight": "用分数的变化趋势代替单个分数，能回答「在变好还是变坏」",
-   "why_saved": "在 Authy 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Authy 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Authy 里最完整的一张",
    "thumb": "screens/v04_thumb.jpg",
    "image": "screens/v04.jpg",
    "source_url": "https://mobbin.com/screens/demo-007",
@@ -205,7 +205,7 @@
     "score-ring"
    ],
    "insight": "用分数的变化趋势代替单个分数，能回答「在变好还是变坏」",
-   "why_saved": "和 #1 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #1 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v01_thumb.jpg",
    "image": "screens/v01.jpg",
    "source_url": "https://mobbin.com/screens/demo-008",
@@ -221,7 +221,7 @@
     "protection-toggles"
    ],
    "insight": "关闭关键防护时用二次确认并说明风险",
-   "why_saved": "它解决了我在 #2 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#2 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v02_thumb.jpg",
    "image": "screens/v02.jpg",
    "source_url": "https://mobbin.com/screens/demo-009",
@@ -238,7 +238,7 @@
     "permission-guide"
    ],
    "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
-   "why_saved": "它解决了我在 #3 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#3 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v11_thumb.jpg",
    "image": "screens/v11.jpg",
    "source_url": "https://mobbin.com/screens/demo-010",
@@ -254,7 +254,7 @@
     "severity-color"
    ],
    "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
-   "why_saved": "看到这里才意识到 #4 的做法可以再简化一层",
+   "why_saved": "- 对比：#4 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#4 的做法还能再简化，这张是证据",
    "thumb": "screens/v08_thumb.jpg",
    "image": "screens/v08.jpg",
    "source_url": "https://mobbin.com/screens/demo-011",
@@ -270,7 +270,7 @@
     "severity-color"
    ],
    "insight": "风险卡片的第一行写「需要你做什么」，而不是威胁名称",
-   "why_saved": "和 #4 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #4 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v05_thumb.jpg",
    "image": "screens/v05.jpg",
    "source_url": "https://mobbin.com/screens/demo-012",
@@ -287,7 +287,7 @@
     "severity-color"
    ],
    "insight": "付费墙把免费版的出口放在可见位置，反而提升了信任",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v14_thumb.jpg",
    "image": "screens/v14.jpg",
    "source_url": "https://mobbin.com/screens/demo-013",
@@ -304,7 +304,7 @@
     "protection-toggles"
    ],
    "insight": "次要操作降级为文字链接，主次一眼可辨",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v15_thumb.jpg",
    "image": "screens/v15.jpg",
    "source_url": "https://mobbin.com/screens/demo-014",
@@ -320,7 +320,7 @@
     "permission-guide"
    ],
    "insight": "用真实场景插画解释为什么需要这个权限",
-   "why_saved": "它解决了我在 #6 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#6 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v20_thumb.jpg",
    "image": "screens/v20.jpg",
    "source_url": "https://mobbin.com/screens/demo-015",
@@ -336,7 +336,7 @@
     "permission-guide"
    ],
    "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
-   "why_saved": "和 #6 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #6 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v17_thumb.jpg",
    "image": "screens/v17.jpg",
    "source_url": "https://mobbin.com/screens/demo-016",
@@ -352,7 +352,7 @@
     "permission-guide"
    ],
    "insight": "用真实场景插画解释为什么需要这个权限",
-   "why_saved": "看到这里才意识到 #6 的做法可以再简化一层",
+   "why_saved": "- 对比：#6 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#6 的做法还能再简化，这张是证据",
    "thumb": "screens/v18_thumb.jpg",
    "image": "screens/v18.jpg",
    "source_url": "https://mobbin.com/screens/demo-017",
@@ -368,7 +368,7 @@
     "score-ring"
    ],
    "insight": "把待处理事项挂在分数下面，分数就成了任务入口",
-   "why_saved": "看到这里才意识到 #7 的做法可以再简化一层",
+   "why_saved": "- 对比：#7 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#7 的做法还能再简化，这张是证据",
    "thumb": "screens/v03_thumb.jpg",
    "image": "screens/v03.jpg",
    "source_url": "https://mobbin.com/screens/demo-018",
@@ -385,7 +385,7 @@
     "scan-progress"
    ],
    "insight": "把防护能力按威胁类型分组，而不是按技术模块",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v04_thumb.jpg",
    "image": "screens/v04.jpg",
    "source_url": "https://mobbin.com/screens/demo-019",
@@ -401,7 +401,7 @@
     "protection-toggles"
    ],
    "insight": "把防护能力按威胁类型分组，而不是按技术模块",
-   "why_saved": "它解决了我在 #8 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#8 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v01_thumb.jpg",
    "image": "screens/v01.jpg",
    "source_url": "https://mobbin.com/screens/demo-020",
@@ -418,7 +418,7 @@
     "scan-progress"
    ],
    "insight": "每个开关旁一句「开启后会发生什么」，降低误操作",
-   "why_saved": "在 Apple Health 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Apple Health 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Apple Health 里最完整的一张",
    "thumb": "screens/v02_thumb.jpg",
    "image": "screens/v02.jpg",
    "source_url": "https://mobbin.com/screens/demo-021",
@@ -434,7 +434,7 @@
     "scan-progress"
    ],
    "insight": "允许在扫描时离开，完成后用通知召回",
-   "why_saved": "和 #10 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #10 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v11_thumb.jpg",
    "image": "screens/v11.jpg",
    "source_url": "https://mobbin.com/screens/demo-022",
@@ -450,7 +450,7 @@
     "scan-progress"
    ],
    "insight": "滚动显示正在检查的具体对象，让等待有内容",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v12_thumb.jpg",
    "image": "screens/v12.jpg",
    "source_url": "https://mobbin.com/screens/demo-023",
@@ -466,7 +466,7 @@
     "severity-color"
    ],
    "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v05_thumb.jpg",
    "image": "screens/v05.jpg",
    "source_url": "https://mobbin.com/screens/demo-024",
@@ -482,7 +482,7 @@
     "severity-color"
    ],
    "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
-   "why_saved": "它解决了我在 #11 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#11 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v06_thumb.jpg",
    "image": "screens/v06.jpg",
    "source_url": "https://mobbin.com/screens/demo-025",
@@ -498,7 +498,7 @@
     "severity-color"
    ],
    "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
-   "why_saved": "它解决了我在 #12 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#12 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v07_thumb.jpg",
    "image": "screens/v07.jpg",
    "source_url": "https://mobbin.com/screens/demo-026",
@@ -514,7 +514,7 @@
     "severity-color"
    ],
    "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
-   "why_saved": "在 SimpliSafe 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：SimpliSafe 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 SimpliSafe 里最完整的一张",
    "thumb": "screens/v08_thumb.jpg",
    "image": "screens/v08.jpg",
    "source_url": "https://mobbin.com/screens/demo-027",
@@ -531,7 +531,7 @@
     "scan-progress"
    ],
    "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
-   "why_saved": "它解决了我在 #13 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#13 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v13_thumb.jpg",
    "image": "screens/v13.jpg",
    "source_url": "https://mobbin.com/screens/demo-028",
@@ -547,7 +547,7 @@
     "single-cta"
    ],
    "insight": "主按钮的状态随上下文变化，按钮即状态说明",
-   "why_saved": "在 Calm 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Calm 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Calm 里最完整的一张",
    "thumb": "screens/v14_thumb.jpg",
    "image": "screens/v14.jpg",
    "source_url": "https://mobbin.com/screens/demo-029",
@@ -563,7 +563,7 @@
     "single-cta"
    ],
    "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
-   "why_saved": "看到这里才意识到 #13 的做法可以再简化一层",
+   "why_saved": "- 对比：#13 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#13 的做法还能再简化，这张是证据",
    "thumb": "screens/v15_thumb.jpg",
    "image": "screens/v15.jpg",
    "source_url": "https://mobbin.com/screens/demo-030",
@@ -579,7 +579,7 @@
     "scan-progress"
    ],
    "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
-   "why_saved": "它解决了我在 #14 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#14 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v12_thumb.jpg",
    "image": "screens/v12.jpg",
    "source_url": "https://mobbin.com/screens/demo-031",
@@ -596,7 +596,7 @@
     "single-cta"
    ],
    "insight": "滚动显示正在检查的具体对象，让等待有内容",
-   "why_saved": "在 Strava 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Strava 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Strava 里最完整的一张",
    "thumb": "screens/v09_thumb.jpg",
    "image": "screens/v09.jpg",
    "source_url": "https://mobbin.com/screens/demo-032",
@@ -613,7 +613,7 @@
     "protection-toggles"
    ],
    "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
-   "why_saved": "和 #14 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #14 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v10_thumb.jpg",
    "image": "screens/v10.jpg",
    "source_url": "https://mobbin.com/screens/demo-033",
@@ -630,7 +630,7 @@
     "scan-progress"
    ],
    "insight": "按功能逐个请求权限，每次只解释一件事",
-   "why_saved": "结构上和 #15 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #15 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v19_thumb.jpg",
    "image": "screens/v19.jpg",
    "source_url": "https://mobbin.com/screens/demo-034",
@@ -646,7 +646,7 @@
     "permission-guide"
    ],
    "insight": "按功能逐个请求权限，每次只解释一件事",
-   "why_saved": "结构上和 #15 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #15 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v20_thumb.jpg",
    "image": "screens/v20.jpg",
    "source_url": "https://mobbin.com/screens/demo-035",
@@ -662,7 +662,7 @@
     "permission-guide"
    ],
    "insight": "拒绝权限后给出降级方案，而不是死路",
-   "why_saved": "结构上和 #15 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #15 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v17_thumb.jpg",
    "image": "screens/v17.jpg",
    "source_url": "https://mobbin.com/screens/demo-036",
@@ -678,7 +678,7 @@
     "permission-guide"
    ],
    "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
-   "why_saved": "看到这里才意识到 #16 的做法可以再简化一层",
+   "why_saved": "- 对比：#16 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#16 的做法还能再简化，这张是证据",
    "thumb": "screens/v18_thumb.jpg",
    "image": "screens/v18.jpg",
    "source_url": "https://mobbin.com/screens/demo-037",
@@ -694,7 +694,7 @@
     "permission-guide"
    ],
    "insight": "拒绝权限后给出降级方案，而不是死路",
-   "why_saved": "在 Headspace 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Headspace 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Headspace 里最完整的一张",
    "thumb": "screens/v19_thumb.jpg",
    "image": "screens/v19.jpg",
    "source_url": "https://mobbin.com/screens/demo-038",
@@ -711,7 +711,7 @@
     "protection-toggles"
    ],
    "insight": "用真实场景插画解释为什么需要这个权限",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v20_thumb.jpg",
    "image": "screens/v20.jpg",
    "source_url": "https://mobbin.com/screens/demo-039",
@@ -727,7 +727,7 @@
     "protection-toggles"
    ],
    "insight": "把防护能力按威胁类型分组，而不是按技术模块",
-   "why_saved": "它解决了我在 #18 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#18 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v01_thumb.jpg",
    "image": "screens/v01.jpg",
    "source_url": "https://mobbin.com/screens/demo-040",
@@ -744,7 +744,7 @@
     "single-cta"
    ],
    "insight": "把防护能力按威胁类型分组，而不是按技术模块",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v02_thumb.jpg",
    "image": "screens/v02.jpg",
    "source_url": "https://mobbin.com/screens/demo-041",
@@ -760,7 +760,7 @@
     "score-ring"
    ],
    "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
-   "why_saved": "和 #19 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #19 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v03_thumb.jpg",
    "image": "screens/v03.jpg",
    "source_url": "https://mobbin.com/screens/demo-042",
@@ -776,7 +776,7 @@
     "protection-toggles"
    ],
    "insight": "把防护能力按威胁类型分组，而不是按技术模块",
-   "why_saved": "看到这里才意识到 #20 的做法可以再简化一层",
+   "why_saved": "- 对比：#20 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#20 的做法还能再简化，这张是证据",
    "thumb": "screens/v04_thumb.jpg",
    "image": "screens/v04.jpg",
    "source_url": "https://mobbin.com/screens/demo-043",
@@ -792,7 +792,7 @@
     "protection-toggles"
    ],
    "insight": "每个开关旁一句「开启后会发生什么」，降低误操作",
-   "why_saved": "它解决了我在 #21 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#21 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v01_thumb.jpg",
    "image": "screens/v01.jpg",
    "source_url": "https://mobbin.com/screens/demo-044",
@@ -809,7 +809,7 @@
     "protection-toggles"
    ],
    "insight": "进度动效和品牌隐喻绑定（雷达、盾牌），等待也在建立信任",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v10_thumb.jpg",
    "image": "screens/v10.jpg",
    "source_url": "https://mobbin.com/screens/demo-045",
@@ -826,7 +826,7 @@
     "permission-guide"
    ],
    "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v11_thumb.jpg",
    "image": "screens/v11.jpg",
    "source_url": "https://mobbin.com/screens/demo-046",
@@ -843,7 +843,7 @@
     "severity-color"
    ],
    "insight": "滚动显示正在检查的具体对象，让等待有内容",
-   "why_saved": "在 Avast 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Avast 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Avast 里最完整的一张",
    "thumb": "screens/v12_thumb.jpg",
    "image": "screens/v12.jpg",
    "source_url": "https://mobbin.com/screens/demo-047",
@@ -859,7 +859,7 @@
     "scan-progress"
    ],
    "insight": "滚动显示正在检查的具体对象，让等待有内容",
-   "why_saved": "结构上和 #23 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #23 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v09_thumb.jpg",
    "image": "screens/v09.jpg",
    "source_url": "https://mobbin.com/screens/demo-048",
@@ -876,7 +876,7 @@
     "single-cta"
    ],
    "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
-   "why_saved": "和 #24 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #24 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v06_thumb.jpg",
    "image": "screens/v06.jpg",
    "source_url": "https://mobbin.com/screens/demo-049",
@@ -892,7 +892,7 @@
     "severity-color"
    ],
    "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
-   "why_saved": "和 #24 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #24 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v07_thumb.jpg",
    "image": "screens/v07.jpg",
    "source_url": "https://mobbin.com/screens/demo-050",
@@ -909,7 +909,7 @@
     "permission-guide"
    ],
    "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
-   "why_saved": "和 #25 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #25 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v08_thumb.jpg",
    "image": "screens/v08.jpg",
    "source_url": "https://mobbin.com/screens/demo-051",
@@ -925,7 +925,7 @@
     "severity-color"
    ],
    "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
-   "why_saved": "在 Cloudflare 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Cloudflare 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Cloudflare 里最完整的一张",
    "thumb": "screens/v05_thumb.jpg",
    "image": "screens/v05.jpg",
    "source_url": "https://mobbin.com/screens/demo-052",
@@ -941,7 +941,7 @@
     "score-ring"
    ],
    "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v02_thumb.jpg",
    "image": "screens/v02.jpg",
    "source_url": "https://mobbin.com/screens/demo-053",
@@ -957,7 +957,7 @@
     "score-ring"
    ],
    "insight": "用分数的变化趋势代替单个分数，能回答「在变好还是变坏」",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v03_thumb.jpg",
    "image": "screens/v03.jpg",
    "source_url": "https://mobbin.com/screens/demo-054",
@@ -973,7 +973,7 @@
     "severity-color"
    ],
    "insight": "风险卡片的第一行写「需要你做什么」，而不是威胁名称",
-   "why_saved": "结构上和 #27 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #27 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v08_thumb.jpg",
    "image": "screens/v08.jpg",
    "source_url": "https://mobbin.com/screens/demo-055",
@@ -990,7 +990,7 @@
     "score-ring"
    ],
    "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
-   "why_saved": "看到这里才意识到 #27 的做法可以再简化一层",
+   "why_saved": "- 对比：#27 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#27 的做法还能再简化，这张是证据",
    "thumb": "screens/v05_thumb.jpg",
    "image": "screens/v05.jpg",
    "source_url": "https://mobbin.com/screens/demo-056",
@@ -1006,7 +1006,7 @@
     "single-cta"
    ],
    "insight": "主按钮的状态随上下文变化，按钮即状态说明",
-   "why_saved": "和 #28 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #28 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v14_thumb.jpg",
    "image": "screens/v14.jpg",
    "source_url": "https://mobbin.com/screens/demo-057",
@@ -1022,7 +1022,7 @@
     "single-cta"
    ],
    "insight": "付费墙把免费版的出口放在可见位置，反而提升了信任",
-   "why_saved": "在 Apple Health 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Apple Health 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Apple Health 里最完整的一张",
    "thumb": "screens/v15_thumb.jpg",
    "image": "screens/v15.jpg",
    "source_url": "https://mobbin.com/screens/demo-058",
@@ -1038,7 +1038,7 @@
     "single-cta"
    ],
    "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
-   "why_saved": "结构上和 #28 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #28 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v16_thumb.jpg",
    "image": "screens/v16.jpg",
    "source_url": "https://mobbin.com/screens/demo-059",
@@ -1054,7 +1054,7 @@
     "single-cta"
    ],
    "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v13_thumb.jpg",
    "image": "screens/v13.jpg",
    "source_url": "https://mobbin.com/screens/demo-060",
@@ -1070,7 +1070,7 @@
     "single-cta"
    ],
    "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
-   "why_saved": "结构上和 #29 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #29 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v14_thumb.jpg",
    "image": "screens/v14.jpg",
    "source_url": "https://mobbin.com/screens/demo-061",
@@ -1087,7 +1087,7 @@
     "permission-guide"
    ],
    "insight": "付费墙把免费版的出口放在可见位置，反而提升了信任",
-   "why_saved": "看到这里才意识到 #29 的做法可以再简化一层",
+   "why_saved": "- 对比：#29 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#29 的做法还能再简化，这张是证据",
    "thumb": "screens/v15_thumb.jpg",
    "image": "screens/v15.jpg",
    "source_url": "https://mobbin.com/screens/demo-062",
@@ -1104,7 +1104,7 @@
     "scan-progress"
    ],
    "insight": "圆环只在异常时变色，平时保持中性，避免持续制造焦虑",
-   "why_saved": "它解决了我在 #30 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#30 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v04_thumb.jpg",
    "image": "screens/v04.jpg",
    "source_url": "https://mobbin.com/screens/demo-063",
@@ -1121,7 +1121,7 @@
     "severity-color"
    ],
    "insight": "每个开关旁一句「开启后会发生什么」，降低误操作",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v01_thumb.jpg",
    "image": "screens/v01.jpg",
    "source_url": "https://mobbin.com/screens/demo-064",
@@ -1138,7 +1138,7 @@
     "score-ring"
    ],
    "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v10_thumb.jpg",
    "image": "screens/v10.jpg",
    "source_url": "https://mobbin.com/screens/demo-065",
@@ -1154,7 +1154,7 @@
     "scan-progress"
    ],
    "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
-   "why_saved": "看到这里才意识到 #33 的做法可以再简化一层",
+   "why_saved": "- 对比：#33 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#33 的做法还能再简化，这张是证据",
    "thumb": "screens/v11_thumb.jpg",
    "image": "screens/v11.jpg",
    "source_url": "https://mobbin.com/screens/demo-066",
@@ -1170,7 +1170,7 @@
     "permission-guide"
    ],
    "insight": "按功能逐个请求权限，每次只解释一件事",
-   "why_saved": "在 Kaspersky 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Kaspersky 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Kaspersky 里最完整的一张",
    "thumb": "screens/v20_thumb.jpg",
    "image": "screens/v20.jpg",
    "source_url": "https://mobbin.com/screens/demo-067",
@@ -1186,7 +1186,7 @@
     "permission-guide"
    ],
    "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
-   "why_saved": "它解决了我在 #34 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#34 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v17_thumb.jpg",
    "image": "screens/v17.jpg",
    "source_url": "https://mobbin.com/screens/demo-068",
@@ -1202,7 +1202,7 @@
     "permission-guide"
    ],
    "insight": "按功能逐个请求权限，每次只解释一件事",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v18_thumb.jpg",
    "image": "screens/v18.jpg",
    "source_url": "https://mobbin.com/screens/demo-069",
@@ -1219,7 +1219,7 @@
     "score-ring"
    ],
    "insight": "按功能逐个请求权限，每次只解释一件事",
-   "why_saved": "结构上和 #36 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #36 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v19_thumb.jpg",
    "image": "screens/v19.jpg",
    "source_url": "https://mobbin.com/screens/demo-070",
@@ -1236,7 +1236,7 @@
     "severity-color"
    ],
    "insight": "拒绝权限后给出降级方案，而不是死路",
-   "why_saved": "在 Authy 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Authy 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Authy 里最完整的一张",
    "thumb": "screens/v20_thumb.jpg",
    "image": "screens/v20.jpg",
    "source_url": "https://mobbin.com/screens/demo-071",
@@ -1253,7 +1253,7 @@
     "protection-toggles"
    ],
    "insight": "用真实场景插画解释为什么需要这个权限",
-   "why_saved": "它解决了我在 #37 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#37 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v17_thumb.jpg",
    "image": "screens/v17.jpg",
    "source_url": "https://mobbin.com/screens/demo-072",
@@ -1270,7 +1270,7 @@
     "protection-toggles"
    ],
    "insight": "拒绝权限后给出降级方案，而不是死路",
-   "why_saved": "它解决了我在 #37 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#37 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v18_thumb.jpg",
    "image": "screens/v18.jpg",
    "source_url": "https://mobbin.com/screens/demo-073",
@@ -1286,7 +1286,7 @@
     "permission-guide"
    ],
    "insight": "用真实场景插画解释为什么需要这个权限",
-   "why_saved": "它解决了我在 #38 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#38 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v19_thumb.jpg",
    "image": "screens/v19.jpg",
    "source_url": "https://mobbin.com/screens/demo-074",
@@ -1302,7 +1302,7 @@
     "permission-guide"
    ],
    "insight": "拒绝权限后给出降级方案，而不是死路",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v20_thumb.jpg",
    "image": "screens/v20.jpg",
    "source_url": "https://mobbin.com/screens/demo-075",
@@ -1318,7 +1318,7 @@
     "permission-guide"
    ],
    "insight": "拒绝权限后给出降级方案，而不是死路",
-   "why_saved": "在 Malwarebytes 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：Malwarebytes 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 Malwarebytes 里最完整的一张",
    "thumb": "screens/v17_thumb.jpg",
    "image": "screens/v17.jpg",
    "source_url": "https://mobbin.com/screens/demo-076",
@@ -1334,7 +1334,7 @@
     "permission-guide"
    ],
    "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
-   "why_saved": "在 McAfee 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：McAfee 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 McAfee 里最完整的一张",
    "thumb": "screens/v18_thumb.jpg",
    "image": "screens/v18.jpg",
    "source_url": "https://mobbin.com/screens/demo-077",
@@ -1350,7 +1350,7 @@
     "score-ring"
    ],
    "insight": "用分数的变化趋势代替单个分数，能回答「在变好还是变坏」",
-   "why_saved": "和 #40 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #40 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v03_thumb.jpg",
    "image": "screens/v03.jpg",
    "source_url": "https://mobbin.com/screens/demo-078",
@@ -1367,7 +1367,7 @@
     "severity-color"
    ],
    "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
-   "why_saved": "和 #40 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #40 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v04_thumb.jpg",
    "image": "screens/v04.jpg",
    "source_url": "https://mobbin.com/screens/demo-079",
@@ -1383,7 +1383,7 @@
     "score-ring"
    ],
    "insight": "把待处理事项挂在分数下面，分数就成了任务入口",
-   "why_saved": "结构上和 #40 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #40 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v01_thumb.jpg",
    "image": "screens/v01.jpg",
    "source_url": "https://mobbin.com/screens/demo-080",
@@ -1399,7 +1399,7 @@
     "protection-toggles"
    ],
    "insight": "每个开关旁一句「开启后会发生什么」，降低误操作",
-   "why_saved": "结构上和 #41 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #41 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v02_thumb.jpg",
    "image": "screens/v02.jpg",
    "source_url": "https://mobbin.com/screens/demo-081",
@@ -1415,7 +1415,7 @@
     "protection-toggles"
    ],
    "insight": "高级设置收进第二层，第一层只保留一个总开关",
-   "why_saved": "和 #41 对比，这张把同样的信息压缩到了一屏之内",
+   "why_saved": "- 对比：和 #41 讲的是同一件事\n- 发现：这张把状态和下一步压缩进了一屏\n- 判断：信息密度更合适，保存这张",
    "thumb": "screens/v03_thumb.jpg",
    "image": "screens/v03.jpg",
    "source_url": "https://mobbin.com/screens/demo-082",
@@ -1431,7 +1431,7 @@
     "protection-toggles"
    ],
    "insight": "把防护能力按威胁类型分组，而不是按技术模块",
-   "why_saved": "它解决了我在 #42 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#42 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v04_thumb.jpg",
    "image": "screens/v04.jpg",
    "source_url": "https://mobbin.com/screens/demo-083",
@@ -1448,7 +1448,7 @@
     "severity-color"
    ],
    "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
-   "why_saved": "看到这里才意识到 #43 的做法可以再简化一层",
+   "why_saved": "- 对比：#43 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#43 的做法还能再简化，这张是证据",
    "thumb": "screens/v01_thumb.jpg",
    "image": "screens/v01.jpg",
    "source_url": "https://mobbin.com/screens/demo-084",
@@ -1464,7 +1464,7 @@
     "score-ring"
    ],
    "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
-   "why_saved": "结构上和 #43 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #43 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v02_thumb.jpg",
    "image": "screens/v02.jpg",
    "source_url": "https://mobbin.com/screens/demo-085",
@@ -1480,7 +1480,7 @@
     "protection-toggles"
    ],
    "insight": "把防护能力按威胁类型分组，而不是按技术模块",
-   "why_saved": "结构上和 #44 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #44 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v03_thumb.jpg",
    "image": "screens/v03.jpg",
    "source_url": "https://mobbin.com/screens/demo-086",
@@ -1496,7 +1496,7 @@
     "scan-progress"
    ],
    "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
-   "why_saved": "结构上和 #45 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #45 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v12_thumb.jpg",
    "image": "screens/v12.jpg",
    "source_url": "https://mobbin.com/screens/demo-087",
@@ -1512,7 +1512,7 @@
     "scan-progress"
    ],
    "insight": "进度动效和品牌隐喻绑定（雷达、盾牌），等待也在建立信任",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v09_thumb.jpg",
    "image": "screens/v09.jpg",
    "source_url": "https://mobbin.com/screens/demo-088",
@@ -1528,7 +1528,7 @@
     "single-cta"
    ],
    "insight": "次要操作降级为文字链接，主次一眼可辨",
-   "why_saved": "结构上和 #46 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #46 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v14_thumb.jpg",
    "image": "screens/v14.jpg",
    "source_url": "https://mobbin.com/screens/demo-089",
@@ -1544,7 +1544,7 @@
     "single-cta"
    ],
    "insight": "付费墙把免费版的出口放在可见位置，反而提升了信任",
-   "why_saved": "它解决了我在 #46 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#46 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v15_thumb.jpg",
    "image": "screens/v15.jpg",
    "source_url": "https://mobbin.com/screens/demo-090",
@@ -1561,7 +1561,7 @@
     "protection-toggles"
    ],
    "insight": "允许在扫描时离开，完成后用通知召回",
-   "why_saved": "结构上和 #47 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #47 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v12_thumb.jpg",
    "image": "screens/v12.jpg",
    "source_url": "https://mobbin.com/screens/demo-091",
@@ -1578,7 +1578,7 @@
     "protection-toggles"
    ],
    "insight": "允许在扫描时离开，完成后用通知召回",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v09_thumb.jpg",
    "image": "screens/v09.jpg",
    "source_url": "https://mobbin.com/screens/demo-092",
@@ -1595,7 +1595,7 @@
     "scan-progress"
    ],
    "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
-   "why_saved": "它解决了我在 #49 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#49 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v06_thumb.jpg",
    "image": "screens/v06.jpg",
    "source_url": "https://mobbin.com/screens/demo-093",
@@ -1611,7 +1611,7 @@
     "severity-color"
    ],
    "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
-   "why_saved": "结构上和 #49 几乎一样，但情绪完全不同，值得对照",
+   "why_saved": "- 对比：结构和 #49 几乎一样\n- 发现：情绪完全不同，一个紧张、一个平静\n- 判断：值得作为对照保存",
    "thumb": "screens/v07_thumb.jpg",
    "image": "screens/v07.jpg",
    "source_url": "https://mobbin.com/screens/demo-094",
@@ -1627,7 +1627,7 @@
     "severity-color"
    ],
    "insight": "风险卡片的第一行写「需要你做什么」，而不是威胁名称",
-   "why_saved": "它解决了我在 #49 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#49 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v08_thumb.jpg",
    "image": "screens/v08.jpg",
    "source_url": "https://mobbin.com/screens/demo-095",
@@ -1644,7 +1644,7 @@
     "scan-progress"
    ],
    "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
-   "why_saved": "它解决了我在 #50 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#50 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v05_thumb.jpg",
    "image": "screens/v05.jpg",
    "source_url": "https://mobbin.com/screens/demo-096",
@@ -1660,7 +1660,7 @@
     "severity-color"
    ],
    "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
-   "why_saved": "它解决了我在 #50 里看到的问题：用户不知道下一步做什么",
+   "why_saved": "- 对比：#50 里用户不知道下一步做什么\n- 发现：这张用一个主按钮解决了这个问题\n- 判断：保存，作为单一主操作的正例",
    "thumb": "screens/v06_thumb.jpg",
    "image": "screens/v06.jpg",
    "source_url": "https://mobbin.com/screens/demo-097",
@@ -1677,7 +1677,7 @@
     "score-ring"
    ],
    "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
-   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "why_saved": "- 发现：目前唯一没有用红色表达风险的例子\n- 判断：可以验证中性色是否足够传达风险",
    "thumb": "screens/v07_thumb.jpg",
    "image": "screens/v07.jpg",
    "source_url": "https://mobbin.com/screens/demo-098",
@@ -1693,7 +1693,7 @@
     "severity-color"
    ],
    "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
-   "why_saved": "在 ESET 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "why_saved": "- 对比：ESET 里同类屏还有两张\n- 发现：只有这张把状态和下一步放在一起\n- 判断：是 ESET 里最完整的一张",
    "thumb": "screens/v08_thumb.jpg",
    "image": "screens/v08.jpg",
    "source_url": "https://mobbin.com/screens/demo-099",
@@ -1710,7 +1710,7 @@
     "severity-color"
    ],
    "insight": "高级设置收进第二层，第一层只保留一个总开关",
-   "why_saved": "看到这里才意识到 #53 的做法可以再简化一层",
+   "why_saved": "- 对比：#53 用了三层信息\n- 发现：这里只保留了一层\n- 判断：#53 的做法还能再简化，这张是证据",
    "thumb": "screens/v01_thumb.jpg",
    "image": "screens/v01.jpg",
    "source_url": "https://mobbin.com/screens/demo-100",
@@ -2370,25 +2370,25 @@
   {
    "at": 25,
    "round": 4,
-   "note": "R1 的首页几乎都是「分数 + 列表」，同质化很高。风险卡片普遍只靠红色表达严重度。扫描中的屏幕信息量很低，只有百分比。",
+   "note": "- 模式：R1 的首页几乎都是「分数 + 列表」，同质化很高\n- 不足：风险卡片普遍只靠红色表达严重度；扫描中的屏幕只有百分比",
    "next": "去 R3 的健康评分类产品看分数的其他表达方式。"
   },
   {
    "at": 50,
    "round": 7,
-   "note": "Oura 和 Credit Karma 用文字等级和趋势代替单个分数，这是 R1 里没有的思路。权限引导出现了两种分叉：一次性请求和按需请求。",
+   "note": "- 模式：Oura 和 Credit Karma 用文字等级和趋势代替单个分数，R1 里没有这种思路\n- 分叉：权限引导分成一次性请求和按需请求两种",
    "next": "补齐空状态和付费墙，这两类目前不足 3 张。"
   },
   {
    "at": 75,
    "round": 10,
-   "note": "R4 的 Opal、Gentler Streak 给出了情绪化表达的参照：状态可以是「温和的」，不一定是「警报式的」。模式从 9 个合并到 6 个。",
+   "note": "- 模式：R4 的 Opal、Gentler Streak 说明状态可以是「温和的」，不一定是「警报式的」\n- 整理：模式从 9 个合并到 6 个",
    "next": "找扫描过程的非百分比表达，目前只有 Strava 一个例子。"
   },
   {
    "at": 100,
    "round": 13,
-   "note": "网已经成形：R1 提供惯例，R3 提供结构上的替代方案，R4 提供情绪上的替代方案。最大的空白是「威胁详情」的解释方式。",
+   "note": "- 结构：R1 提供惯例，R3 提供结构上的替代，R4 提供情绪上的替代\n- 空白：「威胁详情」的解释方式还没有好参考",
    "next": "下一轮可以专门调研「把技术术语翻译成人话」的屏幕。"
   }
  ],
