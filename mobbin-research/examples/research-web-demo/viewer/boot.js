@@ -1,6 +1,5 @@
-// 第 5 层：任务书开场。把简报像终端启动一样逐行打在画布中央，结束时标题收进左上角
-//   Loop 刚开始、还没有图：打完后停在"等待第一张图"，第一批图到来时收起
-//   Replay：快速打一遍，收起后入场
+// 第 5 层：任务书开场。只在任务刚启动（Loop 开始、还没有图）时出现：
+// 把简报像终端启动一样逐行打在画布中央，停在"等待第一张图"；第一批图到来时标题收进左上角
 (function (Sea) {
   "use strict";
 
@@ -36,7 +35,7 @@
       document.body.classList.add("booting"); el.classList.add("on");
       let t0 = performance.now(), base = 0;
       // 提前收起时：从已经打到的位置起，换成快速档补完
-      rush = () => { const now = performance.now(); base += (now - t0) / char; t0 = now; char = Math.min(char, B.replayChar); };
+      rush = () => { const now = performance.now(); base += (now - t0) / char; t0 = now; char = Math.min(char, B.rushChar); };
       return new Promise(resolve => {
         done = resolve;
         const frame = now => {
@@ -72,11 +71,9 @@
       document.body.classList.remove("landing"); el.classList.remove("on");
     }
 
-    // 立即收起（用户在 Replay 打字时直接操作，交互还给用户）
-    function cut() { stop(); el.classList.remove("on"); document.body.classList.remove("booting", "landing"); }
     function stop() { cancelAnimationFrame(raf); raf = 0; rush = null; if (done) { done(); done = null; } }
 
-    return { play, exit, cut, get on() { return el.classList.contains("on"); } };
+    return { play, exit, get on() { return el.classList.contains("on"); } };
   }
 
   Sea.boot = Object.freeze({ create });
