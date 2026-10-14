@@ -192,7 +192,7 @@ document.querySelectorAll(".glyph[data-g]").forEach(el => { el.outerHTML = glyph
 
 // ---------- 常量 ----------
 const G = 26, TW = 36, TH = 78;   // 点阵间距与截图尺寸（世界单位）
-const SX = 3 * G, SY = 5 * G;      // 截图格子间距：每张图四周留一圈点，奇数行错开半格
+const SX = 3 * G, SY = 5 * G;      // 悬停吸附的范围按这个格子估算
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const pad = (n, w = 3) => String(n).padStart(w, "0");
@@ -210,66 +210,9 @@ for (const e of DATA.echoes || []) for (const [a, b] of [[e.a, e.b], [e.b, e.a]]
 }
 for (const s of screens) { s.lead = s.found_via ? leadById.get(s.found_via) : null; s.parent = s.lead && s.lead.from != null ? s.lead.from : null; }
 const RINGS = ["R1", "R2", "R3", "R4"], depth = s => RINGS.indexOf(s.ring) + 1;
-const trail = s => { const out = [], seen = new Set(); let c = s; while (c && !seen.has(c.id)) { out.unshift(c); seen.add(c.id); c = c.parent != null ? byId.get(c.parent) : null; } return out; };
-
-// ---------- 布局：离中心越近越直接，同一模式占同一片角度 ----------
 const covered = new Set();
-let leadDots = [];
-(function layout() {
-  const pats = DATA.patterns.map(p => ({ id: p.id, n: screens.filter(s => s.patterns[0] === p.id).length }));
-  const co = new Map(), key = (a, b) => [a, b].sort().join("|");
-  for (const s of screens) for (const p of s.patterns.slice(1)) co.set(key(s.patterns[0], p), (co.get(key(s.patterns[0], p)) || 0) + 1);
-  const order = [pats.slice().sort((a, b) => b.n - a.n)[0]];
-  while (order.length < pats.length) {
-    const last = order[order.length - 1];
-    order.push(pats.filter(p => !order.includes(p)).sort((a, b) => (co.get(key(last.id, b.id)) || 0) - (co.get(key(last.id, a.id)) || 0) || b.n - a.n)[0]);
-  }
-  const total = order.reduce((t, p) => t + Math.max(p.n, 2), 0);
-  const sec = new Map(); let a = 0;
-  for (const p of order) { const w = Math.max(p.n, 2) / total * Math.PI * 2; sec.set(p.id, { a0: a, w, idx: sec.size }); a += w; }
-
-  // 候选格子：交错排列，按到中心的距离排序
-  const cells = [];
-  for (let m = -14; m <= 14; m++) for (let i = -20; i <= 20; i++) {
-    const x = i * SX + (m & 1 ? SX / 2 : 0), y = m * SY;
-    cells.push({ x, y, d: Math.hypot(x, y), a: Math.atan2(y, x) });
-  }
-  cells.sort((p, q) => p.d - q.d);
-  const cover = (x, y, hw, hh) => {
-    for (let i = Math.ceil((x - hw) / G); i <= Math.floor((x + hw) / G); i++)
-      for (let j = Math.ceil((y - hh) / G); j <= Math.floor((y + hh) / G); j++) covered.add(`${i},${j}`);
-  };
-  const wrap = v => ((v + Math.PI / 2) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
-  let cursor = 0;
-  for (const r of RINGS) {
-    const group = screens.filter(s => s.ring === r);
-    const band = cells.slice(cursor, cursor + group.length); cursor += group.length;
-    // 目标角度：主模式扇区内排开，有次模式的图偏向相邻扇区
-    for (const s of group) {
-      const sc = sec.get(s.patterns[0]), sib = group.filter(o => o.patterns[0] === s.patterns[0]);
-      let t = (sib.indexOf(s) + .5) / sib.length;
-      const s2 = s.patterns[1] && sec.get(s.patterns[1]);
-      if (s2) t = s2.idx === (sc.idx + 1) % sec.size ? .55 + t * .45 : t * .45;
-      s._ta = wrap(sc.a0 + sc.w * t);
-    }
-    group.sort((p, q) => p._ta - q._ta);
-    band.sort((p, q) => wrap(p.a) - wrap(q.a));
-    group.forEach((s, k) => { const c = band[k]; s.cx = c.x; s.cy = c.y; s.cd = c.d; cover(c.x, c.y, TW / 2 + 6, TH / 2 + 6); });
-  }
-  // 还没走过的线索：落在海岸线外，方向指向长出它的那张图
-  const shore = cells.slice(cursor + 6, cursor + 90);
-  const angGap = (p, q) => Math.abs(Math.atan2(Math.sin(p - q), Math.cos(p - q)));
-  leadDots = (DATA.leads || []).filter(l => l.status !== "done" && l.from != null && byId.get(l.from)).map(l => {
-    const from = byId.get(l.from), fa = Math.atan2(from.cy, from.cx);
-    const c = shore.filter(c => !c.used).sort((p, q) => angGap(p.a, fa) - angGap(q.a, fa))[0];
-    if (!c) return null;
-    c.used = true;
-    const x = Math.round(c.x / G) * G, y = Math.round(c.y / G) * G;
-    covered.add(`${x / G},${y / G}`);
-    return { lead: l, x, y };
-  }).filter(Boolean);
-})();
-const seaR = Math.max(...screens.map(s => s.cd)) + SY;
+const rng = n => { let t = (n * 2654435761) >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ t >>> 15, 1 | t); r ^= r + Math.imul(r ^ r >>> 7, 61 | r); return ((r ^ r >>> 14) >>> 0) / 4294967296; }; };
+const trail = s => { const out = [], seen = new Set(); let c = s; while (c && !seen.has(c.id)) { out.unshift(c); seen.add(c.id); c = c.parent != null ? byId.get(c.parent) : null; } return out; };
 
 // ---------- 关系 ----------
 function relation(a, b) {
@@ -284,6 +227,78 @@ function relation(a, b) {
   return { score: jac * .6 + lin * .55 + (e ? 1 : 0) + (a.app === b.app ? .15 : 0), tag };
 }
 const relatedOf = f => screens.filter(s => s !== f).map(s => ({ s, ...relation(f, s) })).filter(o => o.score >= .3).sort((x, y) => y.score - x.score).slice(0, 8);
+
+// ---------- 布局：圈层和模式给出初始位置，关系像弹簧一样把相关的图拉近 ----------
+let leadDots = [];
+(function layout() {
+  const pats = DATA.patterns.map(p => ({ id: p.id, n: screens.filter(s => s.patterns[0] === p.id).length }));
+  const co = new Map(), key = (a, b) => [a, b].sort().join("|");
+  for (const s of screens) for (const p of s.patterns.slice(1)) co.set(key(s.patterns[0], p), (co.get(key(s.patterns[0], p)) || 0) + 1);
+  const order = [pats.slice().sort((a, b) => b.n - a.n)[0]];
+  while (order.length < pats.length) {
+    const last = order[order.length - 1];
+    order.push(pats.filter(p => !order.includes(p)).sort((a, b) => (co.get(key(last.id, b.id)) || 0) - (co.get(key(last.id, a.id)) || 0) || b.n - a.n)[0]);
+  }
+  const total = order.reduce((t, p) => t + Math.max(p.n, 2), 0);
+  const sec = new Map(); let a = -Math.PI / 2;
+  for (const p of order) { const w = Math.max(p.n, 2) / total * Math.PI * 2; sec.set(p.id, { a0: a, w, idx: sec.size }); a += w; }
+
+  // 圈层按面积分配半径：离中心越近越直接
+  const area = (TW + 20) * (TH + 20) / .72, bands = {};
+  let r0 = 0;
+  for (const r of RINGS) { const n = screens.filter(s => s.ring === r).length; const r1 = Math.sqrt(r0 * r0 + n * area / Math.PI); bands[r] = [r0, r1]; r0 = r1 + 10; }
+  for (const s of screens) {
+    const rnd = rng(s.id), sc = sec.get(s.patterns[0]), s2 = s.patterns[1] && sec.get(s.patterns[1]);
+    let t = .15 + .7 * rnd();
+    if (s2) t = s2.idx === (sc.idx + 1) % sec.size ? .7 + .25 * rnd() : .05 + .25 * rnd();
+    const ang = sc.a0 + sc.w * t, [b0, b1] = bands[s.ring], rad = b0 + (b1 - b0) * (.15 + .7 * rnd());
+    s.cx = Math.cos(ang) * rad; s.cy = Math.sin(ang) * rad; s.rt = (b0 + b1) / 2;
+  }
+  // 关系越强，弹簧越短越硬
+  const springs = [];
+  for (let i = 0; i < screens.length; i++) for (let j = i + 1; j < screens.length; j++) {
+    const r = relation(screens[i], screens[j]);
+    if (r.score >= .3) { const w = Math.min(1, r.score); springs.push([screens[i], screens[j], w, 50 + 110 * (1 - w)]); }
+  }
+  const GX = TW + 18, GY = TH + 18, N = 380;
+  for (let it = 0; it < N; it++) {
+    const heat = 1 - it / N;
+    for (const [A, B, w, L] of springs) {
+      const dx = B.cx - A.cx, dy = B.cy - A.cy, d = Math.hypot(dx, dy) || 1, f = (d - L) / d * w * .045 * heat;
+      A.cx += dx * f; A.cy += dy * f; B.cx -= dx * f; B.cy -= dy * f;
+    }
+    for (const s of screens) { const d = Math.hypot(s.cx, s.cy) || 1, f = (s.rt - d) / d * .035; s.cx += s.cx * f; s.cy += s.cy * f; }
+    for (let i = 0; i < screens.length; i++) for (let j = i + 1; j < screens.length; j++) {
+      const A = screens[i], B = screens[j], dx = B.cx - A.cx, dy = B.cy - A.cy, ox = GX - Math.abs(dx), oy = GY - Math.abs(dy);
+      if (ox > 0 && oy > 0) {
+        if (ox < oy) { const m = ox / 2 * Math.sign(dx || 1); A.cx -= m; B.cx += m; }
+        else { const m = oy / 2 * Math.sign(dy || 1); A.cy -= m; B.cy += m; }
+      }
+    }
+  }
+  for (const s of screens) {
+    s.cd = Math.hypot(s.cx, s.cy);
+    for (let i = Math.ceil((s.cx - TW / 2 - 6) / G); i <= Math.floor((s.cx + TW / 2 + 6) / G); i++)
+      for (let j = Math.ceil((s.cy - TH / 2 - 6) / G); j <= Math.floor((s.cy + TH / 2 + 6) / G); j++) covered.add(`${i},${j}`);
+  }
+  // 还没走过的线索：从长出它的那张图出发，向外漂到海岸线之外
+  const inside = (x, y) => screens.some(s => Math.abs(s.cx - x) < TW / 2 + 22 && Math.abs(s.cy - y) < TH / 2 + 22);
+  const taken = new Set();
+  leadDots = (DATA.leads || []).filter(l => l.status !== "done" && l.from != null && byId.get(l.from)).map(l => {
+    const from = byId.get(l.from), d = Math.hypot(from.cx, from.cy) || 1;
+    for (let t = 0; t < 40; t++) {
+      const x = Math.round((from.cx + from.cx / d * G * t) / G), y = Math.round((from.cy + from.cy / d * G * t) / G);
+      if (!inside(x * G, y * G) && !taken.has(`${x},${y}`)) { taken.add(`${x},${y}`); covered.add(`${x},${y}`); return { lead: l, x: x * G, y: y * G }; }
+    }
+    return null;
+  }).filter(Boolean);
+})();
+const seaR = Math.max(...screens.map(s => s.cd)) + SY;
+// 实际范围与"核心"：适配视图按范围居中，下潜落在直接竞品的重心
+const bounds = { x0: Math.min(...screens.map(s => s.cx)) - TW, x1: Math.max(...screens.map(s => s.cx)) + TW, y0: Math.min(...screens.map(s => s.cy)) - TH, y1: Math.max(...screens.map(s => s.cy)) + TH };
+const coreSet = screens.filter(s => s.ring === "R1").length ? screens.filter(s => s.ring === "R1") : screens;
+const core = { x: coreSet.reduce((t, s) => t + s.cx, 0) / coreSet.length, y: coreSet.reduce((t, s) => t + s.cy, 0) / coreSet.length };
+
 
 for (const s of screens) {
   const img = new Image(); img.decoding = "async"; img.src = s.thumb;
@@ -304,9 +319,12 @@ function resize() {
   vignette = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .32, W / 2, H / 2, Math.hypot(W, H) * .56);
   vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, "rgba(0,0,0,.82)");
 }
-function fitTarget() { return { k: Math.min(availW() / (seaR * 2.6), H / (seaR * 2.5)), x: availW() / 2, y: H / 2 }; }
+function fitTarget() {
+  const bw = bounds.x1 - bounds.x0, bh = bounds.y1 - bounds.y0, k = Math.min(availW() / (bw * 1.35), H / (bh * 1.3));
+  return { k, x: availW() / 2 - (bounds.x0 + bw / 2) * k, y: H / 2 - (bounds.y0 + bh / 2) * k };
+}
 function fit(instant) { const t = fitTarget(); cam.tk = t.k; cam.tx = t.x; cam.ty = t.y; if (instant) Object.assign(cam, { k: t.k, x: t.x, y: t.y }); }
-let tween = null, introT = 0, glide = null;
+let tween = null, introT = 0, glide = null, lastInteract = 0;
 const DIVE_K = 1.25;
 const easeInOut = t => t < .5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2;
 function flyCam(to, dur) {
@@ -319,19 +337,19 @@ function surface() { const t = fitTarget(); flyCam(t, 1200); }
 const isDeep = () => cam.tk > fitTarget().k * 1.8;
 function stopIntro() { clearTimeout(introT); tween = null; }
 function zoomAt(sx, sy, f, instant) {
-  const k = clamp(cam.tk * f, fitTarget().k * .8, 3), wx = (sx - cam.tx) / cam.tk, wy = (sy - cam.ty) / cam.tk;
+  const k = clamp(cam.tk * f, fitTarget().k * .8, MAX_K), wx = (sx - cam.tx) / cam.tk, wy = (sy - cam.ty) / cam.tk;
   cam.tk = k; cam.tx = sx - wx * k; cam.ty = sy - wy * k;
   if (instant) Object.assign(cam, { k: cam.tk, x: cam.tx, y: cam.ty });
 }
 
 // ---------- 鱼眼：以光标为中心的单调径向放大，图片之间不会互相遮挡 ----------
-const FR = 260, FM = 2.2;
+const FR = 300, FM = 1.0, MAX_K = 2.6;
 let fishR = 1;
 function fish(x, y) {
   if (st.fish < .001) return [x, y, 1];
   const dx = x - ptr.sx, dy = y - ptr.sy, d = Math.hypot(dx, dy);
   if (d >= FR * fishR) return [x, y, 1];
-  const m = FM * st.fish * clamp((1.7 - cam.k) / 1.25, .32, 1);
+  const m = FM * st.fish * clamp((1.9 - cam.k) / 1.4, .2, 1);
   if (d < .01) return [x, y, m + 1];
   const R = FR * fishR, u = d / R, nd = R * ((m + 1) * u) / (m * u + 1);
   return [ptr.sx + dx / d * nd, ptr.sy + dy / d * nd, Math.min((m + 1) / Math.pow(m * u + 1, 2), nd / d)];
@@ -358,15 +376,15 @@ function frame(now) {
   if (glide) {
     cam.x = cam.tx = cam.x + glide.vx * dt * 1000; cam.y = cam.ty = cam.y + glide.vy * dt * 1000;
     const f = Math.exp(-dt * 3.2); glide.vx *= f; glide.vy *= f;
-    if (Math.hypot(glide.vx, glide.vy) < .01) glide = null;
+    if (Math.hypot(glide.vx, glide.vy) < .01) glide = null; else lastInteract = now;
   }
   const ck = 1 - Math.exp(-dt * 11);
   cam.k += (cam.tk - cam.k) * ck; cam.x += (cam.tx - cam.x) * ck; cam.y += (cam.ty - cam.y) * ck;
   // 磁吸透镜：光标附近最近的那张图被吸到透镜中心，放到最大
   near = nearest(ptr.x, ptr.y);
   let lx = ptr.x, ly = ptr.y;
-  if (near) { const m = .75 * (1 - near.d / near.range); lx += (near.bx - ptr.x) * m; ly += (near.by - ptr.y) * m; }
-  const pk = REDUCED ? 1 : 1 - Math.exp(-dt * 14);
+  if (near) { const m = .4 * (1 - near.d / near.range); lx += (near.bx - ptr.x) * m; ly += (near.by - ptr.y) * m; }
+  const pk = REDUCED ? 1 : 1 - Math.exp(-dt * 8);
   ptr.sx += (lx - ptr.sx) * pk; ptr.sy += (ly - ptr.sy) * pk;
   st.fish += ((ptr.inside && !drag ? 1 : 0) - st.fish) * (REDUCED ? 1 : 1 - Math.exp(-dt * 7));
   ptr.wake += (Math.min(1, ptr.speed / 2.2) - ptr.wake) * (1 - Math.exp(-dt * 6));
@@ -376,8 +394,8 @@ function frame(now) {
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
   const k = cam.k, ox = cam.x, oy = cam.y;
   const enterFront = REDUCED ? 1e9 : (now - st.enterT) * .9;
-  const rFront = st.rippleT >= 0 ? (now - st.rippleT) * .95 : -1;
-  const rFade = rFront >= 0 ? Math.max(0, 1 - rFront / 1500) : 0;
+  const rFront = st.rippleT >= 0 ? (now - st.rippleT) * .65 : -1;
+  const rFade = rFront >= 0 ? Math.max(0, 1 - rFront / 1100) : 0;
 
   // 点阵海面：按亮度分桶，每桶一次填充
   for (const b of buckets) b.length = 0;
@@ -393,11 +411,11 @@ function frame(now) {
     const f = wave(wx, wy, T) * amb;
     const [sx, sy, mag] = fish(bx, by);
     let band = 0;
-    if (rFront >= 0) { const d = Math.hypot(bx - st.rippleAt.x, by - st.rippleAt.y); band = Math.exp(-Math.pow((d - rFront) / 34, 2)) * rFade; }
+    if (rFront >= 0) { const d = Math.hypot(bx - st.rippleAt.x, by - st.rippleAt.y); band = Math.exp(-Math.pow((d - rFront) / 24, 2)) * rFade; }
     const wake = st.fish > .01 ? ptr.wake * Math.max(0, 1 - Math.hypot(bx - ptr.sx, by - ptr.sy) / (FR * fishR)) : 0;
     const edge = clamp((enterFront - dc) / 160, 0, 1);
-    const v = clamp((.2 + f * .11 + band * .55 + wake * .35 + (mag - 1) * .05) * edge, 0, .999);
-    buckets[Math.floor(v * GRAYS)].push(sx, sy, dotR * Math.sqrt(mag) * (1 + f * .42 + band * .9));
+    const v = clamp((.2 + f * .06 + band * .16 + wake * .12 + (mag - 1) * .04) * edge, 0, .999);
+    buckets[Math.floor(v * GRAYS)].push(sx, sy, dotR * Math.sqrt(mag) * (1 + f * .22));
   }
   for (let b = 0; b < GRAYS; b++) {
     const arr = buckets[b]; if (!arr.length) continue;
@@ -421,7 +439,7 @@ function frame(now) {
   }
 
   // 截图
-  const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * 9);
+  const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * 5);
   for (const s of screens) {
     const bx = s.cx * k + ox, by = s.cy * k + oy;
     if (s.cd * k > enterFront) { s.rect = null; continue; }
@@ -438,10 +456,10 @@ function frame(now) {
       else td = reached ? 1 : 0;
     } else if (hl) { tl = hl.has(s.id) ? 1 : 0; td = 1 - tl; }
     s.lit += (tl - s.lit) * lk; s.dim += (td - s.dim) * lk;
-    const sc = mag * (1 + f * .02 + band * .22 + s.lit * .12) * (.55 + .45 * backOut(age));
+    const sc = mag * (1 + f * .01 + band * .04 + s.lit * .05) * (.55 + .45 * backOut(age));
     const w = TW * k * sc, h = TH * k * sc;
     s.rect = { x: sx - w / 2, y: sy - h / 2, w, h };
-    draws.push({ s, sx, sy, w, h, alpha: (1 - s.dim * .8) * Math.min(1, age * 2.2), z: sc + s.lit });
+    draws.push({ s, sx, sy, w, h, alpha: (1 - s.dim * .45) * Math.min(1, age * 2.2), z: sc + s.lit });
   }
   draws.sort((a, b) => a.z - b.z);
   ctx.textAlign = "center";
@@ -510,14 +528,15 @@ function hoverTick(now) {
   emptySince = t ? 0 : emptySince || now;
   st.hoverLead = t ? null : st.leadRects.find(r => Math.hypot(r.sx - ptr.x, r.sy - ptr.y) < 12) || null;
   if (st.pinned || st.highlight) return;
-  if (t && t !== st.focus && now - hoverSince > (st.focus ? 180 : 120) && ptr.speed < .9) setFocus(t);
-  if (!t && st.focus && now - emptySince > 340) setFocus(null);
+  // 只有光标真正停下来、且刚才没有在拖拽或缩放，才去唤醒关联
+  if (t && t !== st.focus && now - hoverSince > (st.focus ? 300 : 380) && ptr.speed < .25 && !tween && now - lastInteract > 500) setFocus(t);
+  if (!t && st.focus && now - emptySince > 450) setFocus(null);
 }
 function setFocus(s) {
   st.focus = s;
   st.related = s ? relatedOf(s) : [];
   st.relMap = new Map(st.related.map(o => [o.s, o]));
-  if (s && s.rect) { st.rippleT = performance.now(); st.rippleAt = { x: s.rect.x + s.rect.w / 2, y: s.rect.y + s.rect.h / 2 }; }
+  if (s && s.rect && !st.pinned) { st.rippleT = performance.now(); st.rippleAt = { x: s.rect.x + s.rect.w / 2, y: s.rect.y + s.rect.h / 2 }; }
   else st.rippleT = -1;
 }
 
@@ -557,13 +576,14 @@ cv.addEventListener("pointermove", e => {
   if (drag.box) Object.assign(marquee.style, { display: "block", left: Math.min(e.clientX, drag.sx) + "px", top: Math.min(e.clientY, drag.sy) + "px", width: Math.abs(dx) + "px", height: Math.abs(dy) + "px" });
   else {
     const nx = drag.x + dx, ny = drag.y + dy, t = performance.now(), dtm = Math.max(1, t - (drag.t || t - 16));
-    drag.vx = (nx - cam.x) / dtm; drag.vy = (ny - cam.y) / dtm; drag.t = t;
+    drag.vx = (nx - cam.x) / dtm; drag.vy = (ny - cam.y) / dtm; drag.t = t; lastInteract = t;
+    if (!st.pinned && st.focus) setFocus(null);
     cam.x = cam.tx = nx; cam.y = cam.ty = ny;
   }
 });
 cv.addEventListener("pointerdown", e => {
   if (e.button !== 0) return;
-  stopIntro(); glide = null;
+  stopIntro(); glide = null; lastInteract = performance.now();
   moved = false; drag = { sx: e.clientX, sy: e.clientY, x: cam.x, y: cam.y, box: e.shiftKey };
   if (e.isTrusted) cv.setPointerCapture(e.pointerId);
 });
@@ -587,7 +607,8 @@ cv.addEventListener("pointerup", e => {
 cv.addEventListener("pointerleave", () => { ptr.inside = false; if (!st.pinned && !st.highlight) setFocus(null); });
 // 滚轮只控制深度：拖拽在海里移动，滚轮下潜或上浮
 cv.addEventListener("wheel", e => {
-  e.preventDefault(); stopIntro(); glide = null;
+  e.preventDefault(); stopIntro(); glide = null; lastInteract = performance.now();
+  if (!st.pinned) setFocus(null);
   const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
   // 向下滚动 = 潜得更深；触控板捏合保留张开放大的习惯
   zoomAt(e.clientX, e.clientY, e.ctrlKey ? Math.exp(-dy * .012) : Math.exp(dy * .0022), false);
@@ -595,7 +616,7 @@ cv.addEventListener("wheel", e => {
 addEventListener("keydown", e => {
   if (e.key === "Escape") reset();
   else if (e.key === "f" || e.key === "F") { stopIntro(); surface(); }
-  else if (e.key === "d" || e.key === "D") { stopIntro(); diveAt(0, 0); }
+  else if (e.key === "d" || e.key === "D") { stopIntro(); diveAt(core.x, core.y); }
   else if (e.key === "i" || e.key === "I") toggleOverview();
 });
 const gauge = document.getElementById("gauge");
@@ -605,17 +626,22 @@ let gaugeOn = -1;
 const depthBtn = document.getElementById("t-depth");
 let depthKey = "";
 function syncDepth() {
-  const fk = fitTarget().k, lv = Math.round(clamp(Math.log(cam.k / (fk * .8)) / Math.log(3 / (fk * .8)), 0, 1) * ticks.length);
+  const fk = fitTarget().k, lv = Math.round(clamp(Math.log(cam.k / (fk * .8)) / Math.log(MAX_K / (fk * .8)), 0, 1) * ticks.length);
   if (lv !== gaugeOn) { gaugeOn = lv; ticks.forEach((t, i) => t.classList.toggle("on", ticks.length - 1 - i < lv)); }
   const deep = isDeep(); if (depthKey === String(deep)) return; depthKey = String(deep);
   depthBtn.innerHTML = deep ? `${glyph("surface")}<span>Surface</span>` : `${glyph("dive")}<span>Dive</span>`;
 }
-depthBtn.onclick = () => { stopIntro(); isDeep() ? surface() : diveAt(0, 0); };
+depthBtn.onclick = () => { stopIntro(); isDeep() ? surface() : diveAt(core.x, core.y); };
 document.getElementById("t-insight").onclick = toggleOverview;
 document.getElementById("t-replay").onclick = () => { reset(); stopIntro(); fit(true); enter(); };
 cv.addEventListener("dblclick", e => { if (isDeep() || hit(e.clientX, e.clientY)) return; stopIntro(); diveAt((e.clientX - cam.x) / cam.k, (e.clientY - cam.y) / cam.k); });
 
-function pin(s) { st.highlight = null; setFocus(s); st.pinned = true; openPanel("screen", s); }
+// 点击：固定这张图，镜头飞过去并潜到最深一档
+function pin(s) {
+  st.highlight = null; st.pinned = true; setFocus(s); openPanel("screen", s);
+  stopIntro(); glide = null;
+  flyCam({ k: MAX_K, x: availW() / 2 - s.cx * MAX_K, y: H / 2 - s.cy * MAX_K }, 950);
+}
 function unpin() { st.pinned = false; setFocus(null); }
 function reset() { unpin(); st.highlight = null; closePanel(); }
 function toggleOverview() { if (st.panel === "overview") reset(); else { unpin(); st.highlight = null; openPanel("overview"); } }
@@ -746,7 +772,7 @@ const render = {
 function enter() {
   st.enterT = performance.now(); for (const s of screens) s.bornAt = 0;
   const wave = Math.hypot(W, H) / 2 / .9;
-  introT = setTimeout(() => diveAt(0, 0), Math.min(wave, seaR * fitTarget().k / .9 + 300) + 700);
+  introT = setTimeout(() => diveAt(core.x, core.y), Math.min(wave, seaR * fitTarget().k / .9 + 300) + 700);
 }
 
 document.querySelector("#masthead .title").textContent = DATA.brief?.product || "Research";
