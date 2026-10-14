@@ -20,12 +20,16 @@
     // 把世界点 (wx, wy) 放在可用区域中央、缩放为 k 时的镜头
     const centerOn = (wx, wy, k) => ({ k, x: availW() / 2 - wx * k, y: view.H / 2 - wy * k });
 
+    // 窗口还没有尺寸（页面在隐藏的面板里加载）时不取景；有了尺寸再取景时，若镜头从未有效过就直接到位
     function fit(instant) {
-      const t = fitTarget(); cam.tk = t.k; cam.tx = t.x; cam.ty = t.y;
-      if (instant) Object.assign(cam, { k: t.k, x: t.x, y: t.y });
+      const t = fitTarget();
+      if (!(t.k > 0 && Number.isFinite(t.k))) return;
+      cam.tk = t.k; cam.tx = t.x; cam.ty = t.y;
+      if (instant || !(cam.k > 0)) Object.assign(cam, { k: t.k, x: t.x, y: t.y });
     }
     // 运镜：缩放在对数空间插值，画面中心沿直线移动
     function fly(to, dur, ease = util.ease.inOut) {
+      if (!(to.k > 0 && Number.isFinite(to.k))) return;   // 窗口没有尺寸时算不出目标，不动
       if (config.reduced) { Object.assign(cam, { k: to.k, x: to.x, y: to.y, tk: to.k, tx: to.x, ty: to.y }); return; }
       const cw = availW() / 2;
       tween = { k0: cam.k, k1: to.k, c0: [(cw - cam.x) / cam.k, (view.H / 2 - cam.y) / cam.k], c1: [(cw - to.x) / to.k, (view.H / 2 - to.y) / to.k], t0: performance.now(), dur, ease };
