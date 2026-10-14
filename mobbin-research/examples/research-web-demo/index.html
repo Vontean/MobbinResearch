@@ -1,0 +1,843 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>调研网</title>
+<style>
+:root {
+  --canvas: #F4F3EF;
+  --surface: rgb(252 252 250 / .82);
+  --surface-solid: #FCFCFA;
+  --ink: #1B1B19;
+  --ink-2: #6B6A65;
+  --ink-3: #A3A29C;
+  --line: rgb(27 27 25 / .08);
+  --line-2: rgb(27 27 25 / .14);
+  --clay: #C2603B;
+  --node-bg: rgb(27 27 25 / .06);
+  --shadow-panel: 0 1px 1px rgb(0 0 0 / .04), 0 16px 48px -12px rgb(0 0 0 / .18);
+  --font-ui: -apple-system, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
+  --font-voice: ui-serif, "New York", "Songti SC", Georgia, serif;
+  --fs-meta: 11px; --fs-label: 12px; --fs-body: 14px; --fs-voice: 16px; --fs-title: 20px;
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-6: 24px; --s-8: 32px;
+  --r-control: 8px; --r-card: 12px; --r-panel: 16px;
+  --h-control: 32px;
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-drawer: cubic-bezier(.32, .72, 0, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --canvas: #111110;
+    --surface: rgb(30 30 28 / .82);
+    --surface-solid: #1E1E1C;
+    --ink: #ECEBE6;
+    --ink-2: #A3A29C;
+    --ink-3: #6B6A65;
+    --line: rgb(236 235 230 / .09);
+    --line-2: rgb(236 235 230 / .16);
+    --clay: #E07A52;
+    --node-bg: rgb(236 235 230 / .06);
+    --shadow-panel: 0 1px 1px rgb(0 0 0 / .3), 0 16px 48px -12px rgb(0 0 0 / .6);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--canvas); color: var(--ink); font: 400 var(--fs-body)/1.55 var(--font-ui); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+img { display: block; }
+
+#stage { position: fixed; inset: 0; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+#stage.panning { cursor: grabbing; }
+#links { position: absolute; inset: 0; width: 100%; height: 100%; }
+#nodes, #labels { position: absolute; inset: 0; pointer-events: none; }
+.node {
+  position: absolute; left: 0; top: 0; width: 240px; height: 520px;
+  border-radius: 16px; overflow: hidden; background: var(--node-bg);
+  transform-origin: 120px 260px; will-change: transform, opacity;
+  pointer-events: auto; cursor: pointer; opacity: 0;
+}
+.node img { width: 100%; height: 100%; object-fit: cover; }
+.node::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px var(--line); pointer-events: none; }
+.node .lift { position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 40px 80px -24px rgb(0 0 0 / .45); opacity: 0; transition: opacity 240ms var(--ease-out); z-index: -1; }
+.node.is-focus { overflow: visible; }
+.node.is-focus img { border-radius: 16px; }
+.node.is-focus .lift { opacity: 1; }
+
+.sector, .ring-label, #caption { position: absolute; left: 0; top: 0; white-space: nowrap; will-change: transform; }
+.sector { pointer-events: auto; cursor: pointer; padding: var(--s-1) var(--s-2); border-radius: var(--r-control); font-size: var(--fs-label); color: var(--ink-2); transition: color 160ms ease, background-color 160ms ease, opacity 240ms ease; }
+.sector b { font-weight: 500; color: var(--ink); }
+.sector span { color: var(--ink-3); margin-left: var(--s-1); font-variant-numeric: tabular-nums; }
+.sector.is-dim { opacity: .35; }
+@media (hover: hover) and (pointer: fine) { .sector:hover { background: var(--line); } }
+.ring-label { font-size: var(--fs-meta); color: var(--ink-3); letter-spacing: .02em; padding: 1px 6px; border-radius: 999px; background: color-mix(in srgb, var(--canvas) 86%, transparent); transition: opacity 240ms ease; }
+#overlay { position: absolute; inset: 0; pointer-events: none; z-index: 1200; }
+#caption { font-size: var(--fs-label); color: var(--ink-2); opacity: 0; transition: opacity 200ms var(--ease-out); text-align: center; }
+#caption b { color: var(--ink); font-weight: 500; }
+
+#marquee { position: fixed; border: 1px solid var(--clay); background: color-mix(in srgb, var(--clay) 8%, transparent); border-radius: 4px; pointer-events: none; display: none; }
+
+.chrome { position: fixed; z-index: 20; }
+#masthead { left: var(--s-6); top: var(--s-6); max-width: 420px; pointer-events: none; }
+#masthead h1 { margin: 0; font-size: 15px; font-weight: 500; letter-spacing: -.01em; }
+#masthead p { margin: 2px 0 0; font-size: var(--fs-label); color: var(--ink-2); font-variant-numeric: tabular-nums; }
+#tools { right: var(--s-6); top: var(--s-6); display: flex; gap: var(--s-1); padding: var(--s-1); border-radius: var(--r-card); background: var(--surface); backdrop-filter: blur(20px) saturate(1.4); -webkit-backdrop-filter: blur(20px) saturate(1.4); box-shadow: inset 0 0 0 1px var(--line); transition: transform 340ms var(--ease-drawer); }
+body.panel-open #tools { transform: translateX(calc(-380px - var(--s-4))); }
+.tool { height: var(--h-control); min-width: var(--h-control); padding: 0 var(--s-2); display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: var(--r-control); font-size: 13px; color: var(--ink-2); transition: background-color 160ms ease, color 160ms ease, transform 160ms var(--ease-out); }
+.tool svg { width: 16px; height: 16px; }
+.tool:active { transform: scale(.96); }
+.tool[aria-pressed="true"] { color: var(--ink); background: var(--line); }
+@media (hover: hover) and (pointer: fine) { .tool:hover { color: var(--ink); background: var(--line); } }
+#zoom { right: var(--s-6); bottom: var(--s-6); display: flex; align-items: center; border-radius: var(--r-card); padding: var(--s-1); background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: inset 0 0 0 1px var(--line); transition: transform 340ms var(--ease-drawer); }
+body.panel-open #zoom { transform: translateX(calc(-380px - var(--s-4))); }
+#zoom .pct { min-width: 48px; font-size: var(--fs-label); font-variant-numeric: tabular-nums; }
+#hint { left: var(--s-6); bottom: var(--s-6); font-size: var(--fs-label); color: var(--ink-3); transition: opacity 600ms ease; pointer-events: none; }
+#hint kbd { font: inherit; color: var(--ink-2); }
+
+#panel {
+  position: fixed; z-index: 30; top: var(--s-4); right: var(--s-4); bottom: var(--s-4); width: 380px;
+  border-radius: var(--r-panel); background: var(--surface);
+  backdrop-filter: blur(28px) saturate(1.5); -webkit-backdrop-filter: blur(28px) saturate(1.5);
+  box-shadow: var(--shadow-panel), inset 0 0 0 1px var(--line);
+  display: flex; flex-direction: column; overflow: hidden; visibility: hidden;
+}
+#panel-close { position: absolute; top: var(--s-3); right: var(--s-3); z-index: 2; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 999px; color: var(--ink-2); background: var(--surface); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: transform 160ms var(--ease-out), color 160ms ease; }
+#panel-close:active { transform: scale(.94); }
+#panel-close svg { width: 15px; height: 15px; }
+#panel-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: var(--s-6) var(--s-6) var(--s-8); scrollbar-width: thin; }
+#panel-body > * { margin: 0; }
+#panel-body > * + * { margin-top: var(--s-4); }
+
+.eyebrow { font-size: var(--fs-meta); color: var(--ink-3); letter-spacing: .02em; font-variant-numeric: tabular-nums; }
+.p-title { font-size: var(--fs-title); font-weight: 500; letter-spacing: -.015em; line-height: 1.3; margin-top: var(--s-1) !important; }
+.muted { color: var(--ink-2); font-size: 13px; }
+.voice { font-family: var(--font-voice); font-size: var(--fs-voice); line-height: 1.6; letter-spacing: .005em; }
+.sec { padding-top: var(--s-4); border-top: 1px solid var(--line); font-size: var(--fs-label); color: var(--ink-3); display: flex; justify-content: space-between; margin-top: var(--s-6) !important; }
+.hero { position: relative; margin: calc(-1 * var(--s-6)) calc(-1 * var(--s-6)) 0 !important; height: 400px; overflow: hidden; display: grid; place-items: center; }
+.hero .bg { position: absolute; inset: -20%; width: 140%; height: 140%; object-fit: cover; filter: blur(28px) saturate(1.2); opacity: .55; }
+.hero .main { position: relative; height: 340px; width: auto; aspect-ratio: 1179 / 2556; object-fit: cover; border-radius: 14px; box-shadow: 0 24px 48px -16px rgb(0 0 0 / .35), 0 0 0 1px rgb(0 0 0 / .06); }
+.note { padding: var(--s-3) var(--s-4); border-radius: var(--r-card); background: var(--line); font-size: 13px; color: var(--ink-2); }
+.note .eyebrow { margin-bottom: var(--s-1); }
+.note p { margin: 0; font-family: var(--font-voice); font-size: 14px; color: var(--ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { height: 26px; padding: 0 10px; border-radius: 999px; font-size: var(--fs-label); color: var(--ink-2); box-shadow: inset 0 0 0 1px var(--line-2); transition: background-color 160ms ease, color 160ms ease, transform 160ms var(--ease-out); }
+.chip:active { transform: scale(.96); }
+@media (hover: hover) and (pointer: fine) { .chip:hover { color: var(--ink); background: var(--line); } }
+.thread { list-style: none; padding: 0; position: relative; }
+.thread::before { content: ""; position: absolute; left: 13px; top: 18px; bottom: 18px; width: 1px; background: var(--line-2); }
+.thread li { position: relative; display: grid; grid-template-columns: 28px 1fr; gap: var(--s-3); align-items: center; padding: 6px 0; cursor: pointer; border-radius: var(--r-control); }
+.thread li img { width: 28px; height: 60px; object-fit: cover; border-radius: 5px; box-shadow: 0 0 0 1px var(--line), 0 0 0 4px var(--surface-solid); }
+.thread li .t { font-size: 13px; line-height: 1.45; }
+.thread li .t b { font-weight: 500; }
+.thread li .t span { display: block; color: var(--ink-2); font-size: var(--fs-label); }
+.thread li .t em { display: block; font-style: normal; color: var(--ink-3); font-size: var(--fs-meta); line-height: 1.5; }
+.thread li.is-self .t b { color: var(--clay); }
+.thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--s-2); }
+.thumb { position: relative; aspect-ratio: 1179 / 2556; border-radius: 8px; overflow: hidden; background: var(--node-bg); transition: transform 200ms var(--ease-out); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px var(--line); }
+.thumb .tag { position: absolute; left: 4px; bottom: 4px; padding: 1px 6px; border-radius: 999px; font-size: 10.5px; line-height: 16px; color: #fff; background: rgb(0 0 0 / .45); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.thumb .tag.is-clay { background: color-mix(in srgb, var(--clay) 85%, black); }
+.thumb:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .thumb:hover { transform: translateY(-2px); } }
+.relnote { font-size: 13px; color: var(--ink-2); padding-left: var(--s-3); border-left: 2px solid var(--clay); }
+.relnote b { color: var(--ink); font-weight: 500; }
+.insight { display: block; width: 100%; text-align: left; padding: var(--s-3) var(--s-4); margin: 0 calc(-1 * var(--s-4)); width: calc(100% + 2 * var(--s-4)); border-radius: var(--r-card); transition: background-color 160ms ease; }
+.insight + .insight { margin-top: var(--s-1) !important; }
+.insight .ev { display: flex; align-items: center; gap: 3px; margin-top: var(--s-2); font-size: var(--fs-meta); color: var(--ink-3); }
+.insight .ev img { width: 14px; height: 30px; object-fit: cover; border-radius: 3px; }
+.insight .ev span { margin-left: 6px; }
+@media (hover: hover) and (pointer: fine) { .insight:hover { background: var(--line); } }
+.questions { padding-left: 18px; color: var(--ink-2); font-size: 13px; }
+.questions li + li { margin-top: 2px; }
+.timeline { list-style: none; padding: 0; }
+.timeline li { display: grid; grid-template-columns: 40px 1fr; gap: var(--s-2); }
+.timeline li + li { margin-top: var(--s-4); }
+.timeline .at { font-size: var(--fs-label); color: var(--clay); font-variant-numeric: tabular-nums; padding-top: 3px; }
+.timeline p { margin: 0; font-family: var(--font-voice); font-size: 14px; }
+.timeline .next { margin-top: var(--s-1); font-family: var(--font-ui); font-size: var(--fs-label); color: var(--ink-2); }
+.gaps { padding-left: 18px; font-size: 13px; color: var(--ink-2); }
+.gaps li + li { margin-top: var(--s-1); }
+.bars { display: grid; gap: 6px; }
+.bar { display: grid; grid-template-columns: 96px 1fr 24px; align-items: center; gap: var(--s-2); font-size: var(--fs-label); color: var(--ink-2); }
+.bar i { height: 4px; border-radius: 2px; background: var(--line-2); overflow: hidden; }
+.bar i::before { content: ""; display: block; height: 100%; width: var(--w); background: var(--ink); border-radius: inherit; }
+.bar em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
+.pat-part .eyebrow { margin-bottom: 2px; }
+.pat-part p { margin: 0; font-size: 14px; }
+.source { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); text-decoration: none; }
+.source svg { width: 14px; height: 14px; }
+@media (hover: hover) and (pointer: fine) { .source:hover { color: var(--ink); } }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="links"></canvas>
+  <div id="labels"></div>
+  <div id="nodes"></div>
+  <div id="overlay"></div>
+</div>
+<div id="caption"></div>
+<div id="marquee"></div>
+
+<header id="masthead" class="chrome"><h1></h1><p></p></header>
+<nav id="tools" class="chrome" aria-label="视图">
+  <button class="tool" id="t-insight" aria-pressed="false" title="洞察（I）"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>洞察</button>
+  <button class="tool" id="t-replay" title="重播生长过程"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+  <button class="tool" id="t-fit" title="适配视图（F）"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></svg></button>
+</nav>
+<div id="zoom" class="chrome">
+  <button class="tool" id="z-out" title="缩小"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M5 12h14"/></svg></button>
+  <button class="tool pct" id="z-pct" title="适配视图">100%</button>
+  <button class="tool" id="z-in" title="放大"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button>
+</div>
+<div id="hint" class="chrome">悬停一张图看它的关系簇 · 点击固定 · <kbd>Shift</kbd> 拖拽框选 · 双指缩放</div>
+
+<aside id="panel" aria-live="polite">
+  <button id="panel-close" title="关闭（Esc）"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
+  <div id="panel-body"></div>
+</aside>
+
+<script src="research.js"></script>
+<script>
+(() => {
+"use strict";
+const DATA = window.RESEARCH;
+if (!DATA) { document.body.innerHTML = '<p style="padding:32px;font:14px system-ui">没有找到 research.js。请先运行 <code>python3 scripts/build_web.py &lt;调研目录&gt;</code>。</p>'; return; }
+
+// ---------- 常量 ----------
+const NODE_W = 36, NODE_H = 78, EL_W = 240;          // 世界单位下的节点尺寸；DOM 基准宽 240
+const RINGS = ["R1", "R2", "R3", "R4"];
+const RING_NAME = { R1: "直接竞品", R2: "间接竞品", R3: "结构相似", R4: "表达启发" };
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const PANEL_W = 380 + 16;
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const hash = n => { let t = (n * 2654435761) >>> 0; return () => { t += 0x6D2B79F5; let r = Math.imul(t ^ t >>> 15, 1 | t); r ^= r + Math.imul(r ^ r >>> 7, 61 | r); return ((r ^ r >>> 14) >>> 0) / 4294967296; }; };
+
+// ---------- 数据 ----------
+const screens = DATA.screens;
+const byId = new Map(screens.map(s => [s.id, s]));
+const leadById = new Map((DATA.leads || []).map(l => [l.id, l]));
+const patById = new Map(DATA.patterns.map(p => [p.id, p]));
+const echoes = new Map();
+for (const e of DATA.echoes || []) {
+  for (const [a, b] of [[e.a, e.b], [e.b, e.a]]) {
+    if (!echoes.has(a)) echoes.set(a, []);
+    echoes.get(a).push({ other: b, kind: e.kind, note: e.note });
+  }
+}
+for (const s of screens) {
+  s.lead = s.found_via ? leadById.get(s.found_via) : null;
+  s.parent = s.lead && s.lead.from != null ? s.lead.from : null;
+}
+const ancestors = s => { const out = []; let c = s; const seen = new Set(); while (c && !seen.has(c.id)) { out.unshift(c); seen.add(c.id); c = c.parent != null ? byId.get(c.parent) : null; } return out; };
+
+// ---------- 布局：半径 = 圈层，角度 = 模式 ----------
+function layout() {
+  // 模式排序：让常一起出现的模式相邻，减少跨扇区的拉扯
+  const pats = DATA.patterns.map(p => ({ ...p, n: screens.filter(s => s.patterns[0] === p.id).length }));
+  const co = new Map();
+  const bump = (a, b) => { if (a === b) return; const k = [a, b].sort().join("|"); co.set(k, (co.get(k) || 0) + 1); };
+  for (const s of screens) for (let i = 1; i < s.patterns.length; i++) bump(s.patterns[0], s.patterns[i]);
+  for (const e of DATA.echoes || []) bump(byId.get(e.a).patterns[0], byId.get(e.b).patterns[0]);
+  const cw = (a, b) => co.get([a, b].sort().join("|")) || 0;
+  const order = [pats.slice().sort((a, b) => b.n - a.n)[0]];
+  while (order.length < pats.length) {
+    const last = order[order.length - 1];
+    const next = pats.filter(p => !order.includes(p)).sort((a, b) => cw(last.id, b.id) - cw(last.id, a.id) || b.n - a.n)[0];
+    order.push(next);
+  }
+  const weight = p => Math.max(p.n, 3);
+  const total = order.reduce((t, p) => t + weight(p), 0);
+  let a = -Math.PI / 2 - (weight(order[0]) / total) * Math.PI;
+  for (const p of order) { const w = (weight(p) / total) * Math.PI * 2; p.a0 = a; p.a1 = a + w; p.ac = a + w / 2; a += w; }
+  const sector = new Map(order.map(p => [p.id, p]));
+
+  // 圈层宽度按面积分配：外圈周长更长，所以更薄
+  const area = (NODE_W + 10) * (NODE_H + 10) / 0.56;
+  const bands = {}; let r0 = 64;
+  for (const r of RINGS) {
+    const n = screens.filter(s => s.ring === r).length;
+    const r1 = Math.sqrt(r0 * r0 + n * area / Math.PI);
+    bands[r] = [r0, Math.max(r1, r0 + NODE_H)];
+    r0 = bands[r][1] + 34;
+  }
+
+  const angDiff = (x, y) => Math.atan2(Math.sin(y - x), Math.cos(y - x));
+  for (const s of screens) {
+    const rnd = hash(s.id), sec = sector.get(s.patterns[0]);
+    let ang = sec.ac + (rnd() - .5) * (sec.a1 - sec.a0) * .72;
+    if (s.patterns[1] && sector.get(s.patterns[1])) {
+      const d = angDiff(sec.ac, sector.get(s.patterns[1]).ac);
+      ang = sec.ac + Math.max(-1, Math.min(1, d / Math.abs(d || 1))) * (sec.a1 - sec.a0) * (.32 + rnd() * .16);
+    }
+    const [b0, b1] = bands[s.ring];
+    const rad = b0 + rnd() * (b1 - b0);
+    s.bx = Math.cos(ang) * rad; s.by = Math.sin(ang) * rad;
+  }
+  // 矩形碰撞松弛，再投影回所在圈层
+  const GX = NODE_W + 8, GY = NODE_H + 8;
+  for (let it = 0; it < 160; it++) {
+    for (let i = 0; i < screens.length; i++) for (let j = i + 1; j < screens.length; j++) {
+      const A = screens[i], B = screens[j];
+      const dx = B.bx - A.bx, dy = B.by - A.by, ox = GX - Math.abs(dx), oy = GY - Math.abs(dy);
+      if (ox > 0 && oy > 0) {
+        if (ox < oy) { const m = ox / 2 * Math.sign(dx || 1); A.bx -= m; B.bx += m; }
+        else { const m = oy / 2 * Math.sign(dy || 1); A.by -= m; B.by += m; }
+      }
+    }
+    for (const s of screens) {
+      const [b0, b1] = bands[s.ring], d = Math.hypot(s.bx, s.by) || 1, c = Math.min(b1, Math.max(b0, d));
+      s.bx *= c / d; s.by *= c / d;
+    }
+  }
+  // 圈层标签沿正上方纵向排开，像一把刻度尺
+  return { order, bands, outer: bands.R4[1], ringAngle: -Math.PI / 2 };
+}
+const L = layout();
+
+// ---------- 状态 ----------
+const cam = { k: 1, x: 0, y: 0, tk: 1, tx: 0, ty: 0 };
+const st = { focus: null, anchor: null, cluster: [], pinned: false, hover: null, selection: null, highlight: null, panel: null, t0: 0, sF: 1, sM: 1 };
+const stage = document.getElementById("stage"), cv = document.getElementById("links"), ctx = cv.getContext("2d");
+const nodesEl = document.getElementById("nodes"), labelsEl = document.getElementById("labels"), caption = document.getElementById("caption");
+let W = 0, H = 0, DPR = 1, colors = {};
+
+function readColors() {
+  const cs = getComputedStyle(document.documentElement);
+  colors = { ink: cs.getPropertyValue("--ink").trim(), ink2: cs.getPropertyValue("--ink-2").trim(), clay: cs.getPropertyValue("--clay").trim(), line: cs.getPropertyValue("--line-2").trim() };
+}
+function resize() {
+  DPR = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+  cv.width = W * DPR; cv.height = H * DPR;
+}
+
+// ---------- 节点 DOM ----------
+for (const s of screens) {
+  const el = document.createElement("div");
+  el.className = "node"; el.dataset.id = s.id;
+  el.innerHTML = `<div class="lift"></div><img alt="${esc(s.app)} · ${esc(s.screen_type)}" src="${esc(s.thumb)}" decoding="async" draggable="false">`;
+  nodesEl.appendChild(el);
+  Object.assign(s, { el, x: s.bx, y: s.by, vx: 0, vy: 0, s: .5, vs: 0, o: 0, _t: "", _o: "", _z: "", phase: hash(s.id + 99)() * Math.PI * 2, per: 7 + hash(s.id + 7)() * 4 });
+  el.addEventListener("pointerenter", () => onNodeEnter(s));
+  el.addEventListener("pointerleave", () => { if (st.hover === s) st.hover = null; clearTimeout(dwellT); });
+  el.addEventListener("click", e => { e.stopPropagation(); if (moved) return; pin(s); });
+}
+const sectorEls = L.order.map(p => {
+  const el = document.createElement("button");
+  el.className = "sector"; el.innerHTML = `<b>${esc(p.name)}</b><span>${p.n}</span>`;
+  el.addEventListener("pointerenter", () => { if (!st.focus && !st.selection && st.panel !== "pattern") setHighlight(membersOf(p.id)); });
+  el.addEventListener("pointerleave", () => { if (st.panel !== "pattern" && st.panel !== "overview") setHighlight(null); });
+  el.addEventListener("click", e => { e.stopPropagation(); openPattern(p.id); });
+  labelsEl.appendChild(el); return { p, el };
+});
+const ringEls = RINGS.map(r => { const el = document.createElement("div"); el.className = "ring-label"; el.textContent = `${r} ${RING_NAME[r]}`; document.getElementById("overlay").appendChild(el); return { r, el }; });
+const membersOf = pid => new Set(screens.filter(s => s.patterns.includes(pid)).map(s => s.id));
+
+// ---------- 关系簇：共享模式 + 线索 + 呼应 ----------
+function relation(a, b) {
+  const pa = new Set(a.patterns), shared = b.patterns.filter(p => pa.has(p)).length;
+  const jac = shared / new Set([...a.patterns, ...b.patterns]).size;
+  let lin = 0, rel = shared ? "同模式" : "";
+  if (a.parent === b.id || b.parent === a.id) { lin = 1; rel = "线索"; }
+  else if (a.found_via && a.found_via === b.found_via) { lin = .7; rel = "同一线索"; }
+  else if (a.parent != null && a.parent === b.parent) { lin = .5; rel = "同源"; }
+  const ech = (echoes.get(a.id) || []).find(e => e.other === b.id);
+  if (ech) rel = ech.kind === "contrast" ? "对照" : "呼应";
+  const score = jac * .6 + lin * .55 + (ech ? 1 : 0) + (a.app === b.app ? .15 : 0);
+  return { score, rel, clay: !!ech };
+}
+function clusterOf(f) {
+  return screens.filter(s => s !== f).map(s => ({ s, ...relation(f, s) }))
+    .filter(o => o.score >= .3).sort((x, y) => y.score - x.score).slice(0, 8);
+}
+
+// 把簇成员排在焦点外侧的一圈矩形上：按原方向分配位置，再松弛掉重叠，最后约束在视口内
+function arrangeCluster() {
+  const f = st.focus; if (!f) return;
+  const k = cam.tk;
+  st.sF = Math.max(1.9, Math.min(6, 300 / (NODE_H * k)));
+  st.sM = Math.max(1.3, Math.min(3, 132 / (NODE_H * k)));
+  const g = 14 / k;
+  const hxF = NODE_W / 2 * st.sF, hyF = NODE_H / 2 * st.sF, hxM = NODE_W / 2 * st.sM, hyM = NODE_H / 2 * st.sM;
+  const capH = 30 / k;  // 焦点下方留给说明文字的高度
+  const Hx = hxF + hxM + g, Hy = hyF + hyM + g + capH / 2, P = 4 * (Hx + Hy), n = st.cluster.length;
+  const onRect = u => {
+    u = ((u % P) + P) % P;
+    if (u < Hx) return [u, -Hy];
+    if ((u -= Hx) < 2 * Hy) return [Hx, -Hy + u];
+    if ((u -= 2 * Hy) < 2 * Hx) return [Hx - u, Hy];
+    if ((u -= 2 * Hx) < 2 * Hy) return [-Hx, Hy - u];
+    return [-Hx + (u - 2 * Hy), -Hy];
+  };
+  const ang = (x, y) => Math.atan2(y, x);
+  const mem = st.cluster.map(o => ({ o, a: ang(o.s.x - st.anchor.x, o.s.y - st.anchor.y) })).sort((p, q) => p.a - q.a);
+  // 尝试 n 种旋转，选与原方向偏差最小的那一种
+  let best = null;
+  for (let r = 0; r < n; r++) {
+    const pts = mem.map((m, i) => onRect((i + r + .5) * P / n)).map(([x, y]) => ({ x, y, a: ang(x, y) })).sort((p, q) => p.a - q.a);
+    const cost = mem.reduce((c, m, i) => c + Math.abs(Math.atan2(Math.sin(pts[i].a - m.a), Math.cos(pts[i].a - m.a))), 0);
+    if (!best || cost < best.cost) best = { cost, pts };
+  }
+  // 关系越弱，离焦点越远：簇团因此有了疏密，而不是一圈等距的网格
+  const top = Math.max(...st.cluster.map(o => o.score)), low = Math.min(...st.cluster.map(o => o.score));
+  const pos = mem.map((m, i) => {
+    const { x, y } = best.pts[i], w = top > low ? (top - m.o.score) / (top - low) : 0;
+    const out = w * (Math.abs(x) >= Hx - 1e-6 ? hxM * .9 : hyM * .55);
+    return { m, x: x + Math.sign(x) * (Math.abs(x) >= Hx - 1e-6 ? out : 0), y: y + Math.sign(y) * (Math.abs(y) >= Hy - 1e-6 ? out : 0) };
+  });
+  const GX = 2 * hxM + g, GY = 2 * hyM + g;
+  for (let it = 0; it < 16; it++) {
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) {
+      const A = pos[i], B = pos[j], dx = B.x - A.x, dy = B.y - A.y, ox = GX - Math.abs(dx), oy = GY - Math.abs(dy);
+      if (ox > 0 && oy > 0) {
+        if (ox < oy) { const m = ox / 2 * Math.sign(dx || 1); A.x -= m; B.x += m; }
+        else { const m = oy / 2 * Math.sign(dy || 1); A.y -= m; B.y += m; }
+      }
+    }
+    for (const q of pos) {
+      const ox = Hx - Math.abs(q.x), oy = Hy - Math.abs(q.y);
+      if (ox > 0 && oy > 0) { if (ox / Hx < oy / Hy) q.x = Math.sign(q.x || 1) * Hx; else q.y = Math.sign(q.y || 1) * Hy; }
+    }
+  }
+  // 整个簇超出视口时，平移锚点把它拉回来
+  const m = 24, xs = [-hxF, hxF, ...pos.flatMap(q => [q.x - hxM, q.x + hxM])], ys = [-hyF, hyF, ...pos.flatMap(q => [q.y - hyM, q.y + hyM])];
+  const sx0 = (st.anchor.x + Math.min(...xs)) * k + cam.tx, sx1 = (st.anchor.x + Math.max(...xs)) * k + cam.tx;
+  const sy0 = (st.anchor.y + Math.min(...ys)) * k + cam.ty, sy1 = (st.anchor.y + Math.max(...ys)) * k + cam.ty;
+  const AW = availW();
+  let shx = 0, shy = 0;
+  if (sx1 - sx0 < AW - 2 * m) shx = sx0 < m ? m - sx0 : sx1 > AW - m ? AW - m - sx1 : 0;
+  if (sy1 - sy0 < H - 2 * m) shy = sy0 < m ? m - sy0 : sy1 > H - m ? H - m - sy1 : 0;
+  const ax = st.anchor.x + shx / k, ay = st.anchor.y + shy / k;
+  for (const q of pos) q.m.o.slot = { x: ax + q.x, y: ay + q.y };
+  st.anchorShown = { x: ax, y: ay };
+  st.pushR = Math.max(Hx, Hy) * 1.15;
+}
+
+// ---------- 交互状态切换 ----------
+let dwellT = 0, leaveT = 0;
+function onNodeEnter(s) {
+  hideHint();
+  st.hover = s; clearTimeout(dwellT); clearTimeout(leaveT);
+  if (st.pinned || st.selection || drag) return;
+  if (st.focus === s) return;
+  const inCluster = st.cluster.some(o => o.s === s);
+  dwellT = setTimeout(() => setFocus(s), st.focus ? (inCluster ? 220 : 160) : 90);
+}
+function setFocus(s, opts = {}) {
+  st.focus = s;
+  if (!s) { st.cluster = []; st.anchor = null; caption.style.opacity = 0; return; }
+  st.anchor = { x: s.x, y: s.y };
+  if (opts.home) st.anchor = { x: s.bx, y: s.by };
+  st.cluster = clusterOf(s);
+  st.edgeT = performance.now();
+  arrangeCluster();
+  caption.innerHTML = `<b>${esc(s.app)}</b> · ${esc(s.screen_type)}`;
+  caption.style.opacity = 1;
+}
+function clearFocus() { clearTimeout(dwellT); setFocus(null); }
+function setHighlight(set) { st.highlight = set; }
+
+function pin(s) {
+  clearTimeout(dwellT); clearTimeout(leaveT);
+  st.selection = null; setHighlight(null);
+  if (st.focus !== s) setFocus(s);
+  if (!st.pinned && !savedCam) savedCam = { k: cam.tk, x: cam.tx, y: cam.ty, avail: availW() };
+  st.pinned = true;
+  openPanel("screen", s);
+  flyTo(st.anchor.x, st.anchor.y);
+  arrangeAfterFly = true;
+}
+// 固定一张图时记住原视角；用户没有手动移动过镜头，退出时就飞回去
+let savedCam = null;
+function reset() {
+  const back = savedCam; savedCam = null;
+  st.pinned = false; st.selection = null; setHighlight(null); clearFocus(); closePanel();
+  if (back) { cam.tk = back.k; cam.tx = back.x + (availW() - back.avail) / 2; cam.ty = back.y; }
+}
+function openPattern(pid) {
+  st.pinned = false; st.selection = null; clearFocus();
+  st.patternId = pid;
+  setHighlight(membersOf(pid));
+  openPanel("pattern", pid);
+}
+function openOverview() {
+  st.pinned = false; st.selection = null; clearFocus(); setHighlight(null);
+  openPanel("overview");
+}
+
+// ---------- 镜头 ----------
+const toScreen = (x, y) => [x * cam.k + cam.x, y * cam.k + cam.y];
+const toWorld = (sx, sy) => [(sx - cam.x) / cam.k, (sy - cam.y) / cam.k];
+const availW = () => W - (st.panel ? PANEL_W : 0);
+function fitTarget() {
+  const R = L.outer + 70;
+  const k = Math.min(availW() / (2 * R + 64), (H - 150) / (2 * R));
+  return { k, x: availW() / 2, y: H / 2 + 8 };
+}
+function fit(instant) {
+  const t = fitTarget(); cam.tk = t.k; cam.tx = t.x; cam.ty = t.y;
+  if (instant) Object.assign(cam, { k: t.k, x: t.x, y: t.y });
+}
+function flyTo(wx, wy, k = cam.tk) {
+  cam.tk = k; cam.tx = availW() / 2 - wx * k; cam.ty = H / 2 - wy * k;
+}
+function zoomAt(sx, sy, f, instant) {
+  const k = Math.max(.25, Math.min(4, cam.tk * f));
+  const [wx, wy] = [(sx - cam.tx) / cam.tk, (sy - cam.ty) / cam.tk];
+  cam.tk = k; cam.tx = sx - wx * k; cam.ty = sy - wy * k;
+  if (instant) Object.assign(cam, { k: cam.tk, x: cam.tx, y: cam.ty });
+  if (st.focus) arrangeCluster();
+}
+
+// ---------- 指针：平移、框选、离开簇团 ----------
+let drag = null, moved = false, arrangeAfterFly = false;
+const marquee = document.getElementById("marquee");
+stage.addEventListener("pointerdown", e => {
+  if (e.button !== 0) return;
+  moved = false;
+  drag = { sx: e.clientX, sy: e.clientY, x: cam.x, y: cam.y, box: e.shiftKey, id: e.pointerId };
+  if (!e.target.closest(".node, .sector")) stage.setPointerCapture(e.pointerId);
+});
+stage.addEventListener("pointermove", e => {
+  if (drag) {
+    const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+    if (!moved && Math.hypot(dx, dy) > 4) { moved = true; drag.box = drag.box || e.shiftKey; hideHint(); if (!drag.box) stage.classList.add("panning"); clearTimeout(dwellT); }
+    if (!moved) return;
+    if (drag.box) {
+      Object.assign(marquee.style, { display: "block", left: Math.min(e.clientX, drag.sx) + "px", top: Math.min(e.clientY, drag.sy) + "px", width: Math.abs(dx) + "px", height: Math.abs(dy) + "px" });
+    } else {
+      cam.x = cam.tx = drag.x + dx; cam.y = cam.ty = drag.y + dy; savedCam = null;
+    }
+    return;
+  }
+  // 指针离开焦点和簇成员一段距离后，才松开簇团
+  if (st.focus && !st.pinned && !e.target.closest(".node")) {
+    const near = [st.focus, ...st.cluster.map(o => o.s)].some(s => {
+      const [sx, sy] = toScreen(s.x, s.y), hw = NODE_W * cam.k * s.s / 2 + 40, hh = NODE_H * cam.k * s.s / 2 + 40;
+      return Math.abs(e.clientX - sx) < hw && Math.abs(e.clientY - sy) < hh;
+    });
+    clearTimeout(leaveT);
+    if (!near) leaveT = setTimeout(clearFocus, 260);
+  }
+});
+stage.addEventListener("pointerup", e => {
+  if (!drag) return;
+  stage.classList.remove("panning");
+  if (drag.box && moved) {
+    const [x0, y0] = toWorld(Math.min(e.clientX, drag.sx), Math.min(e.clientY, drag.sy));
+    const [x1, y1] = toWorld(Math.max(e.clientX, drag.sx), Math.max(e.clientY, drag.sy));
+    const sel = screens.filter(s => s.x > x0 && s.x < x1 && s.y > y0 && s.y < y1);
+    marquee.style.display = "none";
+    if (sel.length) {
+      clearFocus(); st.pinned = false;
+      st.selection = new Set(sel.map(s => s.id)); setHighlight(st.selection);
+      openPanel("selection", sel);
+    }
+  } else if (!moved && !e.target.closest(".node, .sector")) {
+    reset();
+  }
+  drag = null;
+});
+stage.addEventListener("pointerleave", () => { if (!st.pinned && !drag) { clearTimeout(leaveT); leaveT = setTimeout(clearFocus, 260); } });
+stage.addEventListener("wheel", e => {
+  e.preventDefault(); hideHint();
+  const mouseWheel = e.deltaMode !== 0 || (e.deltaX === 0 && Math.abs(e.deltaY) >= 40 && Number.isInteger(e.deltaY));
+  if (e.ctrlKey || e.metaKey || mouseWheel) zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * (e.ctrlKey ? .012 : .0018)), !mouseWheel);
+  else { cam.x = cam.tx = cam.x - e.deltaX; cam.y = cam.ty = cam.y - e.deltaY; }
+  savedCam = null;
+}, { passive: false });
+
+addEventListener("keydown", e => {
+  if (e.target.closest("input, textarea")) return;
+  if (e.key === "Escape") reset();
+  else if (e.key === "f" || e.key === "F") fit();
+  else if (e.key === "i" || e.key === "I") st.panel === "overview" ? closePanel() : openOverview();
+});
+document.getElementById("t-fit").onclick = () => fit();
+document.getElementById("z-pct").onclick = () => fit();
+document.getElementById("z-in").onclick = () => zoomAt(availW() / 2, H / 2, 1.25);
+document.getElementById("z-out").onclick = () => zoomAt(availW() / 2, H / 2, .8);
+document.getElementById("t-insight").onclick = () => st.panel === "overview" ? closePanel() : openOverview();
+document.getElementById("t-replay").onclick = () => { reset(); grow(); };
+document.getElementById("panel-close").onclick = () => reset();
+let hintGone = false;
+function hideHint() { if (hintGone) return; hintGone = true; document.getElementById("hint").style.opacity = 0; }
+
+// ---------- 面板 ----------
+const panel = document.getElementById("panel"), body = document.getElementById("panel-body");
+let panelAnim = null, panelKey = null;
+function openPanel(mode, arg) {
+  const key = mode + ":" + (arg && arg.id != null ? arg.id : Array.isArray(arg) ? arg.length + arg[0].id : arg || "");
+  const html = render[mode](arg);
+  document.getElementById("t-insight").setAttribute("aria-pressed", mode === "overview");
+  if (st.panel) {
+    if (key === panelKey) return;
+    panelKey = key; st.panel = mode;
+    swapContent(html); return;
+  }
+  st.panel = mode; panelKey = key;
+  body.innerHTML = html; bindPanel(); body.scrollTop = 0;
+  panel.style.visibility = "visible";
+  document.body.classList.add("panel-open");
+  panelAnim?.cancel();
+  panelAnim = panel.animate(
+    REDUCED ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateX(20px) scale(.985)" }, { opacity: 1, transform: "none" }],
+    { duration: 340, easing: "cubic-bezier(.32,.72,0,1)", fill: "both" });
+  stagger();
+  recenter();
+}
+function closePanel() {
+  if (!st.panel) return;
+  st.panel = null; panelKey = null;
+  document.body.classList.remove("panel-open");
+  document.getElementById("t-insight").setAttribute("aria-pressed", "false");
+  panelAnim?.cancel();
+  panelAnim = panel.animate(
+    REDUCED ? [{ opacity: 1 }, { opacity: 0 }] : [{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(12px) scale(.99)" }],
+    { duration: 200, easing: "cubic-bezier(.23,1,.32,1)", fill: "both" });
+  panelAnim.onfinish = () => { if (!st.panel) panel.style.visibility = "hidden"; };
+  recenter();
+}
+// 面板开合时，把画布中心平移到剩余区域的中心
+let lastAvail = null;
+function recenter() {
+  const a = availW(); if (lastAvail == null) { lastAvail = a; return; }
+  cam.tx += (a - lastAvail) / 2; lastAvail = a;
+}
+function swapContent(html) {
+  const out = body.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(2px)" }], { duration: 110, easing: "ease-out", fill: "forwards" });
+  out.onfinish = () => { body.innerHTML = html; bindPanel(); body.scrollTop = 0; out.cancel(); stagger(); };
+}
+function stagger() {
+  if (REDUCED) return;
+  [...body.children].forEach((el, i) => el.animate(
+    [{ opacity: 0, transform: "translateY(6px)" }, { opacity: 1, transform: "none" }],
+    { duration: 280, delay: Math.min(i, 10) * 24, easing: "cubic-bezier(.23,1,.32,1)", fill: "backwards" }));
+}
+function bindPanel() {
+  body.querySelectorAll("[data-goto]").forEach(el => {
+    const s = byId.get(+el.dataset.goto);
+    el.addEventListener("click", () => { pin(s); });
+    el.addEventListener("pointerenter", () => { st.peek = s; });
+    el.addEventListener("pointerleave", () => { if (st.peek === s) st.peek = null; });
+  });
+  body.querySelectorAll("[data-pattern]").forEach(el => el.addEventListener("click", () => openPattern(el.dataset.pattern)));
+  body.querySelectorAll("[data-insight]").forEach(el => {
+    const ins = DATA.insights.find(i => i.id === el.dataset.insight), set = new Set(ins.evidence);
+    el.addEventListener("pointerenter", () => setHighlight(set));
+    el.addEventListener("pointerleave", () => { if (st.panel === "overview") setHighlight(null); });
+    el.addEventListener("click", () => { setHighlight(set); fitTo(ins.evidence.map(id => byId.get(id))); });
+  });
+}
+function fitTo(list) {
+  const xs = list.map(s => s.bx), ys = list.map(s => s.by);
+  const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+  const span = Math.max(Math.max(...xs) - Math.min(...xs) + 160, (Math.max(...ys) - Math.min(...ys) + 240) * availW() / H);
+  flyTo(cx, cy, Math.max(.4, Math.min(1.8, availW() / span)));
+}
+const ringTag = r => `${r} ${RING_NAME[r]}`;
+const thumbBtn = (s, tag, clay) => `<button class="thumb" data-goto="${s.id}" title="${esc(s.app)} · ${esc(s.screen_type)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">${tag ? `<span class="tag${clay ? " is-clay" : ""}">${esc(tag)}</span>` : ""}</button>`;
+const pid = id => "#" + String(id).padStart(3, "0");
+
+const render = {
+  screen(s) {
+    const chain = ancestors(s);
+    const rels = (echoes.get(s.id) || []).map(e => `<p class="relnote"><b>${e.kind === "contrast" ? "对照" : "呼应"} ${pid(e.other)} ${esc(byId.get(e.other).app)}</b> · ${esc(e.note)}</p>`).join("");
+    return `
+      <div class="hero"><img class="bg" src="${esc(s.thumb)}" alt=""><img class="main" src="${esc(s.image || s.thumb)}" alt="${esc(s.app)}"></div>
+      <div><div class="eyebrow">${pid(s.id)} · ${ringTag(s.ring)} · ${esc(s.screen_type)}</div><h2 class="p-title">${esc(s.app)}</h2></div>
+      <p class="voice">${esc(s.insight)}</p>
+      <div class="note"><div class="eyebrow">Agent 笔记 · 第 ${s.round ?? "?"} 轮</div><p>${esc(s.why_saved)}</p></div>
+      <div class="chips">${s.patterns.map(p => `<button class="chip" data-pattern="${esc(p)}">${esc(patById.get(p)?.name || p)}</button>`).join("")}</div>
+      <div class="sec"><span>它是怎么被找到的</span><span>${chain.length} 步</span></div>
+      <ol class="thread">${chain.map((c, i) => `<li data-goto="${c.id}" class="${c === s ? "is-self" : ""}"><img src="${esc(c.thumb)}" alt=""><div class="t"><b>${esc(c.app)}</b><span>${esc(c.lead ? c.lead.text : "起点")}</span>${c.lead && c.lead.reason && i > 0 ? `<em>${esc(c.lead.reason)}</em>` : ""}</div></li>`).join("")}</ol>
+      <div class="sec"><span>这一簇</span><span>${st.cluster.length} 张</span></div>
+      <div class="thumbs">${st.cluster.map(o => thumbBtn(o.s, o.rel, o.clay)).join("")}</div>
+      ${rels}
+      ${s.source_url ? `<a class="source" href="${esc(s.source_url)}" target="_blank" rel="noopener">在 Mobbin 中打开<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg></a>` : ""}`;
+  },
+  selection(list) {
+    const rc = RINGS.map(r => [r, list.filter(s => s.ring === r).length]);
+    const pc = new Map(); list.forEach(s => s.patterns.forEach(p => pc.set(p, (pc.get(p) || 0) + 1)));
+    const pats = [...pc].sort((a, b) => b[1] - a[1]).slice(0, 5);
+    const ids = new Set(list.map(s => s.id));
+    const ins = (DATA.insights || []).filter(i => i.evidence.some(x => ids.has(x)));
+    return `
+      <div><div class="eyebrow">框选</div><h2 class="p-title">${list.length} 张图</h2></div>
+      <div class="bars">${rc.map(([r, n]) => `<div class="bar"><span>${ringTag(r)}</span><i style="--w:${n / list.length * 100}%"></i><em>${n}</em></div>`).join("")}</div>
+      <div class="sec"><span>共有的模式</span></div>
+      <div class="bars">${pats.map(([p, n]) => `<div class="bar"><span>${esc(patById.get(p)?.name || p)}</span><i style="--w:${n / list.length * 100}%"></i><em>${n}</em></div>`).join("")}</div>
+      ${ins.length ? `<div class="sec"><span>涉及的洞察</span></div>${ins.map(i => `<p class="voice" style="font-size:15px">${esc(i.text)}</p>`).join("")}` : ""}
+      <div class="sec"><span>选中的图</span></div>
+      <div class="thumbs">${list.map(s => thumbBtn(s)).join("")}</div>`;
+  },
+  pattern(id) {
+    const p = patById.get(id), m = screens.filter(s => s.patterns.includes(id));
+    const part = (t, v) => v ? `<div class="pat-part"><div class="eyebrow">${t}</div><p>${esc(v)}</p></div>` : "";
+    return `
+      <div><div class="eyebrow">设计模式 · ${m.length} 张</div><h2 class="p-title">${esc(p.name)}</h2></div>
+      <p class="voice">${esc(p.summary)}</p>
+      ${part("共性", p.common)}${part("分叉", p.forks)}${part("例外", p.exceptions)}
+      <div class="bars">${RINGS.map(r => { const n = m.filter(s => s.ring === r).length; return `<div class="bar"><span>${ringTag(r)}</span><i style="--w:${n / Math.max(1, m.length) * 100}%"></i><em>${n}</em></div>`; }).join("")}</div>
+      <div class="sec"><span>成员</span></div>
+      <div class="thumbs">${m.map(s => thumbBtn(s)).join("")}</div>`;
+  },
+  overview() {
+    const b = DATA.brief || {};
+    return `
+      <div><div class="eyebrow">调研简报 · ${esc(b.date || "")}</div><h2 class="p-title">${esc(b.product || "调研")}</h2></div>
+      ${b.users ? `<p class="muted">${esc(b.users)}</p>` : ""}
+      ${(b.questions || []).length ? `<ol class="questions">${b.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ol>` : ""}
+      <div class="sec"><span>洞察</span><span>${(DATA.insights || []).length}</span></div>
+      ${(DATA.insights || []).map(i => `<button class="insight" data-insight="${esc(i.id)}"><p class="voice" style="margin:0">${esc(i.text)}</p><div class="ev">${i.evidence.slice(0, 6).map(id => `<img src="${esc(byId.get(id)?.thumb)}" alt="">`).join("")}<span>${i.evidence.length} 张证据</span></div></button>`).join("")}
+      ${(DATA.checkpoints || []).length ? `<div class="sec"><span>Agent 的思考轨迹</span></div><ol class="timeline">${DATA.checkpoints.map(c => `<li><span class="at">${c.at}%</span><div><p>${esc(c.note)}</p>${c.next ? `<p class="next">→ ${esc(c.next)}</p>` : ""}</div></li>`).join("")}</ol>` : ""}
+      ${(DATA.picks || []).length ? `<div class="sec"><span>值得深挖</span><span>${DATA.picks.length}</span></div><div class="thumbs">${DATA.picks.map(p => byId.get(p.id)).filter(Boolean).map(s => thumbBtn(s)).join("")}</div>` : ""}
+      ${(DATA.gaps || []).length ? `<div class="sec"><span>缺口</span></div><ul class="gaps">${DATA.gaps.map(g => `<li>${esc(g)}</li>`).join("")}</ul>` : ""}`;
+  },
+};
+
+// ---------- 入场：按保存顺序，从父节点长出 ----------
+function grow() {
+  st.t0 = performance.now() + 250;
+  for (const s of screens) {
+    const p = s.parent != null ? byId.get(s.parent) : null;
+    s.x = p ? p.bx : s.bx * .2; s.y = p ? p.by : s.by * .2; s.vx = s.vy = 0; s.s = .4; s.o = 0;
+  }
+}
+const born = s => REDUCED ? true : performance.now() > st.t0 + (s.id - 1) * 14;
+
+// ---------- 帧循环：弹簧 ----------
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
+  // 镜头指数趋近
+  const ck = 1 - Math.exp(-dt * 11);
+  cam.k += (cam.tk - cam.k) * ck; cam.x += (cam.tx - cam.x) * ck; cam.y += (cam.ty - cam.y) * ck;
+  if (arrangeAfterFly) { arrangeAfterFly = false; arrangeCluster(); }
+
+  const f = st.focus, slots = new Map(st.cluster.map(o => [o.s, o]));
+  const hl = st.highlight, t = now / 1000;
+  for (const s of screens) {
+    let tx = s.bx, ty = s.by, ts = 1, to = 1;
+    if (!born(s)) { to = 0; ts = .4; const p = s.parent != null ? byId.get(s.parent) : null; tx = p ? p.x : s.x; ty = p ? p.y : s.y; }
+    else if (f) {
+      if (s === f) { tx = st.anchorShown.x; ty = st.anchorShown.y; ts = st.sF; }
+      else if (slots.has(s)) { const o = slots.get(s); tx = o.slot.x; ty = o.slot.y; ts = st.sM; }
+      else {
+        // 簇团外的节点：被焦点轻轻推开，并退到背景里
+        const dx = s.bx - st.anchorShown.x, dy = s.by - st.anchorShown.y, d = Math.hypot(dx, dy) || 1;
+        if (d < st.pushR) { const push = (st.pushR - d) * .42; tx += dx / d * push; ty += dy / d * push; }
+        ts = .86; to = .16;
+      }
+    } else {
+      if (hl) { to = hl.has(s.id) ? 1 : .18; ts = hl.has(s.id) ? 1.08 : .92; }
+      if (st.hover === s && !st.selection) ts *= 1.1;
+      if (st.peek === s) { ts = 1.6; to = 1; }
+      if (!REDUCED) { tx += Math.sin(t * Math.PI * 2 / s.per + s.phase) * 1.6; ty += Math.cos(t * Math.PI * 2 / (s.per * 1.3) + s.phase) * 1.6; }
+    }
+    if (f && st.peek === s) to = 1;
+    if (REDUCED) { s.x = tx; s.y = ty; s.s = ts; }
+    else {
+      const K = 210, D = 26;
+      s.vx += ((tx - s.x) * K - s.vx * D) * dt; s.x += s.vx * dt;
+      s.vy += ((ty - s.y) * K - s.vy * D) * dt; s.y += s.vy * dt;
+      s.vs += ((ts - s.s) * 260 - s.vs * 30) * dt; s.s += s.vs * dt;
+    }
+    s.o += (to - s.o) * (1 - Math.exp(-dt * 12));
+    const [sx, sy] = toScreen(s.x, s.y), sc = NODE_W * cam.k * s.s / EL_W;
+    const tr = `translate3d(${(sx - 120).toFixed(1)}px,${(sy - 260).toFixed(1)}px,0) scale(${sc.toFixed(4)})`;
+    if (tr !== s._t) { s.el.style.transform = tr; s._t = tr; }
+    const op = s.o.toFixed(2); if (op !== s._o) { s.el.style.opacity = op; s._o = op; }
+    const z = s === f ? "1000" : slots.has(s) ? "600" : st.peek === s ? "900" : String(Math.round(s.s * 100));
+    if (z !== s._z) { s.el.style.zIndex = z; s._z = z; s.el.classList.toggle("is-focus", s === f); }
+  }
+  if (f) {
+    const [sx, sy] = toScreen(f.x, f.y);
+    caption.style.transform = `translate3d(calc(${sx.toFixed(1)}px - 50%), ${(sy + NODE_H * cam.k * f.s / 2 + 14).toFixed(1)}px, 0)`;
+  }
+  drawLinks(now);
+  placeLabels();
+  document.getElementById("z-pct").textContent = Math.round(cam.k / fitTarget().k * 100) + "%";
+  requestAnimationFrame(frame);
+}
+
+function placeLabels() {
+  const dim = !!(st.focus || st.selection);
+  for (const { p, el } of sectorEls) {
+    const r = L.outer + 34 / Math.max(.6, cam.k) + 10, [sx, sy] = toScreen(Math.cos(p.ac) * r, Math.sin(p.ac) * r);
+    const ax = Math.cos(p.ac), ay = Math.sin(p.ac);
+    el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(${(-50 + ax * 50).toFixed(0)}%, ${(-50 + ay * 50).toFixed(0)}%)`;
+    el.classList.toggle("is-dim", dim || (st.panel === "pattern" && st.patternId !== p.id));
+  }
+  for (const { r, el } of ringEls) {
+    const rad = L.bands[r][1] + 17, [sx, sy] = toScreen(Math.cos(L.ringAngle) * rad, Math.sin(L.ringAngle) * rad);
+    el.style.transform = `translate3d(${sx.toFixed(1)}px, ${sy.toFixed(1)}px, 0) translate(-50%, -50%)`;
+    el.style.opacity = dim || st.highlight ? 0 : 1;
+  }
+}
+
+function curve(a, b, bend) {
+  const [x1, y1] = toScreen(a.x, a.y), [x2, y2] = toScreen(b.x, b.y);
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1;
+  return [x1, y1, mx - dy * bend, my + dx * bend, x2, y2];
+}
+function drawLinks(now) {
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  ctx.clearRect(0, 0, W, H);
+  const f = st.focus, quiet = !!(f || st.highlight);
+  // 参考圆与扇区边界
+  const ga = Math.min(1, Math.max(0, (now - st.t0 + 250) / 600));
+  ctx.strokeStyle = colors.line; ctx.lineWidth = 1; ctx.globalAlpha = ga * (quiet ? .5 : 1);
+  const [cx, cy] = toScreen(0, 0);
+  ctx.setLineDash([2, 5]);
+  for (const r of RINGS) { ctx.beginPath(); ctx.arc(cx, cy, (L.bands[r][1] + 17) * cam.k, 0, Math.PI * 2); ctx.stroke(); }
+  ctx.setLineDash([]);
+  for (const p of L.order) {
+    const r0 = 30 * cam.k, r1 = (L.outer + 26) * cam.k;
+    ctx.beginPath(); ctx.moveTo(cx + Math.cos(p.a0) * r0, cy + Math.sin(p.a0) * r0); ctx.lineTo(cx + Math.cos(p.a0) * r1, cy + Math.sin(p.a0) * r1); ctx.stroke();
+  }
+  // 线索网
+  ctx.strokeStyle = colors.ink; ctx.lineWidth = 1;
+  for (const s of screens) {
+    if (s.parent == null) continue;
+    const p = byId.get(s.parent), a = Math.min(s.o, p.o);
+    if (a < .02) continue;
+    ctx.globalAlpha = a * (quiet ? .05 : .13);
+    const c = curve(p, s, .12);
+    ctx.beginPath(); ctx.moveTo(c[0], c[1]); ctx.quadraticCurveTo(c[2], c[3], c[4], c[5]); ctx.stroke();
+  }
+  // 焦点到簇成员：依次画出
+  if (f) {
+    st.cluster.forEach((o, i) => {
+      const p = REDUCED ? 1 : Math.min(1, Math.max(0, (now - st.edgeT - 80 - i * 35) / 320));
+      if (p <= 0) return;
+      const e = 1 - Math.pow(1 - p, 3), c = curve(f, o.s, .08);
+      ctx.globalAlpha = .75 * e;
+      ctx.strokeStyle = o.clay ? colors.clay : o.rel === "同模式" ? colors.ink2 : colors.ink;
+      ctx.lineWidth = o.clay || o.rel === "线索" ? 1.5 : 1;
+      ctx.setLineDash(o.rel === "同模式" ? [3, 4] : []);
+      ctx.beginPath(); ctx.moveTo(c[0], c[1]);
+      // 二次曲线按进度截断
+      const q = e, ax = c[0] + (c[2] - c[0]) * q, ay = c[1] + (c[3] - c[1]) * q, bx = c[2] + (c[4] - c[2]) * q, by = c[3] + (c[5] - c[3]) * q;
+      ctx.quadraticCurveTo(ax, ay, ax + (bx - ax) * q, ay + (by - ay) * q); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ---------- 启动 ----------
+document.querySelector("#masthead h1").textContent = DATA.brief?.product || "调研网";
+document.querySelector("#masthead p").textContent = `${screens.length} 张 · ${DATA.patterns.length} 个模式 · ${(DATA.leads || []).length} 条线索${DATA.brief?.date ? " · " + DATA.brief.date : ""}`;
+document.title = (DATA.brief?.product || "调研") + " · 调研网";
+readColors(); resize(); fit(true); lastAvail = availW();
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", readColors);
+addEventListener("resize", () => { resize(); fit(); lastAvail = availW(); });
+grow();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

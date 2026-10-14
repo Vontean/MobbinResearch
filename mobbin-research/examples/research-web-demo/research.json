@@ -1,0 +1,2499 @@
+{
+ "version": 1,
+ "brief": {
+  "product": "手机端网络安全防护 App",
+  "users": "不懂技术的普通消费者，只想知道「我安全吗」和「我要做什么」",
+  "questions": [
+   "怎样一眼回答「我安全吗」？",
+   "发现风险时，怎样引导用户行动而不制造恐慌？",
+   "B 端安全能力怎样翻译给普通人？"
+  ],
+  "platform": "ios",
+  "target": 100,
+  "date": "2026-10-14",
+  "quotas": {
+   "R1": 25,
+   "R2": 25,
+   "R3": 30,
+   "R4": 20
+  },
+  "screen_types": [
+   "首页总览",
+   "扫描进行中",
+   "扫描结果·安全",
+   "发现风险",
+   "功能入口",
+   "防护开关",
+   "警报中心",
+   "安全报告",
+   "权限引导",
+   "付费墙",
+   "空状态"
+  ]
+ },
+ "patterns": [
+  {
+   "id": "score-ring",
+   "name": "安全评分圆环",
+   "summary": "用一个分数和一句结论回答「我安全吗」",
+   "common": "分数居中放大，下方一句结论，再下方是待处理事项列表。",
+   "forks": "有的用 0–100 数字，有的只用三档文字等级；R3 健康类更倾向文字等级。",
+   "exceptions": "Credit Karma 把分数变化趋势放在分数旁边，比单个分数更能说明「在变好还是变坏」，是亮点。"
+  },
+  {
+   "id": "severity-color",
+   "name": "风险分级色彩",
+   "summary": "颜色加文字双重编码风险等级",
+   "common": "红、黄、绿三档，配合图标和等级文字。",
+   "forks": "有的整卡染色，有的只染左侧色条；整卡染色在暗色模式下噪声更大。",
+   "exceptions": "Lookout 用「需要你处理 / 已自动处理」代替严重度，直接回答用户要不要行动。"
+  },
+  {
+   "id": "scan-progress",
+   "name": "扫描过程可视化",
+   "summary": "让等待变得可理解",
+   "common": "环形或雷达动效加百分比，下方滚动显示正在检查的对象。",
+   "forks": "有的只显示百分比，有的列出已发现的问题数，实时增长。",
+   "exceptions": "Strava 的路线回放式进度给了启发：把扫描对象画成路径，而不是一个百分比。"
+  },
+  {
+   "id": "single-cta",
+   "name": "单一主操作",
+   "summary": "每屏只有一个最显眼的下一步",
+   "common": "底部一个满宽主按钮，次要操作降级为文字链接。",
+   "forks": "付费墙里有的把「试用」设为主按钮，有的把「继续免费版」藏得很深。",
+   "exceptions": "Opal 的主按钮文案会随状态变化，按钮本身就是状态说明。"
+  },
+  {
+   "id": "permission-guide",
+   "name": "渐进式权限引导",
+   "summary": "在需要时才请求权限，并先解释价值",
+   "common": "先用一屏插画说明价值，再弹出系统权限框。",
+   "forks": "有的一次性请求全部权限，有的按功能逐个请求；后者的授权率普遍更高。",
+   "exceptions": "Life360 用家人头像说明为什么需要定位，把权限变成了情感理由。"
+  },
+  {
+   "id": "protection-toggles",
+   "name": "防护开关矩阵",
+   "summary": "把多个防护能力组织成可控的开关集合",
+   "common": "按能力分组的列表，每行一个开关和一句说明。",
+   "forks": "有的用卡片网格，有的用列表；卡片网格更适合展示状态，列表更适合批量操作。",
+   "exceptions": "Cloudflare 1.1.1.1 把所有防护收敛成一个大开关，复杂度全部藏到第二层。"
+  }
+ ],
+ "screens": [
+  {
+   "id": 1,
+   "app": "Norton 360",
+   "ring": "R1",
+   "screen_type": "安全报告",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "把待处理事项挂在分数下面，分数就成了任务入口",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v02_thumb.jpg",
+   "image": "screens/v02.jpg",
+   "source_url": "https://mobbin.com/screens/demo-001",
+   "round": 1,
+   "found_via": "L1"
+  },
+  {
+   "id": 2,
+   "app": "Bitdefender",
+   "ring": "R1",
+   "screen_type": "权限引导",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
+   "why_saved": "在 Bitdefender 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v07_thumb.jpg",
+   "image": "screens/v07.jpg",
+   "source_url": "https://mobbin.com/screens/demo-002",
+   "round": 1,
+   "found_via": "L2"
+  },
+  {
+   "id": 3,
+   "app": "Lookout",
+   "ring": "R1",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "scan-progress",
+    "score-ring"
+   ],
+   "insight": "允许在扫描时离开，完成后用通知召回",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v12_thumb.jpg",
+   "image": "screens/v12.jpg",
+   "source_url": "https://mobbin.com/screens/demo-003",
+   "round": 1,
+   "found_via": "L3"
+  },
+  {
+   "id": 4,
+   "app": "McAfee",
+   "ring": "R1",
+   "screen_type": "付费墙",
+   "patterns": [
+    "permission-guide",
+    "score-ring"
+   ],
+   "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v17_thumb.jpg",
+   "image": "screens/v17.jpg",
+   "source_url": "https://mobbin.com/screens/demo-004",
+   "round": 1,
+   "found_via": "L4"
+  },
+  {
+   "id": 5,
+   "app": "1Password",
+   "ring": "R2",
+   "screen_type": "空状态",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v14_thumb.jpg",
+   "image": "screens/v14.jpg",
+   "source_url": "https://mobbin.com/screens/demo-005",
+   "round": 1,
+   "found_via": "L5"
+  },
+  {
+   "id": 6,
+   "app": "Oura",
+   "ring": "R3",
+   "screen_type": "安全报告",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "把待处理事项挂在分数下面，分数就成了任务入口",
+   "why_saved": "在 Oura 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v03_thumb.jpg",
+   "image": "screens/v03.jpg",
+   "source_url": "https://mobbin.com/screens/demo-006",
+   "round": 1,
+   "found_via": "L6"
+  },
+  {
+   "id": 7,
+   "app": "Authy",
+   "ring": "R2",
+   "screen_type": "首页总览",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "用分数的变化趋势代替单个分数，能回答「在变好还是变坏」",
+   "why_saved": "在 Authy 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v04_thumb.jpg",
+   "image": "screens/v04.jpg",
+   "source_url": "https://mobbin.com/screens/demo-007",
+   "round": 2,
+   "found_via": "L7"
+  },
+  {
+   "id": 8,
+   "app": "DuckDuckGo",
+   "ring": "R2",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "用分数的变化趋势代替单个分数，能回答「在变好还是变坏」",
+   "why_saved": "和 #1 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v01_thumb.jpg",
+   "image": "screens/v01.jpg",
+   "source_url": "https://mobbin.com/screens/demo-008",
+   "round": 2,
+   "found_via": "L7"
+  },
+  {
+   "id": 9,
+   "app": "Aura",
+   "ring": "R2",
+   "screen_type": "警报中心",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "关闭关键防护时用二次确认并说明风险",
+   "why_saved": "它解决了我在 #2 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v02_thumb.jpg",
+   "image": "screens/v02.jpg",
+   "source_url": "https://mobbin.com/screens/demo-009",
+   "round": 2,
+   "found_via": "L8"
+  },
+  {
+   "id": 10,
+   "app": "Surfshark",
+   "ring": "R2",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "scan-progress",
+    "permission-guide"
+   ],
+   "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
+   "why_saved": "它解决了我在 #3 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v11_thumb.jpg",
+   "image": "screens/v11.jpg",
+   "source_url": "https://mobbin.com/screens/demo-010",
+   "round": 2,
+   "found_via": "L9"
+  },
+  {
+   "id": 11,
+   "app": "1Password",
+   "ring": "R2",
+   "screen_type": "警报中心",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
+   "why_saved": "看到这里才意识到 #4 的做法可以再简化一层",
+   "thumb": "screens/v08_thumb.jpg",
+   "image": "screens/v08.jpg",
+   "source_url": "https://mobbin.com/screens/demo-011",
+   "round": 2,
+   "found_via": "L10"
+  },
+  {
+   "id": 12,
+   "app": "NordVPN",
+   "ring": "R2",
+   "screen_type": "警报中心",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "风险卡片的第一行写「需要你做什么」，而不是威胁名称",
+   "why_saved": "和 #4 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v05_thumb.jpg",
+   "image": "screens/v05.jpg",
+   "source_url": "https://mobbin.com/screens/demo-012",
+   "round": 2,
+   "found_via": "L10"
+  },
+  {
+   "id": 13,
+   "app": "Oura",
+   "ring": "R3",
+   "screen_type": "付费墙",
+   "patterns": [
+    "single-cta",
+    "severity-color"
+   ],
+   "insight": "付费墙把免费版的出口放在可见位置，反而提升了信任",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v14_thumb.jpg",
+   "image": "screens/v14.jpg",
+   "source_url": "https://mobbin.com/screens/demo-013",
+   "round": 2,
+   "found_via": "L11"
+  },
+  {
+   "id": 14,
+   "app": "Vercel",
+   "ring": "R3",
+   "screen_type": "付费墙",
+   "patterns": [
+    "single-cta",
+    "protection-toggles"
+   ],
+   "insight": "次要操作降级为文字链接，主次一眼可辨",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v15_thumb.jpg",
+   "image": "screens/v15.jpg",
+   "source_url": "https://mobbin.com/screens/demo-014",
+   "round": 2,
+   "found_via": "L11"
+  },
+  {
+   "id": 15,
+   "app": "Strava",
+   "ring": "R4",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "用真实场景插画解释为什么需要这个权限",
+   "why_saved": "它解决了我在 #6 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v20_thumb.jpg",
+   "image": "screens/v20.jpg",
+   "source_url": "https://mobbin.com/screens/demo-015",
+   "round": 2,
+   "found_via": "L12"
+  },
+  {
+   "id": 16,
+   "app": "Carrot Weather",
+   "ring": "R4",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
+   "why_saved": "和 #6 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v17_thumb.jpg",
+   "image": "screens/v17.jpg",
+   "source_url": "https://mobbin.com/screens/demo-016",
+   "round": 2,
+   "found_via": "L12"
+  },
+  {
+   "id": 17,
+   "app": "Opal",
+   "ring": "R4",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "用真实场景插画解释为什么需要这个权限",
+   "why_saved": "看到这里才意识到 #6 的做法可以再简化一层",
+   "thumb": "screens/v18_thumb.jpg",
+   "image": "screens/v18.jpg",
+   "source_url": "https://mobbin.com/screens/demo-017",
+   "round": 2,
+   "found_via": "L12"
+  },
+  {
+   "id": 18,
+   "app": "Carrot Weather",
+   "ring": "R4",
+   "screen_type": "安全报告",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "把待处理事项挂在分数下面，分数就成了任务入口",
+   "why_saved": "看到这里才意识到 #7 的做法可以再简化一层",
+   "thumb": "screens/v03_thumb.jpg",
+   "image": "screens/v03.jpg",
+   "source_url": "https://mobbin.com/screens/demo-018",
+   "round": 3,
+   "found_via": "L13"
+  },
+  {
+   "id": 19,
+   "app": "Gentler Streak",
+   "ring": "R4",
+   "screen_type": "功能入口",
+   "patterns": [
+    "protection-toggles",
+    "scan-progress"
+   ],
+   "insight": "把防护能力按威胁类型分组，而不是按技术模块",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v04_thumb.jpg",
+   "image": "screens/v04.jpg",
+   "source_url": "https://mobbin.com/screens/demo-019",
+   "round": 3,
+   "found_via": "L14"
+  },
+  {
+   "id": 20,
+   "app": "Gentler Streak",
+   "ring": "R4",
+   "screen_type": "防护开关",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "把防护能力按威胁类型分组，而不是按技术模块",
+   "why_saved": "它解决了我在 #8 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v01_thumb.jpg",
+   "image": "screens/v01.jpg",
+   "source_url": "https://mobbin.com/screens/demo-020",
+   "round": 3,
+   "found_via": "L14"
+  },
+  {
+   "id": 21,
+   "app": "Apple Health",
+   "ring": "R3",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "protection-toggles",
+    "scan-progress"
+   ],
+   "insight": "每个开关旁一句「开启后会发生什么」，降低误操作",
+   "why_saved": "在 Apple Health 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v02_thumb.jpg",
+   "image": "screens/v02.jpg",
+   "source_url": "https://mobbin.com/screens/demo-021",
+   "round": 3,
+   "found_via": "L15"
+  },
+  {
+   "id": 22,
+   "app": "Cloudflare",
+   "ring": "R3",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "scan-progress"
+   ],
+   "insight": "允许在扫描时离开，完成后用通知召回",
+   "why_saved": "和 #10 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v11_thumb.jpg",
+   "image": "screens/v11.jpg",
+   "source_url": "https://mobbin.com/screens/demo-022",
+   "round": 3,
+   "found_via": "L16"
+  },
+  {
+   "id": 23,
+   "app": "Cloudflare",
+   "ring": "R3",
+   "screen_type": "首页总览",
+   "patterns": [
+    "scan-progress"
+   ],
+   "insight": "滚动显示正在检查的具体对象，让等待有内容",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v12_thumb.jpg",
+   "image": "screens/v12.jpg",
+   "source_url": "https://mobbin.com/screens/demo-023",
+   "round": 3,
+   "found_via": "L16"
+  },
+  {
+   "id": 24,
+   "app": "Credit Karma",
+   "ring": "R3",
+   "screen_type": "付费墙",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v05_thumb.jpg",
+   "image": "screens/v05.jpg",
+   "source_url": "https://mobbin.com/screens/demo-024",
+   "round": 3,
+   "found_via": "L17"
+  },
+  {
+   "id": 25,
+   "app": "Whoop",
+   "ring": "R3",
+   "screen_type": "发现风险",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
+   "why_saved": "它解决了我在 #11 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v06_thumb.jpg",
+   "image": "screens/v06.jpg",
+   "source_url": "https://mobbin.com/screens/demo-025",
+   "round": 3,
+   "found_via": "L17"
+  },
+  {
+   "id": 26,
+   "app": "Apple Health",
+   "ring": "R3",
+   "screen_type": "警报中心",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
+   "why_saved": "它解决了我在 #12 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v07_thumb.jpg",
+   "image": "screens/v07.jpg",
+   "source_url": "https://mobbin.com/screens/demo-026",
+   "round": 3,
+   "found_via": "L18"
+  },
+  {
+   "id": 27,
+   "app": "SimpliSafe",
+   "ring": "R3",
+   "screen_type": "安全报告",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
+   "why_saved": "在 SimpliSafe 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v08_thumb.jpg",
+   "image": "screens/v08.jpg",
+   "source_url": "https://mobbin.com/screens/demo-027",
+   "round": 3,
+   "found_via": "L18"
+  },
+  {
+   "id": 28,
+   "app": "Headspace",
+   "ring": "R4",
+   "screen_type": "空状态",
+   "patterns": [
+    "single-cta",
+    "scan-progress"
+   ],
+   "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
+   "why_saved": "它解决了我在 #13 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v13_thumb.jpg",
+   "image": "screens/v13.jpg",
+   "source_url": "https://mobbin.com/screens/demo-028",
+   "round": 3,
+   "found_via": "L19"
+  },
+  {
+   "id": 29,
+   "app": "Calm",
+   "ring": "R4",
+   "screen_type": "付费墙",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "主按钮的状态随上下文变化，按钮即状态说明",
+   "why_saved": "在 Calm 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v14_thumb.jpg",
+   "image": "screens/v14.jpg",
+   "source_url": "https://mobbin.com/screens/demo-029",
+   "round": 3,
+   "found_via": "L19"
+  },
+  {
+   "id": 30,
+   "app": "Things",
+   "ring": "R4",
+   "screen_type": "权限引导",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
+   "why_saved": "看到这里才意识到 #13 的做法可以再简化一层",
+   "thumb": "screens/v15_thumb.jpg",
+   "image": "screens/v15.jpg",
+   "source_url": "https://mobbin.com/screens/demo-030",
+   "round": 3,
+   "found_via": "L19"
+  },
+  {
+   "id": 31,
+   "app": "Headspace",
+   "ring": "R4",
+   "screen_type": "功能入口",
+   "patterns": [
+    "scan-progress"
+   ],
+   "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
+   "why_saved": "它解决了我在 #14 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v12_thumb.jpg",
+   "image": "screens/v12.jpg",
+   "source_url": "https://mobbin.com/screens/demo-031",
+   "round": 3,
+   "found_via": "L20"
+  },
+  {
+   "id": 32,
+   "app": "Strava",
+   "ring": "R4",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "scan-progress",
+    "single-cta"
+   ],
+   "insight": "滚动显示正在检查的具体对象，让等待有内容",
+   "why_saved": "在 Strava 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v09_thumb.jpg",
+   "image": "screens/v09.jpg",
+   "source_url": "https://mobbin.com/screens/demo-032",
+   "round": 3,
+   "found_via": "L20"
+  },
+  {
+   "id": 33,
+   "app": "Gentler Streak",
+   "ring": "R4",
+   "screen_type": "空状态",
+   "patterns": [
+    "scan-progress",
+    "protection-toggles"
+   ],
+   "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
+   "why_saved": "和 #14 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v10_thumb.jpg",
+   "image": "screens/v10.jpg",
+   "source_url": "https://mobbin.com/screens/demo-033",
+   "round": 3,
+   "found_via": "L20"
+  },
+  {
+   "id": 34,
+   "app": "Duolingo",
+   "ring": "R4",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide",
+    "scan-progress"
+   ],
+   "insight": "按功能逐个请求权限，每次只解释一件事",
+   "why_saved": "结构上和 #15 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v19_thumb.jpg",
+   "image": "screens/v19.jpg",
+   "source_url": "https://mobbin.com/screens/demo-034",
+   "round": 3,
+   "found_via": "L21"
+  },
+  {
+   "id": 35,
+   "app": "Things",
+   "ring": "R4",
+   "screen_type": "警报中心",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "按功能逐个请求权限，每次只解释一件事",
+   "why_saved": "结构上和 #15 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v20_thumb.jpg",
+   "image": "screens/v20.jpg",
+   "source_url": "https://mobbin.com/screens/demo-035",
+   "round": 3,
+   "found_via": "L21"
+  },
+  {
+   "id": 36,
+   "app": "Gentler Streak",
+   "ring": "R4",
+   "screen_type": "空状态",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "拒绝权限后给出降级方案，而不是死路",
+   "why_saved": "结构上和 #15 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v17_thumb.jpg",
+   "image": "screens/v17.jpg",
+   "source_url": "https://mobbin.com/screens/demo-036",
+   "round": 3,
+   "found_via": "L21"
+  },
+  {
+   "id": 37,
+   "app": "Gentler Streak",
+   "ring": "R4",
+   "screen_type": "警报中心",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
+   "why_saved": "看到这里才意识到 #16 的做法可以再简化一层",
+   "thumb": "screens/v18_thumb.jpg",
+   "image": "screens/v18.jpg",
+   "source_url": "https://mobbin.com/screens/demo-037",
+   "round": 3,
+   "found_via": "L22"
+  },
+  {
+   "id": 38,
+   "app": "Headspace",
+   "ring": "R4",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "拒绝权限后给出降级方案，而不是死路",
+   "why_saved": "在 Headspace 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v19_thumb.jpg",
+   "image": "screens/v19.jpg",
+   "source_url": "https://mobbin.com/screens/demo-038",
+   "round": 3,
+   "found_via": "L23"
+  },
+  {
+   "id": 39,
+   "app": "Opal",
+   "ring": "R4",
+   "screen_type": "空状态",
+   "patterns": [
+    "permission-guide",
+    "protection-toggles"
+   ],
+   "insight": "用真实场景插画解释为什么需要这个权限",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v20_thumb.jpg",
+   "image": "screens/v20.jpg",
+   "source_url": "https://mobbin.com/screens/demo-039",
+   "round": 3,
+   "found_via": "L23"
+  },
+  {
+   "id": 40,
+   "app": "Calm",
+   "ring": "R4",
+   "screen_type": "权限引导",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "把防护能力按威胁类型分组，而不是按技术模块",
+   "why_saved": "它解决了我在 #18 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v01_thumb.jpg",
+   "image": "screens/v01.jpg",
+   "source_url": "https://mobbin.com/screens/demo-040",
+   "round": 4,
+   "found_via": "L24"
+  },
+  {
+   "id": 41,
+   "app": "Things",
+   "ring": "R4",
+   "screen_type": "权限引导",
+   "patterns": [
+    "protection-toggles",
+    "single-cta"
+   ],
+   "insight": "把防护能力按威胁类型分组，而不是按技术模块",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v02_thumb.jpg",
+   "image": "screens/v02.jpg",
+   "source_url": "https://mobbin.com/screens/demo-041",
+   "round": 4,
+   "found_via": "L24"
+  },
+  {
+   "id": 42,
+   "app": "Cloudflare",
+   "ring": "R3",
+   "screen_type": "首页总览",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
+   "why_saved": "和 #19 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v03_thumb.jpg",
+   "image": "screens/v03.jpg",
+   "source_url": "https://mobbin.com/screens/demo-042",
+   "round": 4,
+   "found_via": "L25"
+  },
+  {
+   "id": 43,
+   "app": "Cloudflare",
+   "ring": "R3",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "把防护能力按威胁类型分组，而不是按技术模块",
+   "why_saved": "看到这里才意识到 #20 的做法可以再简化一层",
+   "thumb": "screens/v04_thumb.jpg",
+   "image": "screens/v04.jpg",
+   "source_url": "https://mobbin.com/screens/demo-043",
+   "round": 4,
+   "found_via": "L26"
+  },
+  {
+   "id": 44,
+   "app": "Ring",
+   "ring": "R3",
+   "screen_type": "功能入口",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "每个开关旁一句「开启后会发生什么」，降低误操作",
+   "why_saved": "它解决了我在 #21 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v01_thumb.jpg",
+   "image": "screens/v01.jpg",
+   "source_url": "https://mobbin.com/screens/demo-044",
+   "round": 4,
+   "found_via": "L27"
+  },
+  {
+   "id": 45,
+   "app": "Credit Karma",
+   "ring": "R3",
+   "screen_type": "发现风险",
+   "patterns": [
+    "scan-progress",
+    "protection-toggles"
+   ],
+   "insight": "进度动效和品牌隐喻绑定（雷达、盾牌），等待也在建立信任",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v10_thumb.jpg",
+   "image": "screens/v10.jpg",
+   "source_url": "https://mobbin.com/screens/demo-045",
+   "round": 4,
+   "found_via": "L28"
+  },
+  {
+   "id": 46,
+   "app": "Ring",
+   "ring": "R3",
+   "screen_type": "发现风险",
+   "patterns": [
+    "scan-progress",
+    "permission-guide"
+   ],
+   "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v11_thumb.jpg",
+   "image": "screens/v11.jpg",
+   "source_url": "https://mobbin.com/screens/demo-046",
+   "round": 4,
+   "found_via": "L28"
+  },
+  {
+   "id": 47,
+   "app": "Avast",
+   "ring": "R1",
+   "screen_type": "防护开关",
+   "patterns": [
+    "scan-progress",
+    "severity-color"
+   ],
+   "insight": "滚动显示正在检查的具体对象，让等待有内容",
+   "why_saved": "在 Avast 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v12_thumb.jpg",
+   "image": "screens/v12.jpg",
+   "source_url": "https://mobbin.com/screens/demo-047",
+   "round": 4,
+   "found_via": "L29"
+  },
+  {
+   "id": 48,
+   "app": "Kaspersky",
+   "ring": "R1",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "scan-progress"
+   ],
+   "insight": "滚动显示正在检查的具体对象，让等待有内容",
+   "why_saved": "结构上和 #23 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v09_thumb.jpg",
+   "image": "screens/v09.jpg",
+   "source_url": "https://mobbin.com/screens/demo-048",
+   "round": 4,
+   "found_via": "L29"
+  },
+  {
+   "id": 49,
+   "app": "Apple Health",
+   "ring": "R3",
+   "screen_type": "发现风险",
+   "patterns": [
+    "severity-color",
+    "single-cta"
+   ],
+   "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
+   "why_saved": "和 #24 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v06_thumb.jpg",
+   "image": "screens/v06.jpg",
+   "source_url": "https://mobbin.com/screens/demo-049",
+   "round": 4,
+   "found_via": "L30"
+  },
+  {
+   "id": 50,
+   "app": "Oura",
+   "ring": "R3",
+   "screen_type": "发现风险",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
+   "why_saved": "和 #24 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v07_thumb.jpg",
+   "image": "screens/v07.jpg",
+   "source_url": "https://mobbin.com/screens/demo-050",
+   "round": 4,
+   "found_via": "L30"
+  },
+  {
+   "id": 51,
+   "app": "Credit Karma",
+   "ring": "R3",
+   "screen_type": "发现风险",
+   "patterns": [
+    "severity-color",
+    "permission-guide"
+   ],
+   "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
+   "why_saved": "和 #25 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v08_thumb.jpg",
+   "image": "screens/v08.jpg",
+   "source_url": "https://mobbin.com/screens/demo-051",
+   "round": 4,
+   "found_via": "L31"
+  },
+  {
+   "id": 52,
+   "app": "Cloudflare",
+   "ring": "R3",
+   "screen_type": "安全报告",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
+   "why_saved": "在 Cloudflare 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v05_thumb.jpg",
+   "image": "screens/v05.jpg",
+   "source_url": "https://mobbin.com/screens/demo-052",
+   "round": 4,
+   "found_via": "L31"
+  },
+  {
+   "id": 53,
+   "app": "Oura",
+   "ring": "R3",
+   "screen_type": "扫描结果·安全",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v02_thumb.jpg",
+   "image": "screens/v02.jpg",
+   "source_url": "https://mobbin.com/screens/demo-053",
+   "round": 4,
+   "found_via": "L32"
+  },
+  {
+   "id": 54,
+   "app": "Credit Karma",
+   "ring": "R3",
+   "screen_type": "防护开关",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "用分数的变化趋势代替单个分数，能回答「在变好还是变坏」",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v03_thumb.jpg",
+   "image": "screens/v03.jpg",
+   "source_url": "https://mobbin.com/screens/demo-054",
+   "round": 4,
+   "found_via": "L32"
+  },
+  {
+   "id": 55,
+   "app": "McAfee",
+   "ring": "R1",
+   "screen_type": "扫描结果·安全",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "风险卡片的第一行写「需要你做什么」，而不是威胁名称",
+   "why_saved": "结构上和 #27 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v08_thumb.jpg",
+   "image": "screens/v08.jpg",
+   "source_url": "https://mobbin.com/screens/demo-055",
+   "round": 4,
+   "found_via": "L33"
+  },
+  {
+   "id": 56,
+   "app": "Norton 360",
+   "ring": "R1",
+   "screen_type": "扫描结果·安全",
+   "patterns": [
+    "severity-color",
+    "score-ring"
+   ],
+   "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
+   "why_saved": "看到这里才意识到 #27 的做法可以再简化一层",
+   "thumb": "screens/v05_thumb.jpg",
+   "image": "screens/v05.jpg",
+   "source_url": "https://mobbin.com/screens/demo-056",
+   "round": 4,
+   "found_via": "L33"
+  },
+  {
+   "id": 57,
+   "app": "Apple Health",
+   "ring": "R3",
+   "screen_type": "警报中心",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "主按钮的状态随上下文变化，按钮即状态说明",
+   "why_saved": "和 #28 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v14_thumb.jpg",
+   "image": "screens/v14.jpg",
+   "source_url": "https://mobbin.com/screens/demo-057",
+   "round": 4,
+   "found_via": "L34"
+  },
+  {
+   "id": 58,
+   "app": "Apple Health",
+   "ring": "R3",
+   "screen_type": "付费墙",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "付费墙把免费版的出口放在可见位置，反而提升了信任",
+   "why_saved": "在 Apple Health 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v15_thumb.jpg",
+   "image": "screens/v15.jpg",
+   "source_url": "https://mobbin.com/screens/demo-058",
+   "round": 4,
+   "found_via": "L34"
+  },
+  {
+   "id": 59,
+   "app": "Vercel",
+   "ring": "R3",
+   "screen_type": "付费墙",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
+   "why_saved": "结构上和 #28 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v16_thumb.jpg",
+   "image": "screens/v16.jpg",
+   "source_url": "https://mobbin.com/screens/demo-059",
+   "round": 4,
+   "found_via": "L34"
+  },
+  {
+   "id": 60,
+   "app": "Oura",
+   "ring": "R3",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v13_thumb.jpg",
+   "image": "screens/v13.jpg",
+   "source_url": "https://mobbin.com/screens/demo-060",
+   "round": 4,
+   "found_via": "L35"
+  },
+  {
+   "id": 61,
+   "app": "Ring",
+   "ring": "R3",
+   "screen_type": "扫描结果·安全",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "主按钮文案描述结果（「修复 3 个问题」）而不是动作（「下一步」）",
+   "why_saved": "结构上和 #29 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v14_thumb.jpg",
+   "image": "screens/v14.jpg",
+   "source_url": "https://mobbin.com/screens/demo-061",
+   "round": 4,
+   "found_via": "L35"
+  },
+  {
+   "id": 62,
+   "app": "Vercel",
+   "ring": "R3",
+   "screen_type": "安全报告",
+   "patterns": [
+    "single-cta",
+    "permission-guide"
+   ],
+   "insight": "付费墙把免费版的出口放在可见位置，反而提升了信任",
+   "why_saved": "看到这里才意识到 #29 的做法可以再简化一层",
+   "thumb": "screens/v15_thumb.jpg",
+   "image": "screens/v15.jpg",
+   "source_url": "https://mobbin.com/screens/demo-062",
+   "round": 4,
+   "found_via": "L35"
+  },
+  {
+   "id": 63,
+   "app": "SimpliSafe",
+   "ring": "R3",
+   "screen_type": "发现风险",
+   "patterns": [
+    "score-ring",
+    "scan-progress"
+   ],
+   "insight": "圆环只在异常时变色，平时保持中性，避免持续制造焦虑",
+   "why_saved": "它解决了我在 #30 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v04_thumb.jpg",
+   "image": "screens/v04.jpg",
+   "source_url": "https://mobbin.com/screens/demo-063",
+   "round": 4,
+   "found_via": "L36"
+  },
+  {
+   "id": 64,
+   "app": "Credit Karma",
+   "ring": "R3",
+   "screen_type": "警报中心",
+   "patterns": [
+    "protection-toggles",
+    "severity-color"
+   ],
+   "insight": "每个开关旁一句「开启后会发生什么」，降低误操作",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v01_thumb.jpg",
+   "image": "screens/v01.jpg",
+   "source_url": "https://mobbin.com/screens/demo-064",
+   "round": 4,
+   "found_via": "L37"
+  },
+  {
+   "id": 65,
+   "app": "Authy",
+   "ring": "R2",
+   "screen_type": "付费墙",
+   "patterns": [
+    "scan-progress",
+    "score-ring"
+   ],
+   "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v10_thumb.jpg",
+   "image": "screens/v10.jpg",
+   "source_url": "https://mobbin.com/screens/demo-065",
+   "round": 4,
+   "found_via": "L38"
+  },
+  {
+   "id": 66,
+   "app": "Whoop",
+   "ring": "R3",
+   "screen_type": "付费墙",
+   "patterns": [
+    "scan-progress"
+   ],
+   "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
+   "why_saved": "看到这里才意识到 #33 的做法可以再简化一层",
+   "thumb": "screens/v11_thumb.jpg",
+   "image": "screens/v11.jpg",
+   "source_url": "https://mobbin.com/screens/demo-066",
+   "round": 4,
+   "found_via": "L39"
+  },
+  {
+   "id": 67,
+   "app": "Kaspersky",
+   "ring": "R1",
+   "screen_type": "空状态",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "按功能逐个请求权限，每次只解释一件事",
+   "why_saved": "在 Kaspersky 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v20_thumb.jpg",
+   "image": "screens/v20.jpg",
+   "source_url": "https://mobbin.com/screens/demo-067",
+   "round": 4,
+   "found_via": "L40"
+  },
+  {
+   "id": 68,
+   "app": "Norton 360",
+   "ring": "R1",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
+   "why_saved": "它解决了我在 #34 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v17_thumb.jpg",
+   "image": "screens/v17.jpg",
+   "source_url": "https://mobbin.com/screens/demo-068",
+   "round": 4,
+   "found_via": "L40"
+  },
+  {
+   "id": 69,
+   "app": "Surfshark",
+   "ring": "R2",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "按功能逐个请求权限，每次只解释一件事",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v18_thumb.jpg",
+   "image": "screens/v18.jpg",
+   "source_url": "https://mobbin.com/screens/demo-069",
+   "round": 4,
+   "found_via": "L41"
+  },
+  {
+   "id": 70,
+   "app": "NordVPN",
+   "ring": "R2",
+   "screen_type": "安全报告",
+   "patterns": [
+    "permission-guide",
+    "score-ring"
+   ],
+   "insight": "按功能逐个请求权限，每次只解释一件事",
+   "why_saved": "结构上和 #36 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v19_thumb.jpg",
+   "image": "screens/v19.jpg",
+   "source_url": "https://mobbin.com/screens/demo-070",
+   "round": 4,
+   "found_via": "L42"
+  },
+  {
+   "id": 71,
+   "app": "Authy",
+   "ring": "R2",
+   "screen_type": "警报中心",
+   "patterns": [
+    "permission-guide",
+    "severity-color"
+   ],
+   "insight": "拒绝权限后给出降级方案，而不是死路",
+   "why_saved": "在 Authy 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v20_thumb.jpg",
+   "image": "screens/v20.jpg",
+   "source_url": "https://mobbin.com/screens/demo-071",
+   "round": 4,
+   "found_via": "L42"
+  },
+  {
+   "id": 72,
+   "app": "ESET",
+   "ring": "R1",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "permission-guide",
+    "protection-toggles"
+   ],
+   "insight": "用真实场景插画解释为什么需要这个权限",
+   "why_saved": "它解决了我在 #37 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v17_thumb.jpg",
+   "image": "screens/v17.jpg",
+   "source_url": "https://mobbin.com/screens/demo-072",
+   "round": 4,
+   "found_via": "L43"
+  },
+  {
+   "id": 73,
+   "app": "Bitdefender",
+   "ring": "R1",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide",
+    "protection-toggles"
+   ],
+   "insight": "拒绝权限后给出降级方案，而不是死路",
+   "why_saved": "它解决了我在 #37 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v18_thumb.jpg",
+   "image": "screens/v18.jpg",
+   "source_url": "https://mobbin.com/screens/demo-073",
+   "round": 4,
+   "found_via": "L43"
+  },
+  {
+   "id": 74,
+   "app": "Authy",
+   "ring": "R2",
+   "screen_type": "空状态",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "用真实场景插画解释为什么需要这个权限",
+   "why_saved": "它解决了我在 #38 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v19_thumb.jpg",
+   "image": "screens/v19.jpg",
+   "source_url": "https://mobbin.com/screens/demo-074",
+   "round": 4,
+   "found_via": "L44"
+  },
+  {
+   "id": 75,
+   "app": "Bitwarden",
+   "ring": "R2",
+   "screen_type": "空状态",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "拒绝权限后给出降级方案，而不是死路",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v20_thumb.jpg",
+   "image": "screens/v20.jpg",
+   "source_url": "https://mobbin.com/screens/demo-075",
+   "round": 4,
+   "found_via": "L44"
+  },
+  {
+   "id": 76,
+   "app": "Malwarebytes",
+   "ring": "R1",
+   "screen_type": "防护开关",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "拒绝权限后给出降级方案，而不是死路",
+   "why_saved": "在 Malwarebytes 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v17_thumb.jpg",
+   "image": "screens/v17.jpg",
+   "source_url": "https://mobbin.com/screens/demo-076",
+   "round": 4,
+   "found_via": "L45"
+  },
+  {
+   "id": 77,
+   "app": "McAfee",
+   "ring": "R1",
+   "screen_type": "权限引导",
+   "patterns": [
+    "permission-guide"
+   ],
+   "insight": "先用一屏说明价值，再弹系统权限框，授权率更高",
+   "why_saved": "在 McAfee 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v18_thumb.jpg",
+   "image": "screens/v18.jpg",
+   "source_url": "https://mobbin.com/screens/demo-077",
+   "round": 4,
+   "found_via": "L45"
+  },
+  {
+   "id": 78,
+   "app": "DuckDuckGo",
+   "ring": "R2",
+   "screen_type": "安全报告",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "用分数的变化趋势代替单个分数，能回答「在变好还是变坏」",
+   "why_saved": "和 #40 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v03_thumb.jpg",
+   "image": "screens/v03.jpg",
+   "source_url": "https://mobbin.com/screens/demo-078",
+   "round": 5,
+   "found_via": "L46"
+  },
+  {
+   "id": 79,
+   "app": "Authy",
+   "ring": "R2",
+   "screen_type": "安全报告",
+   "patterns": [
+    "score-ring",
+    "severity-color"
+   ],
+   "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
+   "why_saved": "和 #40 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v04_thumb.jpg",
+   "image": "screens/v04.jpg",
+   "source_url": "https://mobbin.com/screens/demo-079",
+   "round": 5,
+   "found_via": "L46"
+  },
+  {
+   "id": 80,
+   "app": "DuckDuckGo",
+   "ring": "R2",
+   "screen_type": "首页总览",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "把待处理事项挂在分数下面，分数就成了任务入口",
+   "why_saved": "结构上和 #40 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v01_thumb.jpg",
+   "image": "screens/v01.jpg",
+   "source_url": "https://mobbin.com/screens/demo-080",
+   "round": 5,
+   "found_via": "L46"
+  },
+  {
+   "id": 81,
+   "app": "ESET",
+   "ring": "R1",
+   "screen_type": "防护开关",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "每个开关旁一句「开启后会发生什么」，降低误操作",
+   "why_saved": "结构上和 #41 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v02_thumb.jpg",
+   "image": "screens/v02.jpg",
+   "source_url": "https://mobbin.com/screens/demo-081",
+   "round": 5,
+   "found_via": "L47"
+  },
+  {
+   "id": 82,
+   "app": "Lookout",
+   "ring": "R1",
+   "screen_type": "首页总览",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "高级设置收进第二层，第一层只保留一个总开关",
+   "why_saved": "和 #41 对比，这张把同样的信息压缩到了一屏之内",
+   "thumb": "screens/v03_thumb.jpg",
+   "image": "screens/v03.jpg",
+   "source_url": "https://mobbin.com/screens/demo-082",
+   "round": 5,
+   "found_via": "L47"
+  },
+  {
+   "id": 83,
+   "app": "Avast",
+   "ring": "R1",
+   "screen_type": "警报中心",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "把防护能力按威胁类型分组，而不是按技术模块",
+   "why_saved": "它解决了我在 #42 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v04_thumb.jpg",
+   "image": "screens/v04.jpg",
+   "source_url": "https://mobbin.com/screens/demo-083",
+   "round": 5,
+   "found_via": "L48"
+  },
+  {
+   "id": 84,
+   "app": "Aura",
+   "ring": "R2",
+   "screen_type": "安全报告",
+   "patterns": [
+    "score-ring",
+    "severity-color"
+   ],
+   "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
+   "why_saved": "看到这里才意识到 #43 的做法可以再简化一层",
+   "thumb": "screens/v01_thumb.jpg",
+   "image": "screens/v01.jpg",
+   "source_url": "https://mobbin.com/screens/demo-084",
+   "round": 5,
+   "found_via": "L49"
+  },
+  {
+   "id": 85,
+   "app": "Bitwarden",
+   "ring": "R2",
+   "screen_type": "扫描结果·安全",
+   "patterns": [
+    "score-ring"
+   ],
+   "insight": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心",
+   "why_saved": "结构上和 #43 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v02_thumb.jpg",
+   "image": "screens/v02.jpg",
+   "source_url": "https://mobbin.com/screens/demo-085",
+   "round": 5,
+   "found_via": "L49"
+  },
+  {
+   "id": 86,
+   "app": "NordVPN",
+   "ring": "R2",
+   "screen_type": "发现风险",
+   "patterns": [
+    "protection-toggles"
+   ],
+   "insight": "把防护能力按威胁类型分组，而不是按技术模块",
+   "why_saved": "结构上和 #44 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v03_thumb.jpg",
+   "image": "screens/v03.jpg",
+   "source_url": "https://mobbin.com/screens/demo-086",
+   "round": 5,
+   "found_via": "L50"
+  },
+  {
+   "id": 87,
+   "app": "Bitdefender",
+   "ring": "R1",
+   "screen_type": "安全报告",
+   "patterns": [
+    "scan-progress"
+   ],
+   "insight": "扫描中实时累加已发现的问题数，用户提前知道结果的走向",
+   "why_saved": "结构上和 #45 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v12_thumb.jpg",
+   "image": "screens/v12.jpg",
+   "source_url": "https://mobbin.com/screens/demo-087",
+   "round": 5,
+   "found_via": "L51"
+  },
+  {
+   "id": 88,
+   "app": "Malwarebytes",
+   "ring": "R1",
+   "screen_type": "扫描进行中",
+   "patterns": [
+    "scan-progress"
+   ],
+   "insight": "进度动效和品牌隐喻绑定（雷达、盾牌），等待也在建立信任",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v09_thumb.jpg",
+   "image": "screens/v09.jpg",
+   "source_url": "https://mobbin.com/screens/demo-088",
+   "round": 5,
+   "found_via": "L51"
+  },
+  {
+   "id": 89,
+   "app": "McAfee",
+   "ring": "R1",
+   "screen_type": "发现风险",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "次要操作降级为文字链接，主次一眼可辨",
+   "why_saved": "结构上和 #46 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v14_thumb.jpg",
+   "image": "screens/v14.jpg",
+   "source_url": "https://mobbin.com/screens/demo-089",
+   "round": 5,
+   "found_via": "L52"
+  },
+  {
+   "id": 90,
+   "app": "McAfee",
+   "ring": "R1",
+   "screen_type": "防护开关",
+   "patterns": [
+    "single-cta"
+   ],
+   "insight": "付费墙把免费版的出口放在可见位置，反而提升了信任",
+   "why_saved": "它解决了我在 #46 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v15_thumb.jpg",
+   "image": "screens/v15.jpg",
+   "source_url": "https://mobbin.com/screens/demo-090",
+   "round": 5,
+   "found_via": "L52"
+  },
+  {
+   "id": 91,
+   "app": "1Password",
+   "ring": "R2",
+   "screen_type": "扫描结果·安全",
+   "patterns": [
+    "scan-progress",
+    "protection-toggles"
+   ],
+   "insight": "允许在扫描时离开，完成后用通知召回",
+   "why_saved": "结构上和 #47 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v12_thumb.jpg",
+   "image": "screens/v12.jpg",
+   "source_url": "https://mobbin.com/screens/demo-091",
+   "round": 5,
+   "found_via": "L53"
+  },
+  {
+   "id": 92,
+   "app": "Aura",
+   "ring": "R2",
+   "screen_type": "空状态",
+   "patterns": [
+    "scan-progress",
+    "protection-toggles"
+   ],
+   "insight": "允许在扫描时离开，完成后用通知召回",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v09_thumb.jpg",
+   "image": "screens/v09.jpg",
+   "source_url": "https://mobbin.com/screens/demo-092",
+   "round": 5,
+   "found_via": "L54"
+  },
+  {
+   "id": 93,
+   "app": "1Password",
+   "ring": "R2",
+   "screen_type": "发现风险",
+   "patterns": [
+    "severity-color",
+    "scan-progress"
+   ],
+   "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
+   "why_saved": "它解决了我在 #49 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v06_thumb.jpg",
+   "image": "screens/v06.jpg",
+   "source_url": "https://mobbin.com/screens/demo-093",
+   "round": 5,
+   "found_via": "L55"
+  },
+  {
+   "id": 94,
+   "app": "1Password",
+   "ring": "R2",
+   "screen_type": "发现风险",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
+   "why_saved": "结构上和 #49 几乎一样，但情绪完全不同，值得对照",
+   "thumb": "screens/v07_thumb.jpg",
+   "image": "screens/v07.jpg",
+   "source_url": "https://mobbin.com/screens/demo-094",
+   "round": 5,
+   "found_via": "L55"
+  },
+  {
+   "id": 95,
+   "app": "NordVPN",
+   "ring": "R2",
+   "screen_type": "发现风险",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "风险卡片的第一行写「需要你做什么」，而不是威胁名称",
+   "why_saved": "它解决了我在 #49 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v08_thumb.jpg",
+   "image": "screens/v08.jpg",
+   "source_url": "https://mobbin.com/screens/demo-095",
+   "round": 5,
+   "found_via": "L55"
+  },
+  {
+   "id": 96,
+   "app": "Kaspersky",
+   "ring": "R1",
+   "screen_type": "发现风险",
+   "patterns": [
+    "severity-color",
+    "scan-progress"
+   ],
+   "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
+   "why_saved": "它解决了我在 #50 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v05_thumb.jpg",
+   "image": "screens/v05.jpg",
+   "source_url": "https://mobbin.com/screens/demo-096",
+   "round": 5,
+   "found_via": "L56"
+  },
+  {
+   "id": 97,
+   "app": "Malwarebytes",
+   "ring": "R1",
+   "screen_type": "防护开关",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释",
+   "why_saved": "它解决了我在 #50 里看到的问题：用户不知道下一步做什么",
+   "thumb": "screens/v06_thumb.jpg",
+   "image": "screens/v06.jpg",
+   "source_url": "https://mobbin.com/screens/demo-097",
+   "round": 5,
+   "found_via": "L56"
+  },
+  {
+   "id": 98,
+   "app": "Life360",
+   "ring": "R2",
+   "screen_type": "警报中心",
+   "patterns": [
+    "severity-color",
+    "score-ring"
+   ],
+   "insight": "颜色之外还有等级文字和图标，色弱用户也能分辨风险",
+   "why_saved": "这是目前唯一没有用红色表达风险的例子",
+   "thumb": "screens/v07_thumb.jpg",
+   "image": "screens/v07.jpg",
+   "source_url": "https://mobbin.com/screens/demo-098",
+   "round": 5,
+   "found_via": "L57"
+  },
+  {
+   "id": 99,
+   "app": "ESET",
+   "ring": "R1",
+   "screen_type": "警报中心",
+   "patterns": [
+    "severity-color"
+   ],
+   "insight": "已处理的风险折叠到底部，保留成就感又不占注意力",
+   "why_saved": "在 ESET 里只有这一屏把状态和下一步放在一起，比同 App 其他屏更完整",
+   "thumb": "screens/v08_thumb.jpg",
+   "image": "screens/v08.jpg",
+   "source_url": "https://mobbin.com/screens/demo-099",
+   "round": 5,
+   "found_via": "L58"
+  },
+  {
+   "id": 100,
+   "app": "Avast",
+   "ring": "R1",
+   "screen_type": "功能入口",
+   "patterns": [
+    "protection-toggles",
+    "severity-color"
+   ],
+   "insight": "高级设置收进第二层，第一层只保留一个总开关",
+   "why_saved": "看到这里才意识到 #53 的做法可以再简化一层",
+   "thumb": "screens/v01_thumb.jpg",
+   "image": "screens/v01.jpg",
+   "source_url": "https://mobbin.com/screens/demo-100",
+   "round": 5,
+   "found_via": "L59"
+  }
+ ],
+ "leads": [
+  {
+   "id": "L1",
+   "from": null,
+   "kind": "app",
+   "text": "起点：Norton 360",
+   "reason": "简报中的起点名单",
+   "status": "done"
+  },
+  {
+   "id": "L2",
+   "from": null,
+   "kind": "app",
+   "text": "起点：Bitdefender",
+   "reason": "简报中的起点名单",
+   "status": "done"
+  },
+  {
+   "id": "L3",
+   "from": null,
+   "kind": "app",
+   "text": "起点：Lookout",
+   "reason": "简报中的起点名单",
+   "status": "done"
+  },
+  {
+   "id": "L4",
+   "from": null,
+   "kind": "app",
+   "text": "起点：McAfee",
+   "reason": "简报中的起点名单",
+   "status": "done"
+  },
+  {
+   "id": "L5",
+   "from": null,
+   "kind": "app",
+   "text": "起点：1Password",
+   "reason": "简报中的起点名单",
+   "status": "done"
+  },
+  {
+   "id": "L6",
+   "from": null,
+   "kind": "app",
+   "text": "起点：Oura",
+   "reason": "简报中的起点名单",
+   "status": "done"
+  },
+  {
+   "id": "L7",
+   "from": 1,
+   "kind": "screen-type",
+   "text": "搜更多「安全报告」",
+   "reason": "想看安全评分圆环在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L8",
+   "from": 2,
+   "kind": "app",
+   "text": "看 1Password 的同类屏",
+   "reason": "这里的防护开关矩阵做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L9",
+   "from": 3,
+   "kind": "pattern",
+   "text": "扫描过程可视化 在别的品类里怎么表达",
+   "reason": "Lookout 的扫描过程可视化很像扫描过程可视化的结构",
+   "status": "done"
+  },
+  {
+   "id": "L10",
+   "from": 4,
+   "kind": "pattern",
+   "text": "搜 风险分级色彩 的其他做法",
+   "reason": "想看风险分级色彩在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L11",
+   "from": 5,
+   "kind": "pattern",
+   "text": "单一主操作 在别的品类里怎么表达",
+   "reason": "1Password 用单一主操作解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L12",
+   "from": 6,
+   "kind": "pattern",
+   "text": "渐进式权限引导 在别的品类里怎么表达",
+   "reason": "这里的渐进式权限引导做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L13",
+   "from": 7,
+   "kind": "screen-type",
+   "text": "搜更多「首页总览」",
+   "reason": "Authy 的安全评分圆环很像首页总览的结构",
+   "status": "done"
+  },
+  {
+   "id": "L14",
+   "from": 8,
+   "kind": "pattern",
+   "text": "搜 防护开关矩阵 的其他做法",
+   "reason": "DuckDuckGo 用防护开关矩阵解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L15",
+   "from": 9,
+   "kind": "app",
+   "text": "去 Apple Health 找对照",
+   "reason": "Aura 的防护开关矩阵很像Apple Health的结构",
+   "status": "done"
+  },
+  {
+   "id": "L16",
+   "from": 10,
+   "kind": "pattern",
+   "text": "搜 扫描过程可视化 的其他做法",
+   "reason": "Surfshark 用扫描过程可视化解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L17",
+   "from": 11,
+   "kind": "app",
+   "text": "去 Credit Karma 找对照",
+   "reason": "想看风险分级色彩在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L18",
+   "from": 12,
+   "kind": "screen-type",
+   "text": "搜更多「警报中心」",
+   "reason": "NordVPN 用风险分级色彩解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L19",
+   "from": 13,
+   "kind": "pattern",
+   "text": "单一主操作 在别的品类里怎么表达",
+   "reason": "这里的单一主操作做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L20",
+   "from": 14,
+   "kind": "pattern",
+   "text": "搜 扫描过程可视化 的其他做法",
+   "reason": "Vercel 用扫描过程可视化解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L21",
+   "from": 15,
+   "kind": "screen-type",
+   "text": "搜更多「权限引导」",
+   "reason": "想看渐进式权限引导在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L22",
+   "from": 16,
+   "kind": "pattern",
+   "text": "搜 渐进式权限引导 的其他做法",
+   "reason": "这里的渐进式权限引导做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L23",
+   "from": 17,
+   "kind": "app",
+   "text": "去 Gentler Streak 找对照",
+   "reason": "Opal 用渐进式权限引导解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L24",
+   "from": 18,
+   "kind": "screen-type",
+   "text": "搜更多「安全报告」",
+   "reason": "这里的防护开关矩阵做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L25",
+   "from": 19,
+   "kind": "pattern",
+   "text": "安全评分圆环 在别的品类里怎么表达",
+   "reason": "想看安全评分圆环在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L26",
+   "from": 20,
+   "kind": "screen-type",
+   "text": "搜更多「防护开关」",
+   "reason": "想看防护开关矩阵在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L27",
+   "from": 21,
+   "kind": "pattern",
+   "text": "防护开关矩阵 在别的品类里怎么表达",
+   "reason": "Apple Health 用防护开关矩阵解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L28",
+   "from": 22,
+   "kind": "pattern",
+   "text": "扫描过程可视化 在别的品类里怎么表达",
+   "reason": "Cloudflare 用扫描过程可视化解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L29",
+   "from": 23,
+   "kind": "pattern",
+   "text": "搜 扫描过程可视化 的其他做法",
+   "reason": "这里的扫描过程可视化做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L30",
+   "from": 24,
+   "kind": "screen-type",
+   "text": "搜更多「付费墙」",
+   "reason": "这里的风险分级色彩做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L31",
+   "from": 25,
+   "kind": "pattern",
+   "text": "搜 风险分级色彩 的其他做法",
+   "reason": "这里的风险分级色彩做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L32",
+   "from": 26,
+   "kind": "app",
+   "text": "去 Ring 找对照",
+   "reason": "想看安全评分圆环在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L33",
+   "from": 27,
+   "kind": "pattern",
+   "text": "搜 风险分级色彩 的其他做法",
+   "reason": "这里的风险分级色彩做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L34",
+   "from": 28,
+   "kind": "pattern",
+   "text": "单一主操作 在别的品类里怎么表达",
+   "reason": "这里的单一主操作做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L35",
+   "from": 29,
+   "kind": "pattern",
+   "text": "单一主操作 在别的品类里怎么表达",
+   "reason": "想看单一主操作在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L36",
+   "from": 30,
+   "kind": "screen-type",
+   "text": "搜更多「权限引导」",
+   "reason": "Things 用安全评分圆环解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L37",
+   "from": 31,
+   "kind": "pattern",
+   "text": "搜 防护开关矩阵 的其他做法",
+   "reason": "Headspace 用防护开关矩阵解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L38",
+   "from": 32,
+   "kind": "screen-type",
+   "text": "搜更多「扫描进行中」",
+   "reason": "Strava 的扫描过程可视化很像扫描进行中的结构",
+   "status": "done"
+  },
+  {
+   "id": "L39",
+   "from": 33,
+   "kind": "screen-type",
+   "text": "搜更多「空状态」",
+   "reason": "想看扫描过程可视化在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L40",
+   "from": 34,
+   "kind": "app",
+   "text": "去 Kaspersky 找对照",
+   "reason": "Duolingo 用渐进式权限引导解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L41",
+   "from": 35,
+   "kind": "pattern",
+   "text": "搜 渐进式权限引导 的其他做法",
+   "reason": "Things 的渐进式权限引导很像渐进式权限引导的结构",
+   "status": "done"
+  },
+  {
+   "id": "L42",
+   "from": 36,
+   "kind": "pattern",
+   "text": "渐进式权限引导 在别的品类里怎么表达",
+   "reason": "这里的渐进式权限引导做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L43",
+   "from": 37,
+   "kind": "pattern",
+   "text": "渐进式权限引导 在别的品类里怎么表达",
+   "reason": "Gentler Streak 的渐进式权限引导很像渐进式权限引导的结构",
+   "status": "done"
+  },
+  {
+   "id": "L44",
+   "from": 38,
+   "kind": "pattern",
+   "text": "搜 渐进式权限引导 的其他做法",
+   "reason": "这里的渐进式权限引导做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L45",
+   "from": 39,
+   "kind": "pattern",
+   "text": "搜 渐进式权限引导 的其他做法",
+   "reason": "Opal 的渐进式权限引导很像渐进式权限引导的结构",
+   "status": "done"
+  },
+  {
+   "id": "L46",
+   "from": 40,
+   "kind": "pattern",
+   "text": "搜 安全评分圆环 的其他做法",
+   "reason": "Calm 的安全评分圆环很像安全评分圆环的结构",
+   "status": "done"
+  },
+  {
+   "id": "L47",
+   "from": 41,
+   "kind": "screen-type",
+   "text": "搜更多「权限引导」",
+   "reason": "想看防护开关矩阵在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L48",
+   "from": 42,
+   "kind": "screen-type",
+   "text": "搜更多「首页总览」",
+   "reason": "Cloudflare 用防护开关矩阵解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L49",
+   "from": 43,
+   "kind": "screen-type",
+   "text": "搜更多「扫描进行中」",
+   "reason": "这里的安全评分圆环做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L50",
+   "from": 44,
+   "kind": "app",
+   "text": "看 Aura 的同类屏",
+   "reason": "Ring 用防护开关矩阵解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L51",
+   "from": 45,
+   "kind": "screen-type",
+   "text": "搜更多「发现风险」",
+   "reason": "想看扫描过程可视化在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L52",
+   "from": 46,
+   "kind": "app",
+   "text": "看 Avast 的同类屏",
+   "reason": "想看单一主操作在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L53",
+   "from": 47,
+   "kind": "app",
+   "text": "看 Surfshark 的同类屏",
+   "reason": "这里的扫描过程可视化做法值得找更多变体",
+   "status": "done"
+  },
+  {
+   "id": "L54",
+   "from": 48,
+   "kind": "pattern",
+   "text": "搜 扫描过程可视化 的其他做法",
+   "reason": "想看扫描过程可视化在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L55",
+   "from": 49,
+   "kind": "pattern",
+   "text": "风险分级色彩 在别的品类里怎么表达",
+   "reason": "Apple Health 的风险分级色彩很像风险分级色彩的结构",
+   "status": "done"
+  },
+  {
+   "id": "L56",
+   "from": 50,
+   "kind": "pattern",
+   "text": "风险分级色彩 在别的品类里怎么表达",
+   "reason": "Oura 用风险分级色彩解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L57",
+   "from": 51,
+   "kind": "screen-type",
+   "text": "搜更多「发现风险」",
+   "reason": "Credit Karma 的风险分级色彩很像发现风险的结构",
+   "status": "done"
+  },
+  {
+   "id": "L58",
+   "from": 52,
+   "kind": "app",
+   "text": "去 Bitdefender 找对照",
+   "reason": "想看风险分级色彩在非安全类产品里的样子",
+   "status": "done"
+  },
+  {
+   "id": "L59",
+   "from": 53,
+   "kind": "screen-type",
+   "text": "搜更多「扫描结果·安全」",
+   "reason": "Oura 用防护开关矩阵解决了同一个焦虑问题",
+   "status": "done"
+  },
+  {
+   "id": "L60",
+   "from": 14,
+   "kind": "pattern",
+   "text": "搜 shield metaphor illustration",
+   "reason": "Vercel 的盾牌隐喻可能还有更好的表达",
+   "status": "empty"
+  },
+  {
+   "id": "L61",
+   "from": 27,
+   "kind": "pattern",
+   "text": "搜 shield metaphor illustration",
+   "reason": "SimpliSafe 的盾牌隐喻可能还有更好的表达",
+   "status": "empty"
+  },
+  {
+   "id": "L62",
+   "from": 38,
+   "kind": "pattern",
+   "text": "搜 shield metaphor illustration",
+   "reason": "Headspace 的盾牌隐喻可能还有更好的表达",
+   "status": "open"
+  },
+  {
+   "id": "L63",
+   "from": 79,
+   "kind": "pattern",
+   "text": "搜 shield metaphor illustration",
+   "reason": "Authy 的盾牌隐喻可能还有更好的表达",
+   "status": "open"
+  },
+  {
+   "id": "L64",
+   "from": 33,
+   "kind": "pattern",
+   "text": "搜 shield metaphor illustration",
+   "reason": "Gentler Streak 的盾牌隐喻可能还有更好的表达",
+   "status": "empty"
+  }
+ ],
+ "echoes": [
+  {
+   "a": 71,
+   "b": 37,
+   "kind": "echo",
+   "note": "和 #37 同样的结构，换到了R4的语境里依然成立"
+  },
+  {
+   "a": 79,
+   "b": 53,
+   "kind": "contrast",
+   "note": "Authy 和 Oura 都用安全评分圆环，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 19,
+   "b": 100,
+   "kind": "contrast",
+   "note": "Gentler Streak 和 Avast 都用防护开关矩阵，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 26,
+   "b": 96,
+   "kind": "contrast",
+   "note": "Apple Health 和 Kaspersky 都用风险分级色彩，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 91,
+   "b": 31,
+   "kind": "contrast",
+   "note": "1Password 和 Headspace 都用扫描过程可视化，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 4,
+   "b": 70,
+   "kind": "contrast",
+   "note": "McAfee 和 NordVPN 都用渐进式权限引导，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 26,
+   "b": 11,
+   "kind": "echo",
+   "note": "和 #11 同样的结构，换到了R2的语境里依然成立"
+  },
+  {
+   "a": 32,
+   "b": 48,
+   "kind": "contrast",
+   "note": "Strava 和 Kaspersky 都用扫描过程可视化，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 54,
+   "b": 79,
+   "kind": "echo",
+   "note": "和 #79 同样的结构，换到了R2的语境里依然成立"
+  },
+  {
+   "a": 12,
+   "b": 99,
+   "kind": "echo",
+   "note": "和 #99 同样的结构，换到了R1的语境里依然成立"
+  },
+  {
+   "a": 35,
+   "b": 73,
+   "kind": "echo",
+   "note": "和 #73 同样的结构，换到了R1的语境里依然成立"
+  },
+  {
+   "a": 58,
+   "b": 90,
+   "kind": "echo",
+   "note": "和 #90 同样的结构，换到了R1的语境里依然成立"
+  },
+  {
+   "a": 31,
+   "b": 66,
+   "kind": "contrast",
+   "note": "Headspace 和 Whoop 都用扫描过程可视化，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 70,
+   "b": 16,
+   "kind": "contrast",
+   "note": "NordVPN 和 Carrot Weather 都用渐进式权限引导，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 34,
+   "b": 68,
+   "kind": "contrast",
+   "note": "Duolingo 和 Norton 360 都用渐进式权限引导，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 43,
+   "b": 100,
+   "kind": "echo",
+   "note": "和 #100 同样的结构，换到了R1的语境里依然成立"
+  },
+  {
+   "a": 16,
+   "b": 4,
+   "kind": "echo",
+   "note": "和 #4 同样的结构，换到了R1的语境里依然成立"
+  },
+  {
+   "a": 88,
+   "b": 33,
+   "kind": "echo",
+   "note": "和 #33 同样的结构，换到了R4的语境里依然成立"
+  },
+  {
+   "a": 98,
+   "b": 55,
+   "kind": "echo",
+   "note": "和 #55 同样的结构，换到了R1的语境里依然成立"
+  },
+  {
+   "a": 22,
+   "b": 31,
+   "kind": "contrast",
+   "note": "Cloudflare 和 Headspace 都用扫描过程可视化，但一个面向焦虑、一个面向习惯养成"
+  },
+  {
+   "a": 71,
+   "b": 16,
+   "kind": "echo",
+   "note": "和 #16 同样的结构，换到了R4的语境里依然成立"
+  },
+  {
+   "a": 5,
+   "b": 58,
+   "kind": "echo",
+   "note": "和 #58 同样的结构，换到了R3的语境里依然成立"
+  }
+ ],
+ "checkpoints": [
+  {
+   "at": 25,
+   "round": 4,
+   "note": "R1 的首页几乎都是「分数 + 列表」，同质化很高。风险卡片普遍只靠红色表达严重度。扫描中的屏幕信息量很低，只有百分比。",
+   "next": "去 R3 的健康评分类产品看分数的其他表达方式。"
+  },
+  {
+   "at": 50,
+   "round": 7,
+   "note": "Oura 和 Credit Karma 用文字等级和趋势代替单个分数，这是 R1 里没有的思路。权限引导出现了两种分叉：一次性请求和按需请求。",
+   "next": "补齐空状态和付费墙，这两类目前不足 3 张。"
+  },
+  {
+   "at": 75,
+   "round": 10,
+   "note": "R4 的 Opal、Gentler Streak 给出了情绪化表达的参照：状态可以是「温和的」，不一定是「警报式的」。模式从 9 个合并到 6 个。",
+   "next": "找扫描过程的非百分比表达，目前只有 Strava 一个例子。"
+  },
+  {
+   "at": 100,
+   "round": 13,
+   "note": "网已经成形：R1 提供惯例，R3 提供结构上的替代方案，R4 提供情绪上的替代方案。最大的空白是「威胁详情」的解释方式。",
+   "next": "下一轮可以专门调研「把技术术语翻译成人话」的屏幕。"
+  }
+ ],
+ "insights": [
+  {
+   "id": "I1",
+   "text": "安全状态用「一句结论 + 一个分数」表达，比罗列功能开关更快回答「我安全吗」",
+   "evidence": [
+    1,
+    3,
+    4,
+    6,
+    7,
+    8
+   ]
+  },
+  {
+   "id": "I2",
+   "text": "风险卡片先写「需要你做什么」，再写威胁名称；行动比术语更能降低焦虑",
+   "evidence": [
+    2,
+    11,
+    12,
+    13,
+    24
+   ]
+  },
+  {
+   "id": "I3",
+   "text": "扫描过程要有内容：显示正在检查的对象和已发现的数量，等待就变成了建立信任的时间",
+   "evidence": [
+    3,
+    10,
+    19,
+    21,
+    22
+   ]
+  },
+  {
+   "id": "I4",
+   "text": "权限按需请求、先讲价值，拒绝后给出降级方案，而不是死路",
+   "evidence": [
+    4,
+    10,
+    15,
+    16
+   ]
+  },
+  {
+   "id": "I5",
+   "text": "防护能力收敛成一个总开关，复杂度放到第二层；B 端能力 C 端化的关键是「先给结论，再给控制」",
+   "evidence": [
+    9,
+    14,
+    19,
+    20,
+    21
+   ]
+  }
+ ],
+ "picks": [
+  {
+   "id": 85,
+   "why": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心。Bitwarden 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 18,
+   "why": "把待处理事项挂在分数下面，分数就成了任务入口。Carrot Weather 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 40,
+   "why": "把防护能力按威胁类型分组，而不是按技术模块。Calm 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 97,
+   "why": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释。Malwarebytes 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 86,
+   "why": "把防护能力按威胁类型分组，而不是按技术模块。NordVPN 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 95,
+   "why": "风险卡片的第一行写「需要你做什么」，而不是威胁名称。NordVPN 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 49,
+   "why": "同一屏最多一种高危色，其余降为中性色，焦点不会被稀释。Apple Health 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 79,
+   "why": "分数下方紧跟一句人话结论，用户不需要理解分数就知道该不该担心。Authy 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 76,
+   "why": "拒绝权限后给出降级方案，而不是死路。Malwarebytes 在这一点上是全网最干净的例子。"
+  },
+  {
+   "id": 82,
+   "why": "高级设置收进第二层，第一层只保留一个总开关。Lookout 在这一点上是全网最干净的例子。"
+  }
+ ],
+ "gaps": [
+  "威胁详情页：几乎所有产品都直接展示技术名称，没有找到好的「翻译」范例。",
+  "Android 平台未覆盖，Mobbin 官方 MCP 只有 iOS 和 Web。",
+  "家庭共享场景（为家人管理防护）只找到 Life360 一个参照。"
+ ]
+}
