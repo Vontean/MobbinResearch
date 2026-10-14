@@ -167,6 +167,10 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 .clip.fade-b { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); }
 .clip.fade-t { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px); mask-image: linear-gradient(to bottom, transparent, #000 32px); }
 .clip.fade-t.fade-b { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 40px), transparent); }
+/* 卡片内滚动条：点阵滑块，和字形、分段条同一语言；只在滚动时出现 */
+.sbar { position: absolute; right: 6px; width: 2px; pointer-events: none; opacity: 0; transition: opacity .4s var(--ease); }
+.sbar.on { opacity: 1; transition-duration: .12s; }
+.sbar i { display: block; width: 2px; border-radius: 1px; background: radial-gradient(circle, var(--text-secondary) .9px, transparent 1.1px) 0 0 / 2px 4px repeat-y; }
 .card .title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .source { display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: var(--text-secondary); }
 .source:hover { color: var(--text-primary); }

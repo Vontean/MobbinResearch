@@ -96,6 +96,23 @@
       el.classList.toggle("fade-b", el.scrollTop + el.clientHeight < el.scrollHeight - 2);
     }
 
+    // 卡片内滚动条：只在滚动时出现；停手一会儿，或光标离开卡片，就淡出
+    function scrollbar(el) {
+      const bar = document.createElement("span"), thumb = document.createElement("i");
+      bar.className = "sbar"; bar.append(thumb); el.after(bar);
+      const card = el.closest(".card");
+      let hideT = 0;
+      const hide = delay => { clearTimeout(hideT); hideT = setTimeout(() => bar.classList.remove("on"), delay); };
+      card.addEventListener("mouseleave", () => hide(config.scrollbar.leave));
+      return () => {
+        const h = el.clientHeight, th = Math.max(config.scrollbar.minThumb, h * h / el.scrollHeight);
+        bar.style.top = el.offsetTop + "px"; bar.style.height = h + "px";
+        thumb.style.height = th + "px";
+        thumb.style.transform = `translateY(${(h - th) * el.scrollTop / Math.max(1, el.scrollHeight - h)}px)`;
+        bar.classList.add("on"); hide(config.scrollbar.idle);
+      };
+    }
+
     // ---------- 说明提示：悬停或键盘聚焦 120ms 后出现；刚关闭 0.6 秒内移到相邻图标立即显示 ----------
     const tip = $("tip");
     let tipT = 0, tipWarm = 0;
@@ -155,7 +172,7 @@
         el.addEventListener("pointerenter", () => showTip(el)); el.addEventListener("pointerleave", hideTip);
         el.addEventListener("focus", () => showTip(el)); el.addEventListener("blur", hideTip);
       });
-      body.querySelectorAll(".clip").forEach(el => { el.addEventListener("scroll", () => syncClip(el), { passive: true }); requestAnimationFrame(() => syncClip(el)); });
+      body.querySelectorAll(".clip").forEach(el => { const bar = scrollbar(el); el.addEventListener("scroll", () => { syncClip(el); bar(); }, { passive: true }); requestAnimationFrame(() => syncClip(el)); });
       body.querySelectorAll(".card").forEach(c => {
         const sh = document.createElement("span"); sh.className = "shine"; c.prepend(sh);
         sh.addEventListener("animationend", () => sh.classList.remove("play"));

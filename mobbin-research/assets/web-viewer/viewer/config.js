@@ -32,6 +32,8 @@
     entrance: { speed: 1.6, diveDelay: 350, diveSlack: 200 },
     layoutMorph: { duration: 900, stagger: 14 },
     panel: { width: 400, gap: 16 },
+    // 卡片内滚动条：停止滚动后多久淡出、光标离开卡片后多久淡出、滑块最短长度（ms / px）
+    scrollbar: { idle: 900, leave: 300, minThumb: 24 },
 
     reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
   });
