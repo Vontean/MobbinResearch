@@ -27,7 +27,7 @@
     focus: { enter: .6, release: .45, hoverPick: .85, settle: 90, pickX: .9, pickY: .7, closeDelay: 280, closeQuiet: 260 },
 
     // 唤醒（悬停景深）：停留门槛、切换门槛、操作后的冷却、离开延迟、扩散速度（px/ms）、明暗速率
-    wake: { dwell: 140, switchDwell: 200, speed: .6, switchSpeed: .35, cooldown: 250, leave: 450, spread: 2.2, rate: 16 },
+    wake: { dwell: 320, switchDwell: 420, speed: .6, switchSpeed: .35, cooldown: 250, leave: 450, spread: 2.2, rate: 16 },
 
     entrance: { speed: 1.6, diveDelay: 350, diveSlack: 200 },
     // 收网：镜头回到首帧后，一道光波从核心荡过整片海（只照亮，不隐藏）；光带宽度与亮度
