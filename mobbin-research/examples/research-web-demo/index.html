@@ -868,7 +868,16 @@ function scheduleClose() {
     document.body.classList.remove("focused"); closePanel();
   }, 280);
 }
-function reset() { clearTimeout(closeT); unpin(); st.highlight = null; document.body.classList.remove("focused"); closePanel(); }
+function reset() {
+  const was = st.pinned ? st.focus : null;
+  clearTimeout(closeT); unpin(); st.highlight = null; document.body.classList.remove("focused"); closePanel();
+  // 退出聚焦：以这张图为中心往后拉，让视野重新打开；停在预判聚焦的阈值之下，不会立刻被吸回去
+  if (was) {
+    const k = Math.min(cam.tk, maxK() * .4);
+    stopIntro(); glide = null;
+    flyCam({ k, x: availW() / 2 - was.cx * k, y: H / 2 - was.cy * k }, 700, easeOut);
+  }
+}
 function toggleOverview() { if (st.panel === "overview") reset(); else { unpin(); st.highlight = null; openPanel("overview"); } }
 function openPattern(pid) { unpin(); st.highlight = new Set(screens.filter(s => s.patterns.includes(pid)).map(s => s.id)); openPanel("pattern", pid); }
 
