@@ -121,6 +121,15 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 .info:hover, .info:focus-visible { color: var(--text-display); border-color: var(--text-secondary); outline: none; }
 #tip { position: fixed; z-index: 40; max-width: 260px; padding: 10px 12px; border: 1px solid var(--border-visible); border-radius: 10px; background: var(--surface-raised); color: var(--text-primary); font: 400 12.5px/1.6 var(--font-human); pointer-events: none; opacity: 0; transform: translateY(-4px); transition: opacity .14s var(--ease), transform .2s var(--ease); }
 #tip.on { opacity: 1; transform: none; }
+#tip .tip-lead { color: var(--text-display); font-weight: 500; }
+#tip dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin-top: 8px; }
+#tip dt { font: 700 9.5px/1.9 var(--font-machine); letter-spacing: .1em; color: var(--text-secondary); }
+#tip dd { margin: 0; color: var(--text-primary); }
+#tip ul { margin-top: 6px; padding-left: 14px; }
+#tip li { color: var(--text-primary); }
+#tip li::marker { color: var(--text-disabled); }
+#tip li + li { margin-top: 2px; }
+#tip .tip-foot { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-visible); color: var(--text-secondary); }
 .big-segs i { flex: 1; background: #242424; transform: scale(.3); opacity: 0; animation: seg-in .3s var(--ease-back) forwards; }
 .big-segs i:nth-child(2) { animation-delay: 40ms; } .big-segs i:nth-child(3) { animation-delay: 80ms; } .big-segs i:nth-child(4) { animation-delay: 120ms; }
 .big-segs i.on { background: var(--text-primary); }
@@ -130,7 +139,11 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 .chip:hover { color: var(--text-primary); border-color: var(--text-disabled); }
 .chip:active { transform: scale(.96); }
 .note { margin-top: var(--s-4); padding-top: var(--s-4); border-top: 1px solid var(--border); }
-.note p { margin-top: 6px; font-size: 13px; color: var(--text-secondary); }
+.note p, .note .rich { margin-top: 6px; font-size: 13px; color: var(--text-secondary); }
+.rich { list-style: none; display: grid; gap: 4px; }
+.rich li { position: relative; padding-left: 14px; }
+.rich li::before { content: ""; position: absolute; left: 2px; top: .7em; width: 3px; height: 3px; border-radius: 50%; background: var(--text-disabled); }
+.rich b { font-weight: 500; color: var(--text-primary); margin-right: 6px; }
 .trail { list-style: none; display: grid; gap: 2px; }
 .trail li { display: grid; grid-template-columns: 24px 26px 1fr; gap: 10px; align-items: center; padding: 6px 0; cursor: pointer; }
 .trail li .n { font: 400 11px/1 var(--font-machine); color: var(--text-disabled); letter-spacing: .08em; }
@@ -943,7 +956,7 @@ let tipT = 0, tipWarm = 0;
 function showTip(el) {
   clearTimeout(tipT);
   tipT = setTimeout(() => {
-    tip.textContent = TIPS[el.dataset.tip];
+    tip.innerHTML = tipHTML(TIPS[el.dataset.tip]);
     const r = el.getBoundingClientRect(), w = Math.min(260, innerWidth - 24);
     tip.style.left = clamp(r.left - 12, 12, innerWidth - w - 12) + "px"; tip.style.top = r.bottom + 8 + "px";
     tip.classList.add("on"); tipWarm = performance.now();
@@ -972,11 +985,25 @@ function bind() {
   });
 }
 const TIPS = {
-  distance: "这张图离直接竞品有多远。1 格是同类产品，2 格是解决同一需求的其他产品，3 格是结构相似的产品，4 格是来自任意品类的表达启发。在画布上，格数越多，离中心越远。",
-  trail: "这张图是怎么被找到的。从调研起点开始，Agent 每看到一张图，就顺着它想到下一条线索，一路走到这里。点任意一步可以跳过去。",
-  related: "和这张图最相关的几张，最多 8 张。标签说明关系：LEAD 由它的线索直接引出；SIBLING 来自同一条线索；ECHO 和 CONTRAST 是 Agent 标注的呼应与对照；PATTERN 属于同一设计模式；APP 来自同一个 App。",
+  distance: { lead: "这张图离直接竞品有多远", ol: [["01", "同类产品"], ["02", "解决同一需求的其他产品"], ["03", "结构相似的产品"], ["04", "任意品类的表达启发"]], foot: "画布上格数越多，离中心越远" },
+  trail: { lead: "这张图是怎么被找到的", ul: ["从调研起点出发", "Agent 每看到一张图，就顺着它想到下一条线索", "一路走到这张图；点任意一步可以跳过去"] },
+  related: { lead: "和这张图最相关的图，最多 8 张", ol: [["LEAD", "由它的线索直接引出"], ["SIBLING", "来自同一条线索"], ["ECHO", "Agent 标注的呼应"], ["CONTRAST", "Agent 标注的对照"], ["PATTERN", "同一设计模式"], ["APP", "来自同一个 App"]] },
 };
-const info = key => `<span class="info" tabindex="0" data-tip="${key}" aria-label="${esc(TIPS[key])}">i</span>`;
+const tipHTML = t => `<p class="tip-lead">${esc(t.lead)}</p>`
+  + (t.ol ? `<dl>${t.ol.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>` : "")
+  + (t.ul ? `<ul>${t.ul.map(v => `<li>${esc(v)}</li>`).join("")}</ul>` : "")
+  + (t.foot ? `<p class="tip-foot">${esc(t.foot)}</p>` : "");
+const tipText = t => [t.lead, ...(t.ol || []).map(x => x.join(" ")), ...(t.ul || []), t.foot].filter(Boolean).join("；");
+const info = key => `<span class="info" tabindex="0" data-tip="${key}" aria-label="${esc(tipText(TIPS[key]))}">i</span>`;
+function rich(text, cls = "") {
+  const lines = String(text ?? "").split(/\n+/).map(l => l.trim()).filter(Boolean);
+  const item = l => { const m = l.match(/^([^：:]{1,8})[：:]\s*(.+)$/); return m ? `<b>${esc(m[1])}</b>${esc(m[2])}` : esc(l); };
+  if (!lines.some(l => /^[-·•]\s/.test(l))) return `<p class="${cls}">${lines.map(esc).join("<br>")}</p>`;
+  const out = []; let list = [];
+  const flush = () => { if (list.length) out.push(`<ul class="rich ${cls}">${list.map(l => `<li>${item(l)}</li>`).join("")}</ul>`); list = []; };
+  for (const l of lines) { if (/^[-·•]\s/.test(l)) list.push(l.replace(/^[-·•]\s+/, "")); else { flush(); out.push(`<p class="${cls}">${esc(l)}</p>`); } }
+  flush(); return out.join("");
+}
 const closeBtn = `<button class="meta" id="panel-close" data-close>Esc ${glyph("close")}</button>`;
 const thumb = (s, tag) => `<button class="thumb" data-goto="${s.id}" title="${esc(s.app)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">${tag ? `<span class="tag">${tag}</span>` : ""}</button>`;
 const bar = (label, n, total) => `<div class="bar"><span>${esc(label)}</span><em>${pad(n, 2)}</em><span class="segs">${Array.from({ length: 12 }, (_, i) => `<i class="${i < Math.round(n / Math.max(1, total) * 12) ? "on" : ""}"></i>`).join("")}</span></div>`;
@@ -989,7 +1016,7 @@ const render = {
         <div class="chips">${s.patterns.map(p => `<button class="chip" data-pattern="${esc(p)}">${esc(patById.get(p)?.name || p)}</button>`).join("")}</div></section>
       <section class="card"><div class="row meta"><span class="ttl">Distance ${info("distance")}</span><span class="dim">${pad(depth(s), 2)} / 04</span></div><div class="big-segs">${[1, 2, 3, 4].map(i => `<i class="${i <= depth(s) ? "on" : ""}"></i>`).join("")}</div></section>
       <section class="card"><div class="meta">Insight</div><div class="clip" style="--clip:168px"><p class="body-text">${esc(s.insight)}</p></div>
-        <div class="note"><div class="meta dim">Agent note / round ${pad(s.round ?? 0, 2)}</div><div class="clip" style="--clip:132px"><p>${esc(s.why_saved)}</p></div></div></section>
+        <div class="note"><div class="meta dim">Agent note / round ${pad(s.round ?? 0, 2)}</div><div class="clip" style="--clip:150px">${rich(s.why_saved)}</div></div></section>
       <section class="card"><div class="row meta"><span class="ttl">Trail ${info("trail")}</span><span class="dim">${pad(tr.length, 2)} steps</span></div>
         <ol class="trail clip" style="--clip:300px">${tr.map((c, i) => `<li data-goto="${c.id}" class="${c === s ? "self" : ""}"><span class="n">${pad(i + 1, 2)}</span><img src="${esc(c.thumb)}" alt=""><div><b>${esc(c.app)}</b><span>${esc(c.lead ? c.lead.text : "起点")}</span>${c.lead && c.lead.reason && i > 0 ? `<em>${esc(c.lead.reason)}</em>` : ""}</div></li>`).join("")}</ol></section>
       <section class="card"><div class="row meta"><span class="ttl">Related ${info("related")}</span><span class="rel-n">${pad(st.related.length, 2)}</span></div>
@@ -1009,7 +1036,7 @@ const render = {
   },
   pattern(id) {
     const p = patById.get(id), m = screens.filter(s => s.patterns.includes(id));
-    const part = (t, v) => v ? `<section class="card"><div class="meta">${t}</div><div class="clip" style="--clip:180px"><p class="body-text">${esc(v)}</p></div></section>` : "";
+    const part = (t, v) => v ? `<section class="card"><div class="meta">${t}</div><div class="clip" style="--clip:180px">${rich(v, "body-text")}</div></section>` : "";
     return `
       <section class="card"><div class="row meta"><span>Pattern</span>${closeBtn}</div><div class="title">${esc(p.name)}</div><div class="clip" style="--clip:120px;margin-top:8px"><p class="sub-text">${esc(p.summary)}</p></div></section>
       <div class="stats">
@@ -1027,9 +1054,9 @@ const render = {
         ${(b.questions || []).length ? `<ol class="qs">${b.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ol>` : ""}</section>
       <section class="card"><div class="row meta"><span>Insights</span><span class="dim">${pad((DATA.insights || []).length, 2)}</span></div>
         <div class="clip" style="--clip:380px">${(DATA.insights || []).map(i => `<button class="list-item" data-insight="${esc(i.id)}"><p class="body-text">${esc(i.text)}</p><div class="meta dim">${pad(i.evidence.length, 2)} frames</div></button>`).join("")}</div></section>
-      ${(DATA.checkpoints || []).length ? `<section class="card"><div class="meta">Agent log</div><div class="clip" style="--clip:340px">${DATA.checkpoints.map(c => `<div class="list-item"><div class="meta">${pad(c.at)}% / round ${pad(c.round, 2)}</div><p class="body-text" style="margin-top:6px">${esc(c.note)}</p>${c.next ? `<p class="sub-text" style="margin-top:4px">→ ${esc(c.next)}</p>` : ""}</div>`).join("")}</div></section>` : ""}
+      ${(DATA.checkpoints || []).length ? `<section class="card"><div class="meta">Agent log</div><div class="clip" style="--clip:340px">${DATA.checkpoints.map(c => `<div class="list-item"><div class="meta">${pad(c.at)}% / round ${pad(c.round, 2)}</div><div style="margin-top:6px">${rich(c.note, "body-text")}</div>${c.next ? `<p class="sub-text" style="margin-top:4px">→ ${esc(c.next)}</p>` : ""}</div>`).join("")}</div></section>` : ""}
       ${(DATA.picks || []).length ? `<section class="card"><div class="meta">Picks</div><div class="thumbs clip" style="--clip:320px">${DATA.picks.map(p => byId.get(p.id)).filter(Boolean).map(s => thumb(s)).join("")}</div></section>` : ""}
-      ${(DATA.gaps || []).length ? `<section class="card"><div class="meta">Gaps</div><div class="clip" style="--clip:260px">${DATA.gaps.map(g => `<div class="list-item"><p class="body-text">${esc(g)}</p></div>`).join("")}</div></section>` : ""}`;
+      ${(DATA.gaps || []).length ? `<section class="card"><div class="meta">Gaps</div><div class="clip" style="--clip:260px">${DATA.gaps.map(g => `<div class="list-item">${rich(g, "body-text")}</div>`).join("")}</div></section>` : ""}`;
   },
 };
 
