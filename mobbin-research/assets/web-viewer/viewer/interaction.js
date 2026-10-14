@@ -17,7 +17,7 @@
     const ptr = { x: -9999, y: -9999, sx: -9999, sy: -9999, inside: false, speed: 0, wake: 0, lastT: 0 };
     let drag = null, moved = false;
     let hoverTile = null, hoverLead = null, hoverSince = 0, emptySince = 0, near = null;
-    let lastInteract = 0, settled = 0, closeT = 0, pullUntil = 0, lastWheel = 0;
+    let lastInteract = 0, settled = 0, closeT = 0;
 
     const nodeOf = s => stage.nodeOf.get(s);
     const centerOfRect = r => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
@@ -79,13 +79,16 @@
     const cancelClose = () => clearTimeout(closeT);
 
     // 离开：收起面板；如果刚才聚焦着一张图，以它为中心往后拉，停在预判阈值之下，不会立刻被吸回去
-    function leave(dur = config.camera.fly.leave) {
+    // follow：不用固定运镜，只把镜头目标推过去，由镜头跟随追上；之后的滚轮照常叠加，动作连续
+    function leave(follow = false) {
       const was = state.focused ? state.woken : null;
       clearTimeout(closeT); unfocus(); state.highlight = null; document.body.classList.remove("focused"); app.ui.closePanel();
       if (was) {
         const n = nodeOf(was), k = Math.min(cam.tk, camera.maxK() * config.camera.leaveRatio);
         app.intro.stop(); camera.stopGlide();
-        camera.fly(camera.centerOn(n.x, n.y, k), dur, util.ease.out);
+        const to = camera.centerOn(n.x, n.y, k);
+        if (follow) Object.assign(cam, { tk: to.k, tx: to.x, ty: to.y });
+        else camera.fly(to, config.camera.fly.leave, util.ease.out);
       }
     }
     function highlight(set) { state.highlight = set; }
@@ -184,18 +187,13 @@
     canvas.addEventListener("pointerleave", () => { ptr.inside = false; if (!state.focused && !state.highlight) wake(null); });
     // 滚轮只控制深度：拖拽在海里移动，滚轮下潜或上浮
     canvas.addEventListener("wheel", e => {
-      e.preventDefault();
-      // 滚轮离开聚焦后，吞掉这一次手势剩下的滚动（含触控板惯性），直到滚动停下一小会儿；否则拉远停住后又会自己退一段
-      const now = performance.now(), gap = now - lastWheel; lastWheel = now;
-      if (pullUntil && (now < pullUntil || gap < F.wheelGap)) return;
-      pullUntil = 0;
-      app.intro.stop(); camera.stopGlide(); lastInteract = performance.now();
+      e.preventDefault(); app.intro.stop(); camera.stopGlide(); lastInteract = performance.now();
       if (!state.focused) wake(null);
       const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
       // 向下滚动 = 潜得更深；触控板捏合保留张开放大的习惯
       camera.zoomAt(e.clientX, e.clientY, e.ctrlKey ? Math.exp(-dy * .012) : Math.exp(dy * .0022), false);
-      // 聚焦时往回缩一小段，就是想离开这张图：不等缩到很浅，直接离开并快速拉远
-      if (state.focused && cam.tk < camera.maxK() * F.pullOut) { leave(config.camera.fly.pullOut); pullUntil = performance.now() + config.camera.fly.pullOut; }
+      // 聚焦时往回缩一小段，就是想离开这张图：直接离开，镜头目标一下推到 Esc 的落点，后续滚动照常叠加
+      if (state.focused && cam.tk < camera.maxK() * F.pullOut) leave(true);
     }, { passive: false });
     canvas.addEventListener("dblclick", e => {
       if (camera.isDeep() || hit(e.clientX, e.clientY)) return;

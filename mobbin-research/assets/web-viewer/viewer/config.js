@@ -20,11 +20,11 @@
       deepFitRatio: 1.8,   // 超过适配视图这么多倍，算"已潜入"
       follow: 11,          // 镜头跟随的指数速率
       glideFriction: 3.2,  // 松手滑行的衰减
-      fly: { dive: 1300, surface: 1200, focus: 850, snap: 480, leave: 700, pullOut: 500, deepLink: 900, finale: 1600 },
+      fly: { dive: 1300, surface: 1200, focus: 850, snap: 480, leave: 700, deepLink: 900, finale: 1600 },
     },
 
-    // 聚焦：迟滞区间（进入 60%、松开 45%），预判容差，延迟收起；聚焦时用滚轮往回缩到 85% 以下就当作离开，并吞掉这一次手势剩下的滚动（停顿超过 wheelGap 毫秒算新手势）
-    focus: { enter: .6, release: .45, pullOut: .85, wheelGap: 200, hoverPick: .85, settle: 90, pickX: .9, pickY: .7, closeDelay: 280, closeQuiet: 260 },
+    // 聚焦：迟滞区间（进入 60%、松开 45%），预判容差，延迟收起；聚焦时用滚轮往回缩到 85% 以下就当作离开
+    focus: { enter: .6, release: .45, pullOut: .85, hoverPick: .85, settle: 90, pickX: .9, pickY: .7, closeDelay: 280, closeQuiet: 260 },
 
     // 唤醒（悬停景深）：停留门槛、切换门槛、操作后的冷却、离开延迟、扩散速度（px/ms）、明暗速率
     wake: { dwell: 320, switchDwell: 420, speed: .6, switchSpeed: .35, cooldown: 250, leave: 450, spread: 2.2, rate: 16 },
