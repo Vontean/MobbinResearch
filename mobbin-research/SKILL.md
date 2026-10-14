@@ -48,7 +48,7 @@ R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图�
 
 - `screens/`：截图，命名为 `{三位序号}_{圈层}_{App}_{屏幕类型}`，每张图存缩略图和大图两份，例如 `007_R1_Norton360_dashboard_thumb.jpg` 和 `007_R1_Norton360_dashboard.png`
 - `research.json`：这张网的唯一事实来源，包括简报、模式、截图、线索、呼应、检查点和洞察。字段说明见 [`references/data-contract.md`](references/data-contract.md)
-- `index.html`：查看器。用户可以在 Loop 进行中随时打开，看网一点点长出来
+- `index.html` 和 `viewer/`：查看器，由构建脚本复制。用户可以在 Loop 进行中随时打开 `index.html`，看网一点点长出来
 
 每次写完 `research.json`，运行 `python3 scripts/build_web.py <调研目录>`。它会校验数据、生成查看器读取的 `research.js`，第一次运行时还会复制查看器。
 
@@ -106,5 +106,5 @@ R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图�
 - `scripts/build_web.py`：校验 `research.json`，生成 `research.js`，复制查看器
 - `scripts/fetch_screen_image.py`：根据屏幕 ID 或 URL 下载完整大图
 - `scripts/extract_palette.py`：提取主色板
-- `assets/web-viewer/`：查看器模板和它的 DESIGN.md
+- `assets/web-viewer/`：查看器模板（`index.html` 加 `viewer/` 目录）和它的 DESIGN.md
 - `assets/spec-components.html`：HTML Spec 组件库
