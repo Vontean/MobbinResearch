@@ -90,6 +90,9 @@ body.panel-open #filterbar { left: calc((100% - var(--panel-w) - var(--s-4)) / 2
 #filter-close { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--surface-raised); color: var(--text-secondary); transition: color .2s ease-out; }
 #filter-close:hover { color: var(--text-primary); }
 #hud .line .filter-note { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal; font-size: 12px; line-height: 1.5; color: var(--text-disabled); }
+/* 聚焦图片上的透明原图：只在右键时接住光标，让浏览器给出"拷贝图像 / 存储图像" */
+#focus-img { position: fixed; z-index: 11; opacity: 0; pointer-events: none; object-fit: fill; }
+#focus-img.grab { pointer-events: auto; }
 /* 聚焦时的上一张 / 下一张：跟在聚焦图片正下方 */
 #focus-nav { position: fixed; z-index: 12; left: 0; top: 0; display: flex; gap: var(--s-4); opacity: 0; pointer-events: none; transition: opacity .25s var(--ease); }
 #focus-nav.on { opacity: 1; pointer-events: auto; }

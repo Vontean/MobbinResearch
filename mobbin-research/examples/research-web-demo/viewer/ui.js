@@ -99,13 +99,32 @@
     const nav = $("focus-nav"), navPrev = $("nav-prev"), navNext = $("nav-next");
     navPrev.innerHTML = glyph("prev"); navNext.innerHTML = glyph("next");
     navPrev.onclick = () => ix().step(-1); navNext.onclick = () => ix().step(1);
+    // 聚焦图片上叠一张透明的原图：平时不接收光标，只在右键按下的那一刻接住这次右键，
+    // 浏览器就会弹出它自带的图片菜单（拷贝图像、存储图像）
+    const shot = $("focus-img");
+    let shotRect = null;
+    const releaseShot = () => shot.classList.remove("grab");
+    app.canvas.addEventListener("pointerdown", e => {
+      const r = shotRect;
+      if (e.button === 2 && r && e.clientX >= r.x && e.clientX <= r.x + r.w && e.clientY >= r.y && e.clientY <= r.y + r.h) shot.classList.add("grab");
+    }, true);
+    shot.addEventListener("contextmenu", () => setTimeout(releaseShot, 0));
+    shot.addEventListener("pointerdown", releaseShot);
+    addEventListener("blur", releaseShot);
+
     function syncNav() {
       const st = ix().state, n = st.focused && st.woken && stage.nodeOf.get(st.woken);
       nav.classList.toggle("on", !!n);
+      shotRect = n && n.rect;
       if (!n) return;
       const c = camera.state, { TH } = config.grid;
-      nav.style.transform = `translate(${n.x * c.k + c.x}px, ${(n.y + TH / 2) * c.k + c.y + 28}px) translateX(-50%)`;
+      // 按钮在图片下方 48px；窗口太矮时最多贴到离底边 16px
+      // 聚焦的图画出来会浮起约 3%，按浮起后的底边算；不跟随涌动的细微起伏，按钮保持稳定
+      const y = Math.min((n.y + TH * 1.03 / 2) * c.k + c.y + config.focusNav.gap, camera.view.H - config.focusNav.size - 16);
+      nav.style.transform = `translate(${n.x * c.k + c.x}px, ${y}px) translateX(-50%)`;
       navPrev.disabled = !ix().neighbor(-1); navNext.disabled = !ix().neighbor(1);
+      if (n.s.image && shot.dataset.id !== String(n.s.id)) { shot.src = n.s.image; shot.alt = `${n.s.app} — ${n.s.screen_type}`; shot.dataset.id = n.s.id; }
+      if (shotRect) Object.assign(shot.style, { left: shotRect.x + "px", top: shotRect.y + "px", width: shotRect.w + "px", height: shotRect.h + "px" });
     }
 
     // ---------- 模式索引：右下角，可原地滚动 ----------

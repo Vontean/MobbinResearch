@@ -34,6 +34,8 @@
     finale: { band: 70, lift: .35, delay: 200 },
     layoutMorph: { duration: 900, stagger: 14 },
     panel: { width: 400, gap: 16 },
+    // 聚焦时的上一张 / 下一张按钮：离图片底边的距离、按钮尺寸（px）
+    focusNav: { gap: 48, size: 40 },
     // 卡片内滚动条：停止滚动后多久淡出、光标离开卡片后多久淡出、滑块最短长度（ms / px）
     scrollbar: { idle: 900, leave: 300, minThumb: 24 },
     // 任务书开场：每个字的间隔、第一张图来时没打完的部分改用的快速档、补完后的停顿、收起时长（ms）
