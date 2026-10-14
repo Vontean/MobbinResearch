@@ -97,8 +97,6 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 #panel-close { display: inline-flex; align-items: center; gap: 6px; color: var(--text-disabled); transition: color .2s ease-out; }
 #panel-close:hover { color: var(--text-primary); }
 
-.frame { margin: 0 calc(-1 * var(--s-5)) calc(-1 * var(--s-5)); height: 380px; display: grid; place-items: center; background-image: radial-gradient(circle, #1d1d1d 1.1px, transparent 1.1px); background-size: 16px 16px; background-position: 8px 8px; }
-.frame img { height: 340px; aspect-ratio: 1179 / 2556; object-fit: cover; border-radius: 14px; border: 1px solid var(--border-visible); }
 .body-text { font: 400 15px/1.6 var(--font-human); color: var(--text-primary); }
 .sub-text { font-size: 13px; color: var(--text-secondary); }
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -176,7 +174,6 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 <div id="gauge" class="chrome shift" aria-hidden="true"></div>
 <div id="switch" class="chrome" role="group" aria-label="视图对比">
   <div class="seg" data-key="layout"><button data-v="island">Island</button><button data-v="lanes">Lanes</button></div>
-  <div class="seg" data-key="fx"><button data-v="develop">Develop</button><button data-v="focus">Focus</button></div>
 </div>
 
 <aside id="panel"><div id="panel-body"></div></aside>
@@ -243,7 +240,6 @@ const CX = 2 * G, CY = 4 * G, LANE_Y = 6 * G;
 const params = new URLSearchParams(location.search);
 const view = {
   layout: ["island", "lanes"].includes(params.get("layout")) ? params.get("layout") : "island",
-  fx: ["develop", "focus"].includes(params.get("fx")) ? params.get("fx") : "develop",
 };
 
 // 模式顺序：常一起出现的模式相邻
@@ -297,19 +293,49 @@ function islandPositions() {
       }
     }
   }
-  // 从核心向外逐张吸附：越直接的图越先占位
-  const taken = new Set(), out = new Map();
-  for (const s of screens.slice().sort((a, b) => Math.hypot(P.get(a).x, P.get(a).y) - Math.hypot(P.get(b).x, P.get(b).y))) {
-    const p = P.get(s), ti = Math.round(p.x / CX), tj = Math.round(p.y / CY);
-    let best = null;
-    for (let r = 0; r <= 8 && (!best || r <= 2); r++) for (let di = -r; di <= r; di++) for (let dj = -r; dj <= r; dj++) {
-      if (Math.max(Math.abs(di), Math.abs(dj)) !== r || taken.has(`${ti + di},${tj + dj}`)) continue;
-      const d = Math.hypot((ti + di) * CX - p.x, (tj + dj) * CY - p.y);
-      if (!best || d < best.d) best = { i: ti + di, j: tj + dj, d };
-    }
-    taken.add(`${best.i},${best.j}`); out.set(s, [best.i * CX, best.j * CY]);
+  // 形状由数量决定：离中心最近的 N 个格点组成一个点阵圆
+  const n = screens.length, cells = [];
+  const R = Math.ceil(Math.sqrt(n)) + 2;
+  for (let i = -R; i <= R; i++) for (let j = -R; j <= R; j++) cells.push({ x: i * CX, y: j * CY });
+  // 取完整的一圈，保证上下左右对称；多出来的格子在最外圈按角度均匀挑掉
+  cells.sort((p, q) => Math.hypot(p.x, p.y) - Math.hypot(q.x, q.y));
+  const rN = Math.hypot(cells[n - 1].x, cells[n - 1].y) + 1e-6;
+  let slots = cells.filter(c => Math.hypot(c.x, c.y) <= rN);
+  const extra = slots.length - n;
+  if (extra > 0) {
+    const shell = slots.filter(c => Math.hypot(c.x, c.y) > rN - CY * .75).sort((p, q) => Math.atan2(p.y, p.x) - Math.atan2(q.y, q.x));
+    const drop = new Set(Array.from({ length: extra }, (_, i) => shell[Math.floor((i + .5) * shell.length / extra)]));
+    slots = slots.filter(c => !drop.has(c));
   }
+  // 把弹簧算出的理想位置缩放到圆的大小，再求总位移最小的一一对应
+  const rs = Math.max(...slots.map(c => Math.hypot(c.x, c.y))), rp = Math.max(...all.map(p => Math.hypot(p.x, p.y))) || 1;
+  const cost = screens.map(s => { const p = P.get(s); return slots.map(c => (p.x * rs / rp - c.x) ** 2 + (p.y * rs / rp - c.y) ** 2); });
+  const assign = hungarian(cost), out = new Map();
+  screens.forEach((s, i) => out.set(s, [slots[assign[i]].x, slots[assign[i]].y]));
   return out;
+}
+
+// 匈牙利算法：n×n 代价矩阵的最小权完美匹配，返回每行分到的列
+function hungarian(c) {
+  const n = c.length, u = new Float64Array(n + 1), v = new Float64Array(n + 1), p = new Int32Array(n + 1), way = new Int32Array(n + 1);
+  for (let i = 1; i <= n; i++) {
+    p[0] = i; let j0 = 0;
+    const minv = new Float64Array(n + 1).fill(Infinity), used = new Uint8Array(n + 1);
+    do {
+      used[j0] = 1; const i0 = p[j0]; let delta = Infinity, j1 = 0;
+      for (let j = 1; j <= n; j++) if (!used[j]) {
+        const cur = c[i0 - 1][j - 1] - u[i0] - v[j];
+        if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
+        if (minv[j] < delta) { delta = minv[j]; j1 = j; }
+      }
+      for (let j = 0; j <= n; j++) if (used[j]) { u[p[j]] += delta; v[j] -= delta; } else minv[j] -= delta;
+      j0 = j1;
+    } while (p[j0] !== 0);
+    do { const j1 = way[j0]; p[j0] = p[j1]; j0 = j1; } while (j0);
+  }
+  const ans = new Array(n);
+  for (let j = 1; j <= n; j++) ans[p[j] - 1] = j - 1;
+  return ans;
 }
 
 // 航道：每个模式一条横向航道，从左到右由直接竞品到远方启发；同一深度的列跨航道对齐
@@ -374,7 +400,18 @@ function applyLayout(animate) {
 
 for (const s of screens) {
   const img = new Image(); img.decoding = "async"; img.src = s.thumb;
-  Object.assign(s, { img, lit: 0, dim: 0, rv: 0, rect: null, bornAt: 0 });
+  img.onload = () => { s.soft = soften(img); };
+  Object.assign(s, { img, lit: 0, dim: 0, rect: null, bornAt: 0 });
+}
+
+// 失焦版：小尺寸上做高斯模糊；不支持画布滤镜时退回缩小图，放大后同样柔和
+function soften(img) {
+  const c = document.createElement("canvas"), g = c.getContext("2d");
+  if ("filter" in g) {
+    c.width = 48; c.height = 104; g.filter = "blur(4px)";
+    g.drawImage(img, -8, -8, 64, 120);
+  } else { c.width = 14; c.height = 30; g.drawImage(img, 0, 0, 14, 30); }
+  return c;
 }
 
 // ---------- 状态 ----------
@@ -386,24 +423,10 @@ const st = { focus: null, related: [], relMap: new Map(), pinned: false, rippleT
 const availW = () => W - (st.panel ? 400 + 16 : 0);
 
 let vignette = null;
-const halftones = new Map();
 function resize() {
   DPR = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * DPR; cv.height = H * DPR;
   vignette = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .32, W / 2, H / 2, Math.hypot(W, H) * .56);
   vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, "rgba(0,0,0,.82)");
-  halftones.clear();
-}
-// 网屏：黑底上挖出圆孔，盖在截图上，截图就只从孔里透出颜色
-function halftone(p) {
-  if (halftones.has(p)) return halftones.get(p);
-  const c = document.createElement("canvas"), n = Math.round(p * DPR);
-  c.width = c.height = n;
-  const g = c.getContext("2d");
-  g.fillStyle = "#000"; g.fillRect(0, 0, n, n);
-  g.globalCompositeOperation = "destination-out";
-  g.beginPath(); g.arc(n / 2, n / 2, n * .4, 0, Math.PI * 2); g.fill();
-  const pat = ctx.createPattern(c, "repeat");
-  halftones.set(p, pat); return pat;
 }
 function fitTarget() {
   const bw = bounds.x1 - bounds.x0, bh = bounds.y1 - bounds.y0, k = Math.min(availW() / (bw * 1.3), H / (bh * 1.35));
@@ -411,7 +434,8 @@ function fitTarget() {
 }
 function fit(instant) { const t = fitTarget(); cam.tk = t.k; cam.tx = t.x; cam.ty = t.y; if (instant) Object.assign(cam, { k: t.k, x: t.x, y: t.y }); }
 let tween = null, introT = 0, glide = null, lastInteract = 0;
-const DIVE_K = 1.25, MAX_K = 2.6;
+// 下潜：入场时每张图约占画面高度 18%；最深一档（点击聚焦）约占 75%
+const diveK = () => H * .18 / TH, maxK = () => H * .75 / TH;
 const easeInOut = t => t < .5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2;
 const easeCubic = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
 function flyCam(to, dur) {
@@ -419,12 +443,12 @@ function flyCam(to, dur) {
   const cw = availW() / 2;
   tween = { k0: cam.k, k1: to.k, c0: [(cw - cam.x) / cam.k, (H / 2 - cam.y) / cam.k], c1: [(cw - to.x) / to.k, (H / 2 - to.y) / to.k], t0: performance.now(), dur };
 }
-function diveAt(wx, wy) { flyCam({ k: DIVE_K, x: availW() / 2 - wx * DIVE_K, y: H / 2 - wy * DIVE_K }, 1700); }
+function diveAt(wx, wy) { const k = diveK(); flyCam({ k, x: availW() / 2 - wx * k, y: H / 2 - wy * k }, 1800); }
 function surface() { const t = fitTarget(); flyCam(t, 1200); }
 const isDeep = () => cam.tk > fitTarget().k * 1.8;
 function stopIntro() { clearTimeout(introT); tween = null; }
 function zoomAt(sx, sy, f, instant) {
-  const k = clamp(cam.tk * f, fitTarget().k * .8, MAX_K), wx = (sx - cam.tx) / cam.tk, wy = (sy - cam.ty) / cam.tk;
+  const k = clamp(cam.tk * f, fitTarget().k * .8, maxK()), wx = (sx - cam.tx) / cam.tk, wy = (sy - cam.ty) / cam.tk;
   cam.tk = k; cam.tx = sx - wx * k; cam.ty = sy - wy * k;
   if (instant) Object.assign(cam, { k: cam.tk, x: cam.tx, y: cam.ty });
 }
@@ -529,7 +553,6 @@ function frame(now) {
 
   // 截图
   const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * 5), rk = REDUCED ? 1 : 1 - Math.exp(-dt * 4.5);
-  const depthReveal = clamp((k / fitK - 1.3) / 1.6, 0, 1);
   for (const s of screens) {
     const sx = s.cx * k + ox, sy = s.cy * k + oy;
     if (s.cd * k > enterFront) { s.rect = null; continue; }
@@ -547,20 +570,9 @@ function frame(now) {
     s.lit += (tl - s.lit) * lk; s.dim += (td - s.dim) * lk;
     const hovered = s === hoverTile && live;
     let sc = (1 + f * .01 + (hovered ? .04 : 0) + s.lit * .03) * (.55 + .45 * backOut(age));
-    let alpha;
-    if (view.fx === "develop") {
-      // 显影：越深越清晰；光标附近、被唤醒的图完全显影；被冷落的图退回网点
-      let rt = depthReveal;
-      if (live) rt = Math.max(rt, 1 - smooth(70, 200, Math.hypot(sx - ptr.sx, sy - ptr.sy)));
-      rt = Math.max(rt * (1 - s.dim * .9), s.lit);
-      s.rv += (rt - s.rv) * rk;
-      alpha = 1 - s.dim * .25;
-    } else {
-      // 景深：焦点与相关图保持清晰，其余的退后
-      sc *= 1 - s.dim * .04;
-      alpha = 1 - s.dim * .7;
-      s.rv = 1;
-    }
+    // 景深：焦点与相关图保持清晰，其余的失焦、退后
+    sc *= 1 - s.dim * .04;
+    const alpha = 1;
     const w = TW * k * sc, h = TH * k * sc;
     s.rect = { x: sx - w / 2, y: sy - h / 2, w, h };
     draws.push({ s, sx, sy, w, h, alpha: alpha * Math.min(1, age * 2.2), z: sc + s.lit });
@@ -568,16 +580,15 @@ function frame(now) {
   draws.sort((a, b) => a.z - b.z);
   ctx.textAlign = "center";
   for (const d of draws) {
-    const { s, sx, sy, w, h } = d, r = Math.min(8, Math.max(1.5, w * .1)), x = sx - w / 2, y = sy - h / 2;
+    const { s, sx, sy, w, h } = d, r = Math.min(18, Math.max(1.5, w * .08)), x = sx - w / 2, y = sy - h / 2;
     ctx.globalAlpha = d.alpha;
-    if (s.img.complete && s.img.naturalWidth) {
+    if (h > 380 && s.image && !s.full) { s.full = new Image(); s.full.decoding = "async"; s.full.src = s.image; }
+    const src = s.full && s.full.complete && s.full.naturalWidth && h > 380 ? s.full : s.img;
+    if (src.complete && src.naturalWidth) {
       ctx.save(); ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.clip();
-      ctx.drawImage(s.img, x, y, w, h);
-      if (s.rv < .99) {
-        const pat = halftone(clamp(Math.round(w / 9), 3, 5));
-        pat.setTransform(new DOMMatrix([1 / DPR, 0, 0, 1 / DPR, x, y]));
-        ctx.globalAlpha = d.alpha * (1 - s.rv); ctx.fillStyle = pat; ctx.fillRect(x, y, w, h);
-      }
+      // 清晰版与失焦版按 dim 交叉渐变；失焦版来自一张极小的缩略图，放大后自然变模糊
+      if (s.dim < .98) { ctx.globalAlpha = d.alpha * (1 - s.dim); ctx.drawImage(src, x, y, w, h); }
+      if (s.dim > .02 && s.soft) { ctx.globalAlpha = d.alpha * s.dim * .45; ctx.drawImage(s.soft, x, y, w, h); }
       ctx.restore();
     } else { ctx.fillStyle = "#1a1a1a"; ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fill(); }
     ctx.globalAlpha = 1;
@@ -597,7 +608,9 @@ function frame(now) {
     if (st.pinned && s === st.focus) brackets(sx, sy, w, h);
   }
   const deep = clamp((k / fitK - 1) / 1.5, 0, 1);
-  if (deep > .01 && vignette) { ctx.globalAlpha = deep; ctx.fillStyle = vignette; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  // 暗角只在漫游时出现；聚焦到一张图时退开，不压暗图片边缘
+  const vig = deep * (1 - clamp((k / diveK() - 1) / 1.5, 0, 1) * .8);
+  if (vig > .01 && vignette) { ctx.globalAlpha = vig; ctx.fillStyle = vignette; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
   hoverTick(now);
   drawHud();
   syncDepth();
@@ -736,7 +749,7 @@ let gaugeOn = -1;
 const depthBtn = document.getElementById("t-depth");
 let depthKey = "";
 function syncDepth() {
-  const fk = fitTarget().k, lv = Math.round(clamp(Math.log(cam.k / (fk * .8)) / Math.log(MAX_K / (fk * .8)), 0, 1) * ticks.length);
+  const fk = fitTarget().k, lv = Math.round(clamp(Math.log(cam.k / (fk * .8)) / Math.log(maxK() / (fk * .8)), 0, 1) * ticks.length);
   if (lv !== gaugeOn) { gaugeOn = lv; ticks.forEach((t, i) => t.classList.toggle("on", ticks.length - 1 - i < lv)); }
   const deep = isDeep(); if (depthKey === String(deep)) return; depthKey = String(deep);
   depthBtn.innerHTML = deep ? `${glyph("surface")}<span>Surface</span>` : `${glyph("dive")}<span>Dive</span>`;
@@ -750,7 +763,8 @@ cv.addEventListener("dblclick", e => { if (isDeep() || hit(e.clientX, e.clientY)
 function pin(s) {
   st.highlight = null; st.pinned = true; setFocus(s); openPanel("screen", s);
   stopIntro(); glide = null;
-  flyCam({ k: MAX_K, x: availW() / 2 - s.cx * MAX_K, y: H / 2 - s.cy * MAX_K }, 950);
+  const k = maxK();
+  flyCam({ k, x: availW() / 2 - s.cx * k, y: H / 2 - s.cy * k }, 1300);
 }
 function unpin() { st.pinned = false; setFocus(null); }
 function reset() { unpin(); st.highlight = null; closePanel(); }
@@ -760,7 +774,7 @@ function openPattern(pid) { unpin(); st.highlight = new Set(screens.filter(s => 
 // ---------- 视图对比开关 ----------
 function syncSwitch() {
   document.querySelectorAll("#switch .seg").forEach(g => g.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", view[g.dataset.key] === b.dataset.v)));
-  const q = new URLSearchParams(location.search); q.set("layout", view.layout); q.set("fx", view.fx);
+  const q = new URLSearchParams(location.search); q.set("layout", view.layout); q.delete("fx");
   history.replaceState(null, "", "?" + q.toString());
 }
 document.querySelectorAll("#switch .seg button").forEach(b => b.addEventListener("click", () => {
@@ -839,8 +853,7 @@ const render = {
     const tr = trail(s), ech = echoes.get(s.id) || [];
     return `
       <section class="card"><div class="row meta"><span><i class="led"></i>Frame ${pad(s.id)}</span>${closeBtn}</div>
-        <div class="frame"><img src="${esc(s.image || s.thumb)}" alt="${esc(s.app)}"></div></section>
-      <section class="card"><div class="title">${esc(s.app)}</div><div class="meta" style="margin-top:6px">${esc(s.screen_type)}</div>
+        <div class="title">${esc(s.app)}</div><div class="meta" style="margin-top:6px">${esc(s.screen_type)}</div>
         <div class="chips">${s.patterns.map(p => `<button class="chip" data-pattern="${esc(p)}">${esc(patById.get(p)?.name || p)}</button>`).join("")}</div></section>
       <div class="stats">
         <section class="card"><div class="meta">Depth</div><div class="big-segs">${[1, 2, 3, 4].map(i => `<i class="${i <= depth(s) ? "on" : ""}"></i>`).join("")}</div></section>
