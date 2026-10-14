@@ -144,8 +144,8 @@
         const b = document.createElement("button");
         b.className = "idx"; b.dataset.pid = p.id; b.title = `${p.name} · ${ids.size}`;
         b.innerHTML = `<span class="name">${esc(p.name)}</span>${segs(n, n)}`;
-        b.addEventListener("pointerenter", () => { if (!panelMode) { ix().wake(null); ix().highlight(ids); } });
-        b.addEventListener("pointerleave", () => { if (!panelMode) ix().highlight(null); });
+        b.addEventListener("pointerenter", () => { if (!panelMode && !stage.filter) { ix().wake(null); ix().highlight(ids); } });
+        b.addEventListener("pointerleave", () => { if (!panelMode && !stage.filter) ix().highlight(null); });
         b.addEventListener("click", () => ix().openPattern(p.id));
         return b;
       }));
@@ -252,8 +252,9 @@
       const insights = app.research.data.insights || [];
       body.querySelectorAll("[data-insight]").forEach(el => {
         const i = insights.findIndex(x => x.id === el.dataset.insight), ins = insights[i], set = new Set(ins.evidence);
-        el.addEventListener("pointerenter", () => ix().highlight(set));
-        el.addEventListener("pointerleave", () => { if (panelMode === "overview") ix().highlight(null); });
+        // 筛选中不做悬停高亮：画面已经只剩筛选出的图，再按另一组明暗没有意义
+        el.addEventListener("pointerenter", () => { if (!stage.filter) ix().highlight(set); });
+        el.addEventListener("pointerleave", () => { if (panelMode === "overview" && !stage.filter) ix().highlight(null); });
         el.addEventListener("click", () => ix().filter({ key: `insight:${ins.id}`, ids: set, title: `Insight ${pad(i + 1, 2)} · ${pad(set.size, 2)} frames`, note: ins.text }));
       });
       body.querySelectorAll("[data-filter=picks]").forEach(el => el.addEventListener("click", () => {
