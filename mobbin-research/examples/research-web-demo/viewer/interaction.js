@@ -159,11 +159,12 @@
 
     // 绘制后：悬停唤醒。只有光标真正停下来、且刚才没有在拖拽或缩放，才去唤醒关联
     function afterDraw(now) {
-      if (!ptr.inside || drag) { hoverTile = null; hoverLead = null; return; }
+      if (!ptr.inside || drag) { hoverTile = null; hoverLead = null; syncCursor(); return; }
       const t = near ? near.s : null;
       if (t !== hoverTile) { hoverTile = t; hoverSince = now; }
       emptySince = t ? 0 : emptySince || now;
       hoverLead = t ? null : app.render.leadRects.find(r => Math.hypot(r.sx - ptr.x, r.sy - ptr.y) < 12) || null;
+      syncCursor();
       // 入场播放期间不唤醒；停留从入场结束时才开始计时
       if (app.intro.playing) { hoverSince = now; return; }
       if (state.focused || state.highlight) return;
@@ -171,6 +172,15 @@
       if (t && t !== w && now - hoverSince > (w ? Wk.switchDwell : Wk.dwell) && ptr.speed < (w ? Wk.switchSpeed : Wk.speed) && !camera.flying && !stage.layoutT && now - lastInteract > Wk.cooldown) wake(t);
       if (!t && w && now - emptySince > Wk.leave) wake(null);
     }
+
+    // 光标：拖拽中由 panning / boxing 类接管；否则按光标下是什么决定（只在变化时写）
+    let shift = false;
+    function syncCursor() {
+      const c = shift ? "box" : hoverLead ? "look" : hoverTile ? (state.focused && hoverTile === state.woken ? "look" : "zoom") : "";
+      if (canvas.dataset.cursor !== c) canvas.dataset.cursor = c;
+    }
+    const onShift = e => { if (e.shiftKey !== shift) { shift = e.shiftKey; syncCursor(); } };
+    addEventListener("keydown", onShift); addEventListener("keyup", onShift);
 
     // ---------- 输入 ----------
     canvas.addEventListener("pointermove", e => {
@@ -180,7 +190,7 @@
       if (!ptr.inside) { ptr.sx = ptr.x; ptr.sy = ptr.y; ptr.inside = true; }
       if (!drag) return;
       const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
-      if (!moved && Math.hypot(dx, dy) > 4) { moved = true; drag.box = drag.box || e.shiftKey; if (!drag.box) canvas.classList.add("panning"); }
+      if (!moved && Math.hypot(dx, dy) > 4) { moved = true; drag.box = drag.box || e.shiftKey; canvas.classList.add(drag.box ? "boxing" : "panning"); }
       if (!moved) return;
       if (drag.box) Object.assign(marquee.style, { display: "block", left: Math.min(e.clientX, drag.sx) + "px", top: Math.min(e.clientY, drag.sy) + "px", width: Math.abs(dx) + "px", height: Math.abs(dy) + "px" });
       else {
@@ -198,7 +208,7 @@
     });
     canvas.addEventListener("pointerup", e => {
       if (!drag) return;
-      canvas.classList.remove("panning");
+      canvas.classList.remove("panning", "boxing");
       if (drag.box && moved) {
         const x0 = Math.min(e.clientX, drag.sx), x1 = Math.max(e.clientX, drag.sx), y0 = Math.min(e.clientY, drag.sy), y1 = Math.max(e.clientY, drag.sy);
         const sel = stage.nodes.filter(n => { const r = n.rect; if (!r) return false; const c = centerOfRect(r); return c.x > x0 && c.x < x1 && c.y > y0 && c.y < y1; }).map(n => n.s);
