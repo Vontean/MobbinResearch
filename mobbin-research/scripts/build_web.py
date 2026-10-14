@@ -75,6 +75,34 @@ def check(data, root):
         missing = [x for x in ins.get("evidence", []) if x not in sid]
         if missing:
             errors.append(f"insight {ins.get('id')}: evidence 中不存在的 screen {missing}")
+    # 筛选门禁：每次搜索留下的不超过返回的一半；每张图都来自某一次搜索
+    in_search = Counter()
+    for q in data.get("searches", []):
+        tag = f"search {q.get('id', q.get('query'))}"
+        saved, returned = q.get("saved", []), q.get("returned")
+        if not isinstance(returned, int) or returned < 1:
+            errors.append(f"{tag}: returned 必须是这次搜索返回的结果数")
+        elif len(saved) * 2 > returned:
+            errors.append(f"{tag}: 返回 {returned} 张却留下 {len(saved)} 张；最多留一半，先比较再挑最好的")
+        if q.get("lead") is not None and q["lead"] not in leads:
+            errors.append(f"{tag}: lead 指向不存在的线索 {q['lead']}")
+        for x in saved:
+            if x not in sid:
+                errors.append(f"{tag}: saved 中不存在的 screen {x}")
+            in_search[x] += 1
+    for x in screen_ids:
+        if in_search[x] != 1:
+            errors.append(f"screen {x}: 必须且只能出现在一次搜索的 saved 里（现在 {in_search[x]} 次）")
+    # 单 App 上限：每个 App 只留最有代表性的几张
+    cap = brief.get("app_cap", 3)
+    over = [f"{a}({c})" for a, c in Counter(s.get("app") for s in screens).items() if c > cap]
+    if over:
+        errors.append(f"超过单 App 上限 {cap}：{'、'.join(over)}；只留最有代表性的 {cap} 张")
+    # R3、R4 要走出原来的品类：不能是 R1、R2 里出现过的 App
+    near = {s.get("app") for s in screens if s.get("ring") in ("R1", "R2")}
+    back = sorted({s.get("app") for s in screens if s.get("ring") in ("R3", "R4") and s.get("app") in near})
+    if back:
+        errors.append(f"R3/R4 里出现了 R1/R2 的 App：{'、'.join(back)}；R3/R4 要去别的品类找")
     for p in data.get("picks", []):
         if p.get("id") not in sid:
             errors.append(f"pick {p.get('id')}: 不存在的 screen")
@@ -99,11 +127,23 @@ def check(data, root):
         warnings.append(f"不足 3 张的屏幕类型：{'、'.join(thin)}")
     if not 5 <= len(patterns) <= 8:
         warnings.append(f"模式有 {len(patterns)} 个，建议合并或拆分到 5–8 个")
-    cap = max(3, (target or 0) // 20)
-    over = [f"{a}({c})" for a, c in Counter(s.get("app") for s in screens).items() if c > cap]
-    if over:
-        warnings.append(f"超过单 App 上限 {cap}：{'、'.join(over)}")
     return errors, warnings
+
+
+def guidance(data):
+    """构建后的两行指引：下一轮建议去哪一圈；页面上应该看到的数字。"""
+    brief, screens = data.get("brief", {}), data.get("screens", [])
+    rings, quotas, out = Counter(s.get("ring") for s in screens), brief.get("quotas") or {}, []
+    gaps = {r: (q - rings.get(r, 0)) / q for r, q in quotas.items() if q and rings.get(r, 0) < q}
+    if gaps:
+        r = max(gaps, key=gaps.get)
+        out.append(f"建议    下一轮去 {r}（还差 {quotas[r] - rings.get(r, 0)} 张）；有更值得追的线索时，跟着线索走")
+    # 与查看器 domain.js 的 complete 一致：有 now 时看 now.done，没有时看是否达到目标数量
+    n, target, now = len(screens), brief.get("target"), data.get("now")
+    done = not target or (bool(now.get("done")) if now else n >= target)
+    shown = f"{n} FRAMES" if done else f"{n:02d} / {target} FRAMES"
+    out.append(f"核对    内置浏览器里，左上角应显示「{shown}」（用户正在拖拽时会少几张，末尾的 +N 补齐）")
+    return out
 
 
 def digest(folder):
@@ -141,6 +181,8 @@ def main():
     shutil.rmtree(root / "viewer", ignore_errors=True)
     shutil.copytree(VIEWER / "viewer", root / "viewer")
     print(f"完成  {len(data.get('screens', []))} 张图 → {root / 'research.js'}")
+    for line in guidance(data):
+        print(line)
     return 0
 
 

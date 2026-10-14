@@ -42,6 +42,7 @@ def snapshot(full, n, done):
         "screens": screens,
         "leads": leads,
         "echoes": [e for e in full.get("echoes", []) if e["a"] in ids and e["b"] in ids],
+        "searches": [{**q, "saved": [x for x in q["saved"] if x in ids]} for q in full.get("searches", []) if any(x in ids for x in q["saved"])],
         "checkpoints": [c for c in full.get("checkpoints", []) if c["at"] <= n * 100 / target],
     }
     # 此刻：正在追下一张图的线索

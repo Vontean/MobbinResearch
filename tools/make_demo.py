@@ -39,11 +39,12 @@ P = [
   forks="有的用卡片网格，有的用列表；卡片网格更适合展示状态，列表更适合批量操作。",
   exceptions="Cloudflare 1.1.1.1 把所有防护收敛成一个大开关，复杂度全部藏到第二层。"),
 ]
+# 每个 App 最多 3 张（与 build_web.py 的单 App 上限一致），所以每圈的 App 要够多
 APPS = {
- "R1": ["Norton 360","Bitdefender","McAfee","Avast","Kaspersky","Lookout","Malwarebytes","ESET"],
- "R2": ["1Password","NordVPN","Surfshark","Aura","Life360","Authy","DuckDuckGo","Bitwarden"],
- "R3": ["Oura","Credit Karma","Ring","Whoop","SimpliSafe","Apple Health","Cloudflare","Vercel"],
- "R4": ["Headspace","Carrot Weather","Duolingo","Strava","Calm","Gentler Streak","Opal","Things"],
+ "R1": ["Norton 360","Bitdefender","McAfee","Avast","Kaspersky","Lookout","Malwarebytes","ESET","Trend Micro","Sophos","F-Secure"],
+ "R2": ["1Password","NordVPN","Surfshark","Aura","Life360","Authy","DuckDuckGo","Bitwarden","Proton VPN","Dashlane","Google Authenticator"],
+ "R3": ["Oura","Credit Karma","Ring","Whoop","SimpliSafe","Apple Health","Cloudflare","Vercel","Monzo","Tesla","Nest","Eight Sleep","Arlo"],
+ "R4": ["Headspace","Carrot Weather","Duolingo","Strava","Calm","Gentler Streak","Opal","Things","Flighty","Endel"],
 }
 QUOTA = {"R1":25,"R2":25,"R3":30,"R4":20}
 TYPES = ["首页总览","扫描进行中","扫描结果·安全","发现风险","功能入口","防护开关","警报中心","安全报告","权限引导","付费墙","空状态"]
@@ -71,7 +72,7 @@ REASON = ["{a} 的{n}很像{x}的结构","这里的{n}做法值得找更多变�
 screens, leads, used = [], [], {r:{} for r in APPS}
 ring_left = dict(QUOTA)
 def pick_app(ring):
-    c = [a for a in APPS[ring] if used[ring].get(a,0) < 5]
+    c = [a for a in APPS[ring] if used[ring].get(a,0) < 3]
     a = random.choice(c); used[ring][a] = used[ring].get(a,0)+1; return a
 def img_for(pat, n):
     src = [p["id"] for p in P].index(pat) % 5
@@ -121,9 +122,12 @@ for i in range(5):
     p = random.choice(screens)
     leads.append({"id":f"L{len(leads)+1}","from":p["id"],"kind":"pattern","text":"搜 shield metaphor illustration","reason":f"{p['app']} 的盾牌隐喻可能还有更好的表达","status":random.choice(["open","empty"])})
 # 设计师在聊天里给过两次引导：Agent 把它们变成了线索，理由写设计师的原话
-STEER = {"L23": "多看看用温和语气表达状态的产品，别都是警报式的", "L35": "主操作只留一个的做法，去别的品类找找"}
-for l in leads:
-    if l["id"] in STEER: l.update(by="designer", reason=STEER[l["id"]])
+# 挑分别通向 R4 和 R3 图的线索中最晚出现的一条，让引导的内容和它找到的图对得上
+def steer_lead(ring):
+    hits = [s for s in screens if s["ring"] == ring and next(l for l in leads if l["id"] == s["found_via"])["from"]]
+    return next(l for l in leads if l["id"] == max(hits, key=lambda s: s["id"])["found_via"])
+for ring, words in [("R4", "多看看用温和语气表达状态的产品，别都是警报式的"), ("R3", "主操作只留一个的做法，去别的品类找找")]:
+    steer_lead(ring).update(by="designer", reason=words)
 echoes=[]
 for _ in range(22):
     a = random.choice(screens); same=[s for s in screens if s["id"]!=a["id"] and s["patterns"][0]==a["patterns"][0] and s["ring"]!=a["ring"]]
@@ -132,12 +136,21 @@ for _ in range(22):
     note = (f"{a['app']} 和 {b['app']} 都用{next(p['name'] for p in P if p['id']==a['patterns'][0])}，但一个面向焦虑、一个面向习惯养成" if k=="contrast"
             else f"和 #{b['id']} 同样的结构，换到了{b['ring']}的语境里依然成立")
     echoes.append(dict(a=a["id"],b=b["id"],kind=k,note=note))
+# 搜索记录：同一条线索找到的图算一次搜索；返回的结果数至少是留下的两倍（筛选门禁）
+searches = []
+for s in screens:
+    q = next((q for q in searches if q["lead"] == s["found_via"]), None)
+    if not q:
+        lead = next(l for l in leads if l["id"] == s["found_via"])
+        q = dict(id=f"S{len(searches)+1}", round=s["round"], lead=lead["id"], query=lead["text"], returned=0, saved=[]); searches.append(q)
+    q["saved"].append(s["id"])
+for q in searches: q["returned"] = len(q["saved"]) * 2 + 2 + int(q["id"][1:]) % 7
 by = lambda pid: [s["id"] for s in screens if pid in s["patterns"]]
 data = dict(version=1,
  brief=dict(product="手机端网络安全防护 App", users="不懂技术的普通消费者，只想知道「我安全吗」和「我要做什么」",
    questions=["怎样一眼回答「我安全吗」？","发现风险时，怎样引导用户行动而不制造恐慌？","B 端安全能力怎样翻译给普通人？"],
    platform="ios", target=100, date="2026-10-14", quotas=QUOTA, screen_types=TYPES),
- patterns=P, screens=screens, leads=leads, echoes=echoes,
+ patterns=P, screens=screens, leads=leads, searches=searches, echoes=echoes,
  checkpoints=[
   dict(at=25, round=4, note="- 模式：R1 的首页几乎都是「分数 + 列表」，同质化很高\n- 不足：风险卡片普遍只靠红色表达严重度；扫描中的屏幕只有百分比", next="去 R3 的健康评分类产品看分数的其他表达方式。"),
   dict(at=50, round=7, note="- 模式：Oura 和 Credit Karma 用文字等级和趋势代替单个分数，R1 里没有这种思路\n- 分叉：权限引导分成一次性请求和按需请求两种", next="补齐空状态和付费墙，这两类目前不足 3 张。"),
