@@ -17,7 +17,7 @@
     const ptr = { x: -9999, y: -9999, sx: -9999, sy: -9999, inside: false, speed: 0, wake: 0, lastT: 0 };
     let drag = null, moved = false;
     let hoverTile = null, hoverLead = null, hoverSince = 0, emptySince = 0, near = null;
-    let lastInteract = 0, settled = 0, closeT = 0;
+    let lastInteract = 0, settled = 0, closeT = 0, pullUntil = 0;
 
     const nodeOf = s => stage.nodeOf.get(s);
     const centerOfRect = r => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 });
@@ -79,13 +79,13 @@
     const cancelClose = () => clearTimeout(closeT);
 
     // 离开：收起面板；如果刚才聚焦着一张图，以它为中心往后拉，停在预判阈值之下，不会立刻被吸回去
-    function leave() {
+    function leave(dur = config.camera.fly.leave) {
       const was = state.focused ? state.woken : null;
       clearTimeout(closeT); unfocus(); state.highlight = null; document.body.classList.remove("focused"); app.ui.closePanel();
       if (was) {
         const n = nodeOf(was), k = Math.min(cam.tk, camera.maxK() * config.camera.leaveRatio);
         app.intro.stop(); camera.stopGlide();
-        camera.fly(camera.centerOn(n.x, n.y, k), config.camera.fly.leave, util.ease.out);
+        camera.fly(camera.centerOn(n.x, n.y, k), dur, util.ease.out);
       }
     }
     function highlight(set) { state.highlight = set; }
@@ -184,12 +184,15 @@
     canvas.addEventListener("pointerleave", () => { ptr.inside = false; if (!state.focused && !state.highlight) wake(null); });
     // 滚轮只控制深度：拖拽在海里移动，滚轮下潜或上浮
     canvas.addEventListener("wheel", e => {
-      e.preventDefault(); app.intro.stop(); camera.stopGlide(); lastInteract = performance.now();
+      e.preventDefault();
+      if (performance.now() < pullUntil) return;   // 离开时的快速拉远进行中，不和滚轮抢镜头
+      app.intro.stop(); camera.stopGlide(); lastInteract = performance.now();
       if (!state.focused) wake(null);
       const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
       // 向下滚动 = 潜得更深；触控板捏合保留张开放大的习惯
       camera.zoomAt(e.clientX, e.clientY, e.ctrlKey ? Math.exp(-dy * .012) : Math.exp(dy * .0022), false);
-      if (state.focused && cam.tk < camera.maxK() * F.release) release();
+      // 聚焦时往回缩一小段，就是想离开这张图：不等缩到很浅，直接离开并快速拉远
+      if (state.focused && cam.tk < camera.maxK() * F.pullOut) { leave(config.camera.fly.pullOut); pullUntil = performance.now() + config.camera.fly.pullOut; }
     }, { passive: false });
     canvas.addEventListener("dblclick", e => {
       if (camera.isDeep() || hit(e.clientX, e.clientY)) return;
