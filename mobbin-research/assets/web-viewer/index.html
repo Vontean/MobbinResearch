@@ -19,6 +19,7 @@
   --font-dot: "Doto", "Space Mono", monospace;
   --ease: cubic-bezier(.4, 0, .2, 1);
   --ease-back: cubic-bezier(.34, 1.56, .64, 1);
+  --ease-drawer: cubic-bezier(.32, .72, 0, 1);
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px; --s-6: 24px;
   --r-card: 16px; --r-thumb: 8px;
   --panel-w: 400px;
@@ -42,9 +43,10 @@ img { display: block; }
 
 .chrome { position: fixed; z-index: 10; transition: transform .42s var(--ease-back), opacity .3s var(--ease); }
 body.panel-open .shift { transform: translateX(calc(-1 * var(--panel-w) - var(--s-4))); }
-#masthead { left: var(--s-6); top: var(--s-4); pointer-events: none; }
+#masthead { left: var(--s-6); top: var(--s-4); pointer-events: none; max-width: min(480px, 32vw); }
+#masthead .title, #masthead .meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #masthead .title + .meta { margin-top: 2px; }
-#tools { right: var(--s-6); top: var(--s-5); display: flex; gap: 6px; }
+#tools { right: var(--s-6); top: var(--s-5); display: flex; gap: 6px; transition: transform .56s var(--ease-drawer), opacity .3s var(--ease); }
 .tool { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font: 400 11px/1 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); transition: border-color .2s ease-out, color .2s ease-out, transform .16s var(--ease); }
 .tool:active { transform: scale(.96); }
 .tool[aria-pressed="true"] { color: var(--text-display); border-color: var(--border-visible); }
@@ -54,12 +56,21 @@ body.panel-open #masthead { opacity: 0; transform: translateY(-6px); }
 body.focused #hud { opacity: 0; transform: translateY(6px); }
 #hud { left: var(--s-6); bottom: var(--s-5); max-width: min(560px, 60vw); pointer-events: none; }
 #hud .meta { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
-#hud .line { margin-top: 4px; font: 400 14px/1.4 var(--font-human); color: var(--text-primary); min-height: 20px; }
+#hud .line { margin-top: 4px; font: 400 14px/1.4 var(--font-human); color: var(--text-primary); min-height: 20px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .segs { display: inline-flex; gap: 2px; }
 .segs i { width: 6px; height: 10px; background: #242424; }
 .segs i.on { background: var(--text-primary); }
 
-#index { right: var(--s-6); bottom: var(--s-5); display: grid; gap: 2px; }
+#index { right: var(--s-6); bottom: var(--s-5); display: grid; gap: 2px; justify-items: end; max-height: 44vh; overflow-y: auto; scrollbar-width: none; opacity: .72; }
+#index::-webkit-scrollbar { display: none; }
+#index:hover, #index.expanded { opacity: 1; }
+#index.expanded + #gauge { opacity: 0; }
+#index .idx.is-extra { display: none; }
+#index.expanded .idx.is-extra { display: grid; }
+#index.expanded { mask-image: linear-gradient(to bottom, transparent, #000 24px); }
+.idx .name { max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.idx-more { padding: 4px 0 0; color: var(--text-disabled); }
+.idx-more:hover { color: var(--text-primary); }
 body.panel-open #index { opacity: 0; pointer-events: none; transform: translateX(12px); }
 .idx { display: grid; grid-template-columns: auto auto; align-items: center; justify-content: end; gap: 12px; padding: 3px 0; font-size: 12px; color: var(--text-disabled); transition: color .2s ease-out; }
 .idx .segs i { width: 3px; height: 9px; transform: scaleY(.5); transition: transform .3s var(--ease-back), background-color .2s ease-out; }
@@ -142,6 +153,12 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 .bar .segs { grid-column: 1 / -1; display: flex; }
 .bar .segs i { flex: 1; height: 8px; }
 .bar em { font: 400 11px/1.5 var(--font-machine); font-style: normal; color: var(--text-disabled); }
+.clip { max-height: var(--clip, 200px); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+.clip::-webkit-scrollbar { display: none; }
+.clip.fade-b { -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent); }
+.clip.fade-t { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px); mask-image: linear-gradient(to bottom, transparent, #000 32px); }
+.clip.fade-t.fade-b { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 40px), transparent); mask-image: linear-gradient(to bottom, transparent, #000 32px, #000 calc(100% - 40px), transparent); }
+.card .title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .source { display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: var(--text-secondary); }
 .source:hover { color: var(--text-primary); }
 .source .meta { color: inherit; }
@@ -228,7 +245,18 @@ function relation(a, b) {
   if (e) tag = e.kind === "contrast" ? "CONTRAST" : "ECHO";
   return { score: jac * .6 + lin * .55 + (e ? 1 : 0) + (a.app === b.app ? .15 : 0), tag };
 }
-const relatedOf = f => screens.filter(s => s !== f).map(s => ({ s, ...relation(f, s) })).filter(o => o.score >= .3).sort((x, y) => y.score - x.score).slice(0, 8);
+// 关联最多 8 张，并按类型限额以保证多样；名额没用满时再按分数补齐。
+// 分数相同时，优先深度相近、来自不同 App 的图
+const REL_CAP = { lineage: 3, echo: 3, pattern: 4, app: 2 }, REL_MAX = 8;
+const relKind = t => t === "LEAD" || t === "SIBLING" ? "lineage" : t === "ECHO" || t === "CONTRAST" ? "echo" : t === "PATTERN" ? "pattern" : "app";
+function relatedOf(f) {
+  const all = screens.filter(s => s !== f).map(s => ({ s, ...relation(f, s) })).filter(o => o.score >= .3)
+    .sort((x, y) => y.score - x.score || Math.abs(depth(x.s) - depth(f)) - Math.abs(depth(y.s) - depth(f)) || (x.s.app === f.app) - (y.s.app === f.app) || x.s.id - y.s.id);
+  const used = {}, out = [];
+  for (const o of all) { const k = relKind(o.tag); if (out.length < REL_MAX && (used[k] || 0) < REL_CAP[k]) { out.push(o); used[k] = (used[k] || 0) + 1; } }
+  for (const o of all) { if (out.length >= REL_MAX) break; if (!out.includes(o)) out.push(o); }
+  return out.sort((x, y) => y.score - x.score);
+}
 
 // ---------- 布局 ----------
 // 图片中心落在点阵的格点上：列距 2G、行距 4G，四周露出一圈点
@@ -495,7 +523,7 @@ function frame(now) {
   if (!tween && !drag && !glide && !layoutT && lastInteract && lastInteract !== settled && now - lastInteract > 90) {
     settled = lastInteract;
     const mk = maxK();
-    if (cam.tk >= mk * .55) {
+    if (cam.tk >= mk * .6) {
       const cx = availW() / 2, cy = H / 2;
       let best = null, bd = 1;
       for (const s of screens) {
@@ -504,8 +532,8 @@ function frame(now) {
       }
       if (!best && cam.tk >= mk * .85 && hoverTile) best = hoverTile;
       if (best) pin(best, 480);
-      else if (st.pinned) reset();
-    } else if (st.pinned) reset();
+      else if (st.pinned) release();
+    } else if (st.pinned && cam.tk < mk * .45) release();
   }
   const pk = REDUCED ? 1 : 1 - Math.exp(-dt * 10);
   ptr.sx += (ptr.x - ptr.sx) * pk; ptr.sy += (ptr.y - ptr.sy) * pk;
@@ -674,14 +702,16 @@ function hoverTick(now) {
   st.hoverLead = t ? null : st.leadRects.find(r => Math.hypot(r.sx - ptr.x, r.sy - ptr.y) < 12) || null;
   if (st.pinned || st.highlight) return;
   // 只有光标真正停下来、且刚才没有在拖拽或缩放，才去唤醒关联
-  if (t && t !== st.focus && now - hoverSince > (st.focus ? 120 : 140) && ptr.speed < .6 && !tween && !layoutT && now - lastInteract > 250) setFocus(t);
+  if (t && t !== st.focus && now - hoverSince > (st.focus ? 200 : 140) && ptr.speed < (st.focus ? .35 : .6) && !tween && !layoutT && now - lastInteract > 250) setFocus(t);
   if (!t && st.focus && now - emptySince > 450) setFocus(null);
 }
 function setFocus(s) {
+  // 从一张图切到另一张时，直接在现有明暗上过渡，不重新扩散，避免已失焦的图先亮再暗
+  const switching = !!(st.focus && s);
   st.focus = s;
   st.related = s ? relatedOf(s) : [];
   st.relMap = new Map(st.related.map(o => [o.s, o]));
-  if (s && s.rect && !st.pinned) { st.rippleT = performance.now(); st.rippleAt = { x: s.rect.x + s.rect.w / 2, y: s.rect.y + s.rect.h / 2 }; }
+  if (s && s.rect && !st.pinned && !switching) { st.rippleT = performance.now(); st.rippleAt = { x: s.rect.x + s.rect.w / 2, y: s.rect.y + s.rect.h / 2 }; }
   else st.rippleT = -1;
 }
 
@@ -757,7 +787,7 @@ cv.addEventListener("wheel", e => {
   const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
   // 向下滚动 = 潜得更深；触控板捏合保留张开放大的习惯
   zoomAt(e.clientX, e.clientY, e.ctrlKey ? Math.exp(-dy * .012) : Math.exp(dy * .0022), false);
-  if (st.pinned && cam.tk < maxK() * .72) reset();
+  if (st.pinned && cam.tk < maxK() * .45) release();
 }, { passive: false });
 addEventListener("keydown", e => {
   if (e.key === "Escape") reset();
@@ -785,19 +815,37 @@ function pin(s, dur = 850) {
   if (fresh) { setFocus(s); openPanel("screen", s); }
   document.body.classList.add("focused");
   stopIntro(); glide = null; settled = lastInteract;
+  setParam("frame", s.id);
   const k = maxK();
   flyCam({ k, x: availW() / 2 - s.cx * k, y: H / 2 - s.cy * k }, dur, easeOut);
 }
-function unpin() { st.pinned = false; setFocus(null); document.body.classList.remove("focused"); }
-function reset() { unpin(); st.highlight = null; closePanel(); }
+function unpin() { if (st.pinned) setParam("frame", null); st.pinned = false; setFocus(null); }
+// 网址记录当前视图：布局与聚焦的帧，便于分享
+function setParam(key, v) {
+  const q = new URLSearchParams(location.search);
+  v == null ? q.delete(key) : q.set(key, v);
+  history.replaceState(null, "", "?" + q.toString());
+}
+// 由缩放或拖拽引起的松开：面板和按钮延迟收起；这期间若再次聚焦，只换面板内容，按钮不动
+let closeT = 0;
+function release() { unpin(); scheduleClose(); }
+// 只有在用户停手、镜头也静止之后才真正收起；连续操作期间面板和按钮保持不动
+function scheduleClose() {
+  clearTimeout(closeT);
+  closeT = setTimeout(() => {
+    if (st.pinned) return;
+    if (tween || glide || drag || performance.now() - lastInteract < 260) return scheduleClose();
+    document.body.classList.remove("focused"); closePanel();
+  }, 280);
+}
+function reset() { clearTimeout(closeT); unpin(); st.highlight = null; document.body.classList.remove("focused"); closePanel(); }
 function toggleOverview() { if (st.panel === "overview") reset(); else { unpin(); st.highlight = null; openPanel("overview"); } }
 function openPattern(pid) { unpin(); st.highlight = new Set(screens.filter(s => s.patterns.includes(pid)).map(s => s.id)); openPanel("pattern", pid); }
 
 // ---------- 视图对比开关 ----------
 function syncSwitch() {
   document.querySelectorAll("#switch .seg").forEach(g => g.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", view[g.dataset.key] === b.dataset.v)));
-  const q = new URLSearchParams(location.search); q.set("layout", view.layout); q.delete("fx");
-  history.replaceState(null, "", "?" + q.toString());
+  setParam("layout", view.layout); setParam("fx", null);
 }
 document.querySelectorAll("#switch .seg button").forEach(b => b.addEventListener("click", () => {
   const key = b.closest(".seg").dataset.key;
@@ -807,16 +855,25 @@ document.querySelectorAll("#switch .seg button").forEach(b => b.addEventListener
 }));
 
 // ---------- 模式索引：右下角的分段条 ----------
-const indexEl = document.getElementById("index");
-for (const p of DATA.patterns) {
-  const ids = new Set(screens.filter(s => s.patterns.includes(p.id)).map(s => s.id)), n = Math.min(24, ids.size);
+const indexEl = document.getElementById("index"), INDEX_MAX = 6;
+const byCount = DATA.patterns.map(p => ({ p, ids: new Set(screens.filter(s => s.patterns.includes(p.id)).map(s => s.id)) })).sort((a, b) => b.ids.size - a.ids.size);
+const maxN = Math.max(1, ...byCount.map(x => x.ids.size));
+byCount.forEach(({ p, ids }, i) => {
+  // 分段条最多 16 段，按比例缩放，避免数量悬殊时撑得过长
+  const n = Math.max(1, Math.round(ids.size / maxN * 16));
   const b = document.createElement("button");
-  b.className = "idx"; b.dataset.pid = p.id;
-  b.innerHTML = `<span>${esc(p.name)}</span>${segs(n, n)}`;
+  b.className = "idx" + (i >= INDEX_MAX ? " is-extra" : ""); b.dataset.pid = p.id; b.title = `${p.name} · ${ids.size}`;
+  b.innerHTML = `<span class="name">${esc(p.name)}</span>${segs(n, n)}`;
   b.addEventListener("pointerenter", () => { if (!st.panel) { setFocus(null); st.highlight = ids; } });
   b.addEventListener("pointerleave", () => { if (!st.panel) st.highlight = null; });
   b.addEventListener("click", () => openPattern(p.id));
   indexEl.appendChild(b);
+});
+if (byCount.length > INDEX_MAX) {
+  const more = document.createElement("button");
+  more.className = "idx-more meta"; more.textContent = `+${byCount.length - INDEX_MAX} more`;
+  more.addEventListener("click", () => { const open = indexEl.classList.toggle("expanded"); more.textContent = open ? "Less" : `+${byCount.length - INDEX_MAX} more`; });
+  indexEl.appendChild(more);
 }
 const syncIndex = () => indexEl.querySelectorAll(".idx").forEach(b => b.classList.toggle("is-on", st.panel === "pattern" && st.panelArg === b.dataset.pid));
 
@@ -825,6 +882,8 @@ const panel = document.getElementById("panel"), body = document.getElementById("
 let lastAvail = null;
 function recenter() { const a = availW(); if (lastAvail != null) cam.tx += (a - lastAvail) / 2; lastAvail = a; }
 function openPanel(mode, arg) {
+  clearTimeout(closeT);
+  if (mode !== "screen") document.body.classList.remove("focused");
   const was = st.panel;
   st.panel = mode; st.panelArg = arg;
   document.getElementById("t-insight").setAttribute("aria-pressed", mode === "overview");
@@ -855,7 +914,13 @@ function slam() {
     REDUCED ? [{ opacity: 0 }, { opacity: 1 }] : [{ opacity: 0, transform: "translateY(22px) scale(.93)" }, { opacity: 1, transform: "none" }],
     { duration: 520, delay: i * 55, easing: "cubic-bezier(.34,1.56,.64,1)", fill: "backwards" }));
 }
+// 有被截断的内容时才显示渐隐：上方有内容露出顶部渐隐，下方有内容露出底部渐隐
+function syncClip(el) {
+  el.classList.toggle("fade-t", el.scrollTop > 2);
+  el.classList.toggle("fade-b", el.scrollTop + el.clientHeight < el.scrollHeight - 2);
+}
 function bind() {
+  body.querySelectorAll(".clip").forEach(el => { el.addEventListener("scroll", () => syncClip(el), { passive: true }); requestAnimationFrame(() => syncClip(el)); });
   body.querySelectorAll(".card").forEach(c => {
     const sh = document.createElement("span"); sh.className = "shine"; c.prepend(sh);
     sh.addEventListener("animationend", () => sh.classList.remove("play"));
@@ -884,13 +949,13 @@ const render = {
         <section class="card"><div class="meta">Depth</div><div class="big-segs">${[1, 2, 3, 4].map(i => `<i class="${i <= depth(s) ? "on" : ""}"></i>`).join("")}</div></section>
         <section class="card"><div class="meta">Related</div><div class="dot-num">${pad(st.related.length, 2)}</div></section>
       </div>
-      <section class="card"><div class="meta">Insight</div><p class="body-text">${esc(s.insight)}</p>
-        <div class="note"><div class="meta dim">Agent note / round ${pad(s.round ?? 0, 2)}</div><p>${esc(s.why_saved)}</p></div></section>
+      <section class="card"><div class="meta">Insight</div><div class="clip" style="--clip:168px"><p class="body-text">${esc(s.insight)}</p></div>
+        <div class="note"><div class="meta dim">Agent note / round ${pad(s.round ?? 0, 2)}</div><div class="clip" style="--clip:132px"><p>${esc(s.why_saved)}</p></div></div></section>
       <section class="card"><div class="row meta"><span>Trail</span><span class="dim">${pad(tr.length, 2)} steps</span></div>
-        <ol class="trail">${tr.map((c, i) => `<li data-goto="${c.id}" class="${c === s ? "self" : ""}"><span class="n">${pad(i + 1, 2)}</span><img src="${esc(c.thumb)}" alt=""><div><b>${esc(c.app)}</b><span>${esc(c.lead ? c.lead.text : "起点")}</span>${c.lead && c.lead.reason && i > 0 ? `<em>${esc(c.lead.reason)}</em>` : ""}</div></li>`).join("")}</ol></section>
+        <ol class="trail clip" style="--clip:300px">${tr.map((c, i) => `<li data-goto="${c.id}" class="${c === s ? "self" : ""}"><span class="n">${pad(i + 1, 2)}</span><img src="${esc(c.thumb)}" alt=""><div><b>${esc(c.app)}</b><span>${esc(c.lead ? c.lead.text : "起点")}</span>${c.lead && c.lead.reason && i > 0 ? `<em>${esc(c.lead.reason)}</em>` : ""}</div></li>`).join("")}</ol></section>
       <section class="card"><div class="row meta"><span>Related</span><span class="dim">${pad(st.related.length, 2)}</span></div>
         <div class="thumbs">${st.related.map(o => thumb(o.s, o.tag)).join("")}</div>
-        ${ech.map(e => `<p class="echo"><b>${e.kind === "contrast" ? "CONTRAST" : "ECHO"} ${pad(e.other)}</b>${esc(e.note)}</p>`).join("")}</section>
+        ${ech.length ? `<div class="clip" style="--clip:168px">${ech.map(e => `<p class="echo"><b>${e.kind === "contrast" ? "CONTRAST" : "ECHO"} ${pad(e.other)}</b>${esc(e.note)}</p>`).join("")}</div>` : ""}</section>
       ${s.source_url ? `<a class="card source" href="${esc(s.source_url)}" target="_blank" rel="noopener"><span class="meta">Open in Mobbin</span>${glyph("out")}</a>` : ""}`;
   },
   selection(list) {
@@ -900,20 +965,20 @@ const render = {
       <section class="card"><div class="row meta"><span>Selection</span>${closeBtn}</div><div class="dot-num">${pad(list.length, 2)}</div><div class="meta" style="margin-top:8px">frames</div></section>
       <section class="card"><div class="meta">Depth</div><div class="bars">${[1, 2, 3, 4].map(d => bar("Depth " + pad(d, 2), list.filter(s => depth(s) === d).length, list.length)).join("")}</div></section>
       <section class="card"><div class="meta">Patterns</div><div class="bars">${[...pc].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([p, n]) => bar(patById.get(p)?.name || p, n, list.length)).join("")}</div></section>
-      ${ins.length ? `<section class="card"><div class="meta">Insights</div>${ins.map(i => `<div class="list-item"><p class="body-text">${esc(i.text)}</p></div>`).join("")}</section>` : ""}
-      <section class="card"><div class="meta">Frames</div><div class="thumbs">${list.map(s => thumb(s)).join("")}</div></section>`;
+      ${ins.length ? `<section class="card"><div class="meta">Insights</div><div class="clip" style="--clip:260px">${ins.map(i => `<div class="list-item"><p class="body-text">${esc(i.text)}</p></div>`).join("")}</div></section>` : ""}
+      <section class="card"><div class="meta">Frames</div><div class="thumbs clip" style="--clip:380px">${list.map(s => thumb(s)).join("")}</div></section>`;
   },
   pattern(id) {
     const p = patById.get(id), m = screens.filter(s => s.patterns.includes(id));
-    const part = (t, v) => v ? `<section class="card"><div class="meta">${t}</div><p class="body-text">${esc(v)}</p></section>` : "";
+    const part = (t, v) => v ? `<section class="card"><div class="meta">${t}</div><div class="clip" style="--clip:180px"><p class="body-text">${esc(v)}</p></div></section>` : "";
     return `
-      <section class="card"><div class="row meta"><span>Pattern</span>${closeBtn}</div><div class="title">${esc(p.name)}</div><p class="sub-text" style="margin-top:8px">${esc(p.summary)}</p></section>
+      <section class="card"><div class="row meta"><span>Pattern</span>${closeBtn}</div><div class="title">${esc(p.name)}</div><div class="clip" style="--clip:120px;margin-top:8px"><p class="sub-text">${esc(p.summary)}</p></div></section>
       <div class="stats">
         <section class="card"><div class="meta">Frames</div><div class="dot-num">${pad(m.length, 2)}</div></section>
         <section class="card"><div class="meta">Avg depth</div><div class="dot-num">${(m.reduce((t, s) => t + depth(s), 0) / Math.max(1, m.length)).toFixed(1)}</div></section>
       </div>
       ${part("Common", p.common)}${part("Forks", p.forks)}${part("Exceptions", p.exceptions)}
-      <section class="card"><div class="meta">Members</div><div class="thumbs">${m.map(s => thumb(s)).join("")}</div></section>`;
+      <section class="card"><div class="meta">Members</div><div class="thumbs clip" style="--clip:380px">${m.map(s => thumb(s)).join("")}</div></section>`;
   },
   overview() {
     const b = DATA.brief || {};
@@ -922,10 +987,10 @@ const render = {
         ${b.users ? `<p class="sub-text" style="margin-top:8px">${esc(b.users)}</p>` : ""}
         ${(b.questions || []).length ? `<ol class="qs">${b.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ol>` : ""}</section>
       <section class="card"><div class="row meta"><span>Insights</span><span class="dim">${pad((DATA.insights || []).length, 2)}</span></div>
-        ${(DATA.insights || []).map(i => `<button class="list-item" data-insight="${esc(i.id)}"><p class="body-text">${esc(i.text)}</p><div class="meta dim">${pad(i.evidence.length, 2)} frames</div></button>`).join("")}</section>
-      ${(DATA.checkpoints || []).length ? `<section class="card"><div class="meta">Agent log</div>${DATA.checkpoints.map(c => `<div class="list-item"><div class="meta">${pad(c.at)}% / round ${pad(c.round, 2)}</div><p class="body-text" style="margin-top:6px">${esc(c.note)}</p>${c.next ? `<p class="sub-text" style="margin-top:4px">→ ${esc(c.next)}</p>` : ""}</div>`).join("")}</section>` : ""}
-      ${(DATA.picks || []).length ? `<section class="card"><div class="meta">Picks</div><div class="thumbs">${DATA.picks.map(p => byId.get(p.id)).filter(Boolean).map(s => thumb(s)).join("")}</div></section>` : ""}
-      ${(DATA.gaps || []).length ? `<section class="card"><div class="meta">Gaps</div>${DATA.gaps.map(g => `<div class="list-item"><p class="body-text">${esc(g)}</p></div>`).join("")}</section>` : ""}`;
+        <div class="clip" style="--clip:380px">${(DATA.insights || []).map(i => `<button class="list-item" data-insight="${esc(i.id)}"><p class="body-text">${esc(i.text)}</p><div class="meta dim">${pad(i.evidence.length, 2)} frames</div></button>`).join("")}</div></section>
+      ${(DATA.checkpoints || []).length ? `<section class="card"><div class="meta">Agent log</div><div class="clip" style="--clip:340px">${DATA.checkpoints.map(c => `<div class="list-item"><div class="meta">${pad(c.at)}% / round ${pad(c.round, 2)}</div><p class="body-text" style="margin-top:6px">${esc(c.note)}</p>${c.next ? `<p class="sub-text" style="margin-top:4px">→ ${esc(c.next)}</p>` : ""}</div>`).join("")}</div></section>` : ""}
+      ${(DATA.picks || []).length ? `<section class="card"><div class="meta">Picks</div><div class="thumbs clip" style="--clip:320px">${DATA.picks.map(p => byId.get(p.id)).filter(Boolean).map(s => thumb(s)).join("")}</div></section>` : ""}
+      ${(DATA.gaps || []).length ? `<section class="card"><div class="meta">Gaps</div><div class="clip" style="--clip:260px">${DATA.gaps.map(g => `<div class="list-item"><p class="body-text">${esc(g)}</p></div>`).join("")}</div></section>` : ""}`;
   },
 };
 
@@ -941,7 +1006,9 @@ document.getElementById("mast-sub").textContent = `${screens.length} frames · $
 document.title = (DATA.brief?.product || "Research") + " · Research Sea";
 applyLayout(false); resize(); fit(true); lastAvail = availW(); syncSwitch();
 addEventListener("resize", () => { resize(); syncTools(); if (!isDeep()) fit(); lastAvail = availW(); });
-enter();
+const deepLink = byId.get(+params.get("frame"));
+if (deepLink) { st.enterT = performance.now() - 1e5; fit(true); requestAnimationFrame(() => pin(deepLink, 900)); }
+else enter();
 requestAnimationFrame(frame);
 })();
 </script>
