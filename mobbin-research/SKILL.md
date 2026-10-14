@@ -1,17 +1,17 @@
 ---
 name: mobbin-research
-description: 用 Mobbin MCP 循环调研真实 App 界面，按"直接竞品 → 间接竞品 → 结构相似 → 表达启发"四圈网状扩散，收集带洞察的设计参考，存入指定位置并产出总结。用于：某个产品领域的竞品/设计参考调研、收集 N 张界面灵感、为某个组件或流程找真实产品证据。
+description: 用 Mobbin MCP 循环调研真实 App 界面，按"直接竞品 → 间接竞品 → 结构相似 → 表达启发"四圈网状扩散，把截图、线索和洞察织成一张可浏览的调研网。用于：某个产品领域的竞品/设计参考调研、收集 N 张界面灵感、为某个组件或流程找真实产品证据。
 ---
 
 # Mobbin 网状调研 Loop
 
-你是设计调研伙伴。调研像一张**网**：每张参考图都会长出新的**线索**，线索把你带到下一张图。你维护一份**账本**，循环执行"选线索 → 搜 → 看 → 存 → 扩散"，直到达到配额，再把整张网蒸馏成结论。
+你是设计调研伙伴。调研像一张**网**：每张参考图都会长出新的**线索**，线索把你带到下一张图。你在 `research.json` 里记下这张网，循环执行"选线索 → 搜 → 看 → 存 → 扩散"，直到达到配额，再把整张网蒸馏成结论。
 
 每张保存的图都要回答一个问题：**它对我们要设计的产品有什么启发？**
 
 ## 1. 写简报
 
-把用户的请求整理成一份**简报**，作为账本的第一节：
+把用户的请求整理成一份**简报**，写进 `research.json` 的 `brief`：
 
 | 字段 | 内容 | 默认值 |
 |---|---|---|
@@ -40,35 +40,27 @@ description: 用 Mobbin MCP 循环调研真实 App 界面，按"直接竞品 →
 
 R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图中长出来**，起点名单只用来起步。
 
-起点名单：每圈列 3–10 个 App 或模式关键词，写进账本的线索队列。示例（手机安全防护 App）：R1 Norton、Bitdefender；R2 1Password、NordVPN、Life360；R3 Oura 评分、Credit Karma、Ring 安防；R4 雷达扫描动效、圆环进度、盾牌隐喻。
+起点名单：每圈列 3–10 个 App 或模式关键词，写进 `leads`（`from` 为 null）。示例（手机安全防护 App）：R1 Norton、Bitdefender；R2 1Password、NordVPN、Life360；R3 Oura 评分、Credit Karma、Ring 安防；R4 雷达扫描动效、圆环进度、盾牌隐喻。
 
-## 3. 建账本
+## 3. 建网
 
-在存放位置建立三样东西。如果已经存在，**先读取它们，从上次的位置继续**（断点续跑），不要从头开始：
+在存放位置建立调研目录，里面有三样东西：
 
-- `screens/`：截图，命名为 `{三位序号}_{圈层}_{App}_{屏幕类型}.png`，例如 `007_R1_Norton360_dashboard.png`
-- `index`（表格）：每张图一行，字段见下表
-- `ledger`（文档）：简报、进度、线索队列、检查点小结、错误记录
+- `screens/`：截图，命名为 `{三位序号}_{圈层}_{App}_{屏幕类型}`，每张图存缩略图和大图两份，例如 `007_R1_Norton360_dashboard_thumb.jpg` 和 `007_R1_Norton360_dashboard.png`
+- `research.json`：这张网的唯一事实来源，包括简报、模式、截图、线索、呼应、检查点和洞察。字段说明见 [`references/data-contract.md`](references/data-contract.md)
+- `index.html`：查看器。用户可以在 Loop 进行中随时打开，看网一点点长出来
 
-| index 字段 | 说明 |
-|---|---|
-| id | 与文件名序号一致 |
-| app / ring / screen_type | App 名、圈层、屏幕类型 |
-| pattern_tags | 2–4 个英文 kebab-case 模式标签，例如 `score-ring`、`severity-color`、`single-cta`。复用已有标签，必要时才新建 |
-| insight | 一句话：它对我们的产品有什么启发 |
-| source_url | Mobbin 链接 |
-| found_via | 这条线索来自哪张图的 id，或"起点" |
-| new_leads | 由它长出的新线索 |
+每次写完 `research.json`，运行 `python3 scripts/build_web.py <调研目录>`。它会校验数据、生成查看器读取的 `research.js`，第一次运行时还会复制查看器。
 
-`found_via` 和 `new_leads` 记录了网的连线，最后的路径图靠它们还原。
+如果目录已经存在，**先读取 `research.json`，从上次的位置继续**（断点续跑），不要从头开始。
 
-**完成标准**：存放位置可写入（先用 1 张图试存，验证"取图 → 存图"整条链路能走通）。如果不能导出图片文件，就改为把图存进 Mobbin Collection，index 照常记录，并在 ledger 里写明原因。
+**完成标准**：先用 1 张图跑通"取图 → 存图 → 构建"整条链路，`build_web.py` 没有报错。如果不能导出图片文件，就改为存进 Mobbin Collection，并在 `gaps` 里写明原因。存放位置是 Google Drive 时注意：Drive 不能直接打开交互网页，需要同步到本地后再打开 `index.html`。
 
 ## 4. Loop
 
 每一轮按顺序执行：
 
-1. **选线索**：从队列里选一条，优先选配额缺口最大的圈层，以及覆盖最少的屏幕类型。
+1. **选线索**：从 `leads` 中状态为 open 的线索里选一条，优先选配额缺口最大的圈层，以及覆盖最少的屏幕类型。
 2. **搜**：线索是 App 名时，先查到这个 App，再看它的屏幕和流程；线索是模式时，按画面写查询词，全局搜索。查询词的写法见 [`references/query-patterns.md`](references/query-patterns.md)，工具对照见 [`references/capabilities.md`](references/capabilities.md)。
 3. **看**：逐张看图片本身，而不是只看元数据。每轮细看不超过 10 张。
 4. **存**：同时满足下面三条的图才保存：
@@ -76,46 +68,43 @@ R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图�
    - 在已存的图里，同一 App 的同类屏，它是最好的一张
    - 所在 App 没超过单 App 上限
 
-   保存后立即写入 index 的一行。图片会占用上下文，文字不会：**每存一张，就落一行文字**。
-5. **扩散**：为每张保存的图写 0–2 条新线索，加入队列。线索可以是：
+   保存后立即在 `screens` 里加一条记录，写清 `insight` 和 `why_saved`（当时的比较和判断）。图片会占用上下文，文字不会：**每存一张，就落一条文字**。
+5. **呼应**：如果新图和某张已存的图在呼应或形成对照，写一条 `echoes`，用一句话说明两者的关系。
+6. **扩散**：为每张保存的图写 0–2 条新线索，加入 `leads`，每条都写上理由。线索可以是：
    - 一个 App："这个评分面板像 Oura → 看 Oura"
    - 一个模式："风险等级用颜色加文字双重编码 → 搜 severity level"
    - 一种屏幕类型："权限引导做得好 → 搜 permission onboarding"
-6. **记账**：更新 ledger 中的进度（总数、各圈层、各屏幕类型）和队列状态（未处理 / 已处理 / 无结果）。
+7. **构建**：更新线索状态（open / done / empty），然后运行 `build_web.py`。脚本的提醒会告诉你配额和屏幕类型还差多少。
 
-**每满 25%**：在 ledger 里写 3–5 句检查点小结，回答三个问题：反复出现的模式有哪些？哪个圈层或屏幕类型不足？下一阶段往哪里扩散？写完**直接继续**下一轮。
+**每满 25%**：在 `checkpoints` 里写 3–5 句小结，回答三个问题：反复出现的模式有哪些？哪个圈层或屏幕类型不足？下一阶段往哪里扩散？同时整理 `patterns`，合并同义项，保持 5–8 个。查看器会把每个模式画成一个扇区。写完**直接继续**下一轮。
 
 **线索枯竭时**（连续 3 轮没有新增）：切换圈层，或者把查询词从产品名换成模式名（`dashboard score`、`scan progress`、`threat alert`）。
 
-**工具出错时**：在 ledger 里记下错误原文，重试 1 次，再失败就跳过这条线索。App 在 Mobbin 上没有收录时，标为"无结果"，然后换下一条。
+**工具出错时**：在 `gaps` 里记下错误原文，重试 1 次，再失败就跳过这条线索。App 在 Mobbin 上没有收录时，把线索状态标为 empty，然后换下一条。
 
-**完成标准**：以下全部满足才退出循环——
-
-- index 有 N 行，每行字段完整，`screens/` 中图片数量与 index 一致
-- 每个圈层都达到配额（±2 张）
-- 屏幕类型清单中每一类至少 3 张
-- 没有 App 超过单 App 上限
+**完成标准**：`build_web.py` 既没有错误也没有提醒，才退出循环。没有提醒意味着：数量达到 N，四个圈层都达到配额（±2 张），每种屏幕类型至少 3 张，没有 App 超过单 App 上限，模式数量在 5–8 个
 
 ## 5. 蒸馏
 
-把整张网蒸馏成一份总结报告，存进存放位置：
+把整张网蒸馏成结论，写回 `research.json`，再构建一次。查看器就是交付物：
 
-1. **模式聚类**：按 `pattern_tags` 归成 5–8 个设计模式。每个模式写共性、分叉、例外，并列出 3 个代表图 id。
-2. **惯例与突破**：R1 的共同做法是什么？R2–R4 给出了哪些不同解法？
-3. **Key Insights**：3–7 条可以直接用于设计决策的判断句，每条注明支撑它的图 id。写法见 [`references/synthesis.md`](references/synthesis.md)。
-4. **调研路径图**：根据 `found_via` 用 Mermaid 画出主要的扩散路径（起点 → 线索 → 关键发现）。
-5. **最值得深挖的 10 张**：每张写 2–3 句理由。
-6. **缺口**：哪些方向没找到好的参考，下一轮怎么补。
+1. **模式**：给每个 `patterns` 补全 `common`（共性）、`forks`（分叉）和 `exceptions`（例外，以及它是亮点还是坑）。同时回答：R1 的惯例是什么，R2–R4 给出了哪些不同解法。
+2. **洞察**：在 `insights` 里写 3–7 条可以直接用于设计决策的判断，`evidence` 中列出支撑它的图。写法见 [`references/synthesis.md`](references/synthesis.md)。
+3. **精选**：在 `picks` 里列出最值得深挖的 10 张，每张写 2–3 句理由。
+4. **缺口**：在 `gaps` 里写明哪些方向没有找到好的参考，下一轮怎么补。
 
-用户需要可视化交付物（HTML Spec），或调研对象是单个组件、流程时，按 [`references/synthesis.md`](references/synthesis.md) 的深挖与 Spec 分支来做。
+如果用户需要静态文档，或者调研对象是单个组件、流程，按 [`references/synthesis.md`](references/synthesis.md) 的深挖和 Spec 分支来做。
 
-**完成标准**：每条结论都能追溯到具体的图 id；一个没看过这些图的设计师，读完报告就能做出设计决策。
+**完成标准**：每条结论都能追溯到具体的图；一个没看过这些图的设计师，在查看器里读完概览就能做出设计决策。
 
 ## 资源
 
 - [`references/query-patterns.md`](references/query-patterns.md)：把线索翻译成 Mobbin 能理解的画面化查询词，含按场景分类的示例库
+- [`references/data-contract.md`](references/data-contract.md)：`research.json` 的字段说明和写作要点
 - [`references/capabilities.md`](references/capabilities.md)：不同 Mobbin MCP 版本的工具对照、取大图、提取色板
 - [`references/synthesis.md`](references/synthesis.md)：八透镜深挖、Key Insight 写法、迁移纪律、HTML Spec 分支
+- `scripts/build_web.py`：校验 `research.json`，生成 `research.js`，复制查看器
 - `scripts/fetch_screen_image.py`：根据屏幕 ID 或 URL 下载完整大图
 - `scripts/extract_palette.py`：提取主色板
+- `assets/web-viewer/`：查看器模板和它的 DESIGN.md
 - `assets/spec-components.html`：HTML Spec 组件库
