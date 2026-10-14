@@ -108,7 +108,9 @@
       }
 
       // 截图：先更新每个节点的唤醒 / 失焦程度和屏幕矩形，再按层级绘制
-      const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * config.wake.rate), vk = REDUCED ? 1 : 1 - Math.exp(-dt * 7);
+      // 高亮的图一张都不在画面上（比如筛选中悬停另一条洞察）时，不做任何明暗：全部失焦没有信息
+      const hlSet = st.highlight && stage.nodes.some(n => !n.out && st.highlight.has(n.s.id)) ? st.highlight : null;
+      const draws = [], hl = hlSet, lk = REDUCED ? 1 : 1 - Math.exp(-dt * config.wake.rate), vk = REDUCED ? 1 : 1 - Math.exp(-dt * 7);
       for (const n of stage.nodes) {
         const s = n.s, sx = n.x * k + ox, sy = n.y * k + oy;
         if (n.cd * k > enterFront) { n.rect = null; continue; }
