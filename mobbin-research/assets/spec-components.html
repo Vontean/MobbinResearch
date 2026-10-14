@@ -155,3 +155,40 @@ document.getElementById("spec-lightbox").addEventListener("click", function (e) 
   if (e.target === this) closeLightbox();
 });
 </script>
+
+<!-- ===== 组件 6：原子卡（组件/设计系统类调研用，替代模式卡） =====
+     原子化拆解的最小 UI 原语。变体/出处/领域特殊性一目了然。
+     放在网格里：<div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+     占位符：{{atom_name}} {{atom_what}} {{atom_variants}} {{atom_seen_in}} {{atom_domain}} -->
+<article class="bg-miro-canvas rounded-miro shadow-miro p-5 border border-miro-line-light">
+  <span class="inline-block rounded-full text-xs font-semibold px-2.5 py-1 bg-miro-mist text-miro-muted">原子</span>
+  <h4 class="text-[15px] font-semibold mt-2">{{atom_name}}</h4>
+  <p class="text-sm mt-2 leading-relaxed">{{atom_what}}</p>
+  <dl class="text-sm mt-3">
+    <div class="mt-2">
+      <dt class="font-semibold text-miro-muted text-xs">VARIANTS</dt>
+      <dd class="mt-2">{{atom_variants}}</dd>
+    </div>
+    <div class="mt-2">
+      <dt class="font-semibold text-miro-muted text-xs">SEEN IN</dt>
+      <dd class="mt-2">{{atom_seen_in}}</dd>
+    </div>
+    <div class="mt-2">
+      <dt class="font-semibold text-miro-muted text-xs">DOMAIN-SPECIFIC</dt>
+      <dd class="mt-2">{{atom_domain}}</dd>
+    </div>
+  </dl>
+</article>
+
+<!-- ===== 组件 7：Key Insight 卡（Spec 独立章节，实现期被引用的核心） =====
+     调研蒸馏出的可执行设计判断。编号 + 来源 App。
+     章节标题约定：Key Insights。
+     放在网格里：<div class="grid grid-cols-1 gap-5">
+     占位符：{{insight_no}} {{insight_text}} {{insight_sources}} -->
+<article class="bg-miro-canvas rounded-miro shadow-miro p-5 border border-miro-line-light flex gap-3">
+  <span class="inline-flex w-7 h-7 rounded-full items-center justify-center text-xs text-white font-semibold" style="background:var(--miro-blue)">{{insight_no}}</span>
+  <div>
+    <p class="leading-relaxed">{{insight_text}}</p>
+    <p class="text-sm text-miro-muted mt-2">来源：{{insight_sources}}</p>
+  </div>
+</article>
