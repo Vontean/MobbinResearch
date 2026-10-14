@@ -15,6 +15,14 @@
   function create(app) {
     const { config, util } = app;
     let islandCache = null, grown = null, settledAt = -1, outline = 0;
+    // 生长的历史只是这个标签页里的浏览便利：存进 sessionStorage，刷新后接着长，不重新洗牌；读写失败就从头整理
+    const memoKey = () => { const b = app.research.data.brief || {}; return `sea:grown:${location.pathname}:${b.product}:${b.date}`; };
+    function recall() {
+      try { const m = JSON.parse(sessionStorage.getItem(memoKey())); if (m) { grown = new Map(m.pos); settledAt = m.cps; } } catch { /* 没有记录 */ }
+    }
+    function remember() {
+      try { grown ? sessionStorage.setItem(memoKey(), JSON.stringify({ cps: settledAt, pos: [...grown] })) : sessionStorage.removeItem(memoKey()); } catch { /* 存不了就算了 */ }
+    }
     const stage = { order: [], nodes: [], nodeOf: new Map(), scene: null, layoutT: 0, enterT: 0, finaleT: 0 };
 
     function load(n) {
@@ -55,11 +63,13 @@
     function island(research, order) {
       const { data, screens, target } = research;
       outline = 0;
-      if (!app.view.live || research.complete) { grown = null; return Sea.layout.islandPositions(research, order); }
+      if (!app.view.live || research.complete) { if (grown) { grown = null; remember(); } return Sea.layout.islandPositions(research, order); }
+      if (!grown) recall();
       const cps = (data.checkpoints || []).length, capacity = Math.max(target, screens.length);
       outline = Sea.layout.discRadius(capacity);
       const pos = !grown || cps !== settledAt ? Sea.layout.settleIsland(research, order, capacity) : Sea.layout.growIsland(research, order, capacity, grown);
       settledAt = cps; grown = new Map([...pos].map(([s, p]) => [s.id, p]));
+      remember();
       return pos;
     }
 

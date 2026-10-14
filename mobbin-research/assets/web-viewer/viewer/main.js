@@ -72,9 +72,13 @@
 
   app.stage.sync(); app.stage.apply(false); resize(); app.camera.fit(true); app.ui.syncSwitch();
   addEventListener("resize", () => { resize(); app.ui.syncTools(); if (!app.camera.isDeep()) app.camera.fit(); });
-  const deepLink = app.research.byId.get(+params.get("frame"));
+  // 进入页面就是一次 Replay。刷新时浏览位置和聚焦都已丢失，不假装恢复：清掉网址里残留的 frame；
+  // 别人分享来的 ?frame= 链接（不是刷新）仍然直接聚焦到那张图
+  const reload = (performance.getEntriesByType("navigation")[0] || {}).type === "reload";
+  if (reload) app.url.set("frame", null);
+  const deepLink = !reload && app.research.byId.get(+params.get("frame"));
   if (deepLink) { app.stage.enterT = performance.now() - 1e5; app.camera.fit(true); requestAnimationFrame(() => app.interaction.focus(deepLink, config.camera.fly.deepLink)); }
-  else if (app.stage.nodes.length) app.intro.start();
+  else if (app.stage.nodes.length) app.intro.replay();
   // Loop 刚开始、还没有图：把任务书打在画布中央，等第一批图到来
   else if (app.view.live && app.research.data.brief) { app.stage.enterT = Infinity; app.boot.play(app.research.data, { hold: true }); }
   app.live.start();
