@@ -42,8 +42,7 @@ img { display: block; }
 
 .chrome { position: fixed; z-index: 10; transition: transform .42s var(--ease-back), opacity .3s var(--ease); }
 body.panel-open .shift { transform: translateX(calc(-1 * var(--panel-w) - var(--s-4))); }
-#masthead { left: var(--s-6); top: var(--s-5); pointer-events: none; }
-#masthead .title { margin-top: 6px; }
+#masthead { left: var(--s-6); top: var(--s-4); pointer-events: none; }
 #masthead .title + .meta { margin-top: 2px; }
 #tools { right: var(--s-6); top: var(--s-5); display: flex; gap: 6px; }
 .tool { height: 32px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); font: 400 11px/1 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); transition: border-color .2s ease-out, color .2s ease-out, transform .16s var(--ease); }
@@ -51,7 +50,7 @@ body.panel-open .shift { transform: translateX(calc(-1 * var(--panel-w) - var(--
 .tool[aria-pressed="true"] { color: var(--text-display); border-color: var(--border-visible); }
 @media (hover: hover) and (pointer: fine) { .tool:hover { color: var(--text-primary); border-color: var(--border-visible); } }
 
-body.focused #masthead { opacity: 0; transform: translateY(-6px); }
+body.panel-open #masthead { opacity: 0; transform: translateY(-6px); }
 body.focused #hud { opacity: 0; transform: translateY(6px); }
 #hud { left: var(--s-6); bottom: var(--s-5); max-width: min(560px, 60vw); pointer-events: none; }
 #hud .meta { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
@@ -158,11 +157,10 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 <div id="marquee"></div>
 
 <header id="masthead" class="chrome">
-  <div class="meta">Research sea</div>
   <h1 class="title"></h1>
   <div class="meta dim" id="mast-sub"></div>
 </header>
-<nav id="tools" class="chrome shift">
+<nav id="tools" class="chrome">
   <button class="tool" id="t-insight" aria-pressed="false" title="洞察（I）"><span class="glyph" data-g="insight"></span>Insight</button>
   <button class="tool" id="t-replay" title="重播入场"><span class="glyph" data-g="replay"></span>Replay</button>
 </nav>
@@ -420,14 +418,19 @@ const ptr = { x: -9999, y: -9999, sx: -9999, sy: -9999, inside: false, speed: 0,
 const st = { focus: null, related: [], relMap: new Map(), pinned: false, rippleT: -1, rippleAt: null, highlight: null, panel: null, panelArg: null, enterT: 0, hoverLead: null, leadRects: [] };
 const availW = () => W - (st.panel ? 400 + 16 : 0);
 
-let vignette = null;
+let vignette = null, bandTop = null, bandBottom = null, edgeFade = 0;
 function resize() {
   DPR = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * DPR; cv.height = H * DPR;
   vignette = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .32, W / 2, H / 2, Math.hypot(W, H) * .56);
-  vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, "rgba(0,0,0,.82)");
+  vignette.addColorStop(0, "rgba(0,0,0,0)"); vignette.addColorStop(1, "rgba(0,0,0,.88)");
+  // 上下两条压暗带，托住标题、HUD 与模式索引，避免和真实截图叠在一起
+  bandTop = ctx.createLinearGradient(0, 0, 0, 150);
+  bandTop.addColorStop(0, "rgba(0,0,0,.92)"); bandTop.addColorStop(.55, "rgba(0,0,0,.6)"); bandTop.addColorStop(1, "rgba(0,0,0,0)");
+  bandBottom = ctx.createLinearGradient(0, H, 0, H - 210);
+  bandBottom.addColorStop(0, "rgba(0,0,0,.94)"); bandBottom.addColorStop(.55, "rgba(0,0,0,.62)"); bandBottom.addColorStop(1, "rgba(0,0,0,0)");
 }
 function fitTarget() {
-  const bw = bounds.x1 - bounds.x0, bh = bounds.y1 - bounds.y0, k = Math.min(availW() / (bw * 1.3), H / (bh * 1.35));
+  const bw = bounds.x1 - bounds.x0, bh = bounds.y1 - bounds.y0, k = Math.min(availW() / (bw * 1.08), (H - 120) / (bh * 1.06));
   return { k, x: availW() / 2 - (bounds.x0 + bw / 2) * k, y: H / 2 - (bounds.y0 + bh / 2) * k };
 }
 function fit(instant) { const t = fitTarget(); cam.tk = t.k; cam.tx = t.x; cam.ty = t.y; if (instant) Object.assign(cam, { k: t.k, x: t.x, y: t.y }); }
@@ -436,17 +439,18 @@ let tween = null, introT = 0, glide = null, lastInteract = 0, settled = 0;
 const diveK = () => H * .18 / TH, maxK = () => H * .75 / TH;
 const easeInOut = t => t < .5 ? 16 * t ** 5 : 1 - Math.pow(-2 * t + 2, 5) / 2;
 const easeCubic = t => t < .5 ? 4 * t ** 3 : 1 - Math.pow(-2 * t + 2, 3) / 2;
-function flyCam(to, dur) {
+const easeOut = t => 1 - Math.pow(1 - t, 4);
+function flyCam(to, dur, ease = easeInOut) {
   if (REDUCED) { Object.assign(cam, { k: to.k, x: to.x, y: to.y, tk: to.k, tx: to.x, ty: to.y }); return; }
   const cw = availW() / 2;
-  tween = { k0: cam.k, k1: to.k, c0: [(cw - cam.x) / cam.k, (H / 2 - cam.y) / cam.k], c1: [(cw - to.x) / to.k, (H / 2 - to.y) / to.k], t0: performance.now(), dur };
+  tween = { k0: cam.k, k1: to.k, c0: [(cw - cam.x) / cam.k, (H / 2 - cam.y) / cam.k], c1: [(cw - to.x) / to.k, (H / 2 - to.y) / to.k], t0: performance.now(), dur, ease };
 }
-function diveAt(wx, wy) { const k = diveK(); flyCam({ k, x: availW() / 2 - wx * k, y: H / 2 - wy * k }, 1800); }
+function diveAt(wx, wy) { const k = diveK(); flyCam({ k, x: availW() / 2 - wx * k, y: H / 2 - wy * k }, 1300); }
 function surface() { const t = fitTarget(); flyCam(t, 1200); }
 const isDeep = () => cam.tk > fitTarget().k * 1.8;
 function stopIntro() { clearTimeout(introT); tween = null; }
 function zoomAt(sx, sy, f, instant) {
-  const k = clamp(cam.tk * f, fitTarget().k * .8, maxK()), wx = (sx - cam.tx) / cam.tk, wy = (sy - cam.ty) / cam.tk;
+  const k = clamp(cam.tk * f, fitTarget().k * .95, maxK()), wx = (sx - cam.tx) / cam.tk, wy = (sy - cam.ty) / cam.tk;
   cam.tk = k; cam.tx = sx - wx * k; cam.ty = sy - wy * k;
   if (instant) Object.assign(cam, { k: cam.tk, x: cam.tx, y: cam.ty });
 }
@@ -462,7 +466,7 @@ function frame(now) {
   const dt = Math.min(1 / 30, (now - last) / 1000); last = now;
   const T = now / 1000, amb = REDUCED ? 0 : 1;
   if (tween) {
-    const p = clamp((now - tween.t0) / tween.dur, 0, 1), e = easeInOut(p), cw = availW() / 2;
+    const p = clamp((now - tween.t0) / tween.dur, 0, 1), e = tween.ease(p), cw = availW() / 2;
     const k = Math.exp(Math.log(tween.k0) + (Math.log(tween.k1) - Math.log(tween.k0)) * e);
     const cx = tween.c0[0] + (tween.c1[0] - tween.c0[0]) * e, cy = tween.c0[1] + (tween.c1[1] - tween.c0[1]) * e;
     Object.assign(cam, { k, tk: k, x: cw - cx * k, tx: cw - cx * k, y: H / 2 - cy * k, ty: H / 2 - cy * k });
@@ -488,7 +492,7 @@ function frame(now) {
   }
   // 预判：停手后，已接近最深、且有一张图靠近画面中央（或就在光标下），就轻轻吸附过去聚焦；
   // 拖到空海或缩回较浅处，就松开聚焦
-  if (!tween && !drag && !glide && !layoutT && lastInteract && lastInteract !== settled && now - lastInteract > 160) {
+  if (!tween && !drag && !glide && !layoutT && lastInteract && lastInteract !== settled && now - lastInteract > 90) {
     settled = lastInteract;
     const mk = maxK();
     if (cam.tk >= mk * .55) {
@@ -499,7 +503,7 @@ function frame(now) {
         if (d < bd) { bd = d; best = s; }
       }
       if (!best && cam.tk >= mk * .85 && hoverTile) best = hoverTile;
-      if (best) pin(best, 650);
+      if (best) pin(best, 480);
       else if (st.pinned) reset();
     } else if (st.pinned) reset();
   }
@@ -512,8 +516,8 @@ function frame(now) {
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   ctx.fillStyle = "#000"; ctx.fillRect(0, 0, W, H);
   const k = cam.k, ox = cam.x, oy = cam.y, fitK = fitTarget().k;
-  const enterFront = REDUCED ? 1e9 : (now - st.enterT) * .9;
-  const rFront = st.rippleT >= 0 ? (now - st.rippleT) * .9 : -1;
+  const enterFront = REDUCED ? 1e9 : (now - st.enterT) * 1.6;
+  const rFront = st.rippleT >= 0 ? (now - st.rippleT) * 2.2 : -1;
   const live = ptr.inside && !drag;
 
   // 点阵海面：按亮度分桶，每桶一次填充
@@ -567,7 +571,7 @@ function frame(now) {
   }
 
   // 截图
-  const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * 11), rk = REDUCED ? 1 : 1 - Math.exp(-dt * 4.5);
+  const draws = [], hl = st.highlight, lk = REDUCED ? 1 : 1 - Math.exp(-dt * 16), rk = REDUCED ? 1 : 1 - Math.exp(-dt * 4.5);
   for (const s of screens) {
     const sx = s.cx * k + ox, sy = s.cy * k + oy;
     if (s.cd * k > enterFront) { s.rect = null; continue; }
@@ -622,10 +626,13 @@ function frame(now) {
     }
     if (st.pinned && s === st.focus) brackets(sx, sy, w, h);
   }
-  const deep = clamp((k / fitK - 1) / 1.5, 0, 1);
-  // 暗角只在漫游时出现；聚焦到一张图时退开，不压暗图片边缘
-  const vig = deep * (1 - clamp((k / diveK() - 1) / 1.5, 0, 1) * .8);
-  if (vig > .01 && vignette) { ctx.globalAlpha = vig; ctx.fillStyle = vignette; ctx.fillRect(0, 0, W, H); ctx.globalAlpha = 1; }
+  // 暗角与压暗带常驻；聚焦时文字退场，压暗随之减弱，不压暗图片边缘
+  edgeFade += ((st.pinned ? 1 : 0) - edgeFade) * (1 - Math.exp(-dt * 8));
+  if (vignette) {
+    ctx.globalAlpha = .75 - edgeFade * .5; ctx.fillStyle = vignette; ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1 - edgeFade * .75; ctx.fillStyle = bandTop; ctx.fillRect(0, 0, W, 150);
+    ctx.fillStyle = bandBottom; ctx.fillRect(0, H - 210, W, 210); ctx.globalAlpha = 1;
+  }
   hoverTick(now);
   drawHud();
   syncDepth();
@@ -667,7 +674,7 @@ function hoverTick(now) {
   st.hoverLead = t ? null : st.leadRects.find(r => Math.hypot(r.sx - ptr.x, r.sy - ptr.y) < 12) || null;
   if (st.pinned || st.highlight) return;
   // 只有光标真正停下来、且刚才没有在拖拽或缩放，才去唤醒关联
-  if (t && t !== st.focus && now - hoverSince > (st.focus ? 220 : 260) && ptr.speed < .25 && !tween && !layoutT && now - lastInteract > 500) setFocus(t);
+  if (t && t !== st.focus && now - hoverSince > (st.focus ? 120 : 140) && ptr.speed < .6 && !tween && !layoutT && now - lastInteract > 250) setFocus(t);
   if (!t && st.focus && now - emptySince > 450) setFocus(null);
 }
 function setFocus(s) {
@@ -772,14 +779,14 @@ cv.addEventListener("dblclick", e => { if (isDeep() || hit(e.clientX, e.clientY)
 
 // 点击：固定这张图，镜头飞过去并潜到最深一档
 // 聚焦一张图：镜头推到最深并居中，面板只在这时出现，标题和 HUD 让位
-function pin(s, dur = 1300) {
+function pin(s, dur = 850) {
   const fresh = !(st.pinned && st.focus === s);
   st.highlight = null; st.pinned = true;
   if (fresh) { setFocus(s); openPanel("screen", s); }
   document.body.classList.add("focused");
   stopIntro(); glide = null; settled = lastInteract;
   const k = maxK();
-  flyCam({ k, x: availW() / 2 - s.cx * k, y: H / 2 - s.cy * k }, dur);
+  flyCam({ k, x: availW() / 2 - s.cx * k, y: H / 2 - s.cy * k }, dur, easeOut);
 }
 function unpin() { st.pinned = false; setFocus(null); document.body.classList.remove("focused"); }
 function reset() { unpin(); st.highlight = null; closePanel(); }
@@ -824,18 +831,21 @@ function openPanel(mode, arg) {
   syncIndex();
   const html = render[mode](arg);
   if (!was) {
-    panel.style.display = "block"; document.body.classList.add("panel-open"); recenter();
+    panel.style.display = "block"; document.body.classList.add("panel-open"); recenter(); syncTools();
     body.innerHTML = html; bind(); panel.scrollTop = 0; slam();
   } else {
     const out = body.animate([{ opacity: 1, filter: "blur(0)" }, { opacity: 0, filter: "blur(2px)" }], { duration: 110, easing: "ease-out", fill: "forwards" });
     out.onfinish = () => { body.innerHTML = html; bind(); panel.scrollTop = 0; out.cancel(); slam(); };
   }
 }
+// 面板出现时，工具栏滑到屏幕左侧，不和面板挤在一起
+const toolsEl = document.getElementById("tools");
+function syncTools() { toolsEl.style.transform = st.panel ? `translateX(${-(W - toolsEl.offsetWidth - 48)}px)` : ""; }
 function closePanel() {
   if (!st.panel) return;
   st.panel = null; st.panelArg = null; syncIndex();
   document.getElementById("t-insight").setAttribute("aria-pressed", "false");
-  document.body.classList.remove("panel-open"); recenter();
+  document.body.classList.remove("panel-open"); recenter(); syncTools();
   const a = panel.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(14px)" }], { duration: 200, easing: "cubic-bezier(.4,0,.2,1)" });
   a.onfinish = () => { if (!st.panel) panel.style.display = "none"; };
 }
@@ -922,15 +932,15 @@ const render = {
 // ---------- 入场：一道从中心荡开的波 ----------
 function enter() {
   st.enterT = performance.now(); for (const s of screens) s.bornAt = 0;
-  const wave = Math.hypot(W, H) / 2 / .9;
-  introT = setTimeout(() => diveAt(core.x, core.y), Math.min(wave, seaR * fitTarget().k / .9 + 300) + 700);
+  const wave = Math.hypot(W, H) / 2 / 1.6;
+  introT = setTimeout(() => diveAt(core.x, core.y), Math.min(wave, seaR * fitTarget().k / 1.6 + 200) + 350);
 }
 
 document.querySelector("#masthead .title").textContent = DATA.brief?.product || "Research";
 document.getElementById("mast-sub").textContent = `${screens.length} frames · ${DATA.patterns.length} patterns · ${(DATA.leads || []).length} leads${DATA.brief?.date ? " · " + DATA.brief.date : ""}`;
 document.title = (DATA.brief?.product || "Research") + " · Research Sea";
 applyLayout(false); resize(); fit(true); lastAvail = availW(); syncSwitch();
-addEventListener("resize", () => { resize(); if (!isDeep()) fit(); lastAvail = availW(); });
+addEventListener("resize", () => { resize(); syncTools(); if (!isDeep()) fit(); lastAvail = availW(); });
 enter();
 requestAnimationFrame(frame);
 })();
