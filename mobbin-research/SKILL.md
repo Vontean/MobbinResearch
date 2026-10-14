@@ -50,7 +50,7 @@ R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图�
 - `research.json`：这张网的唯一事实来源，包括简报、模式、截图、线索、呼应、检查点和洞察。字段说明见 [`references/data-contract.md`](references/data-contract.md)
 - `index.html` 和 `viewer/`：查看器，由构建脚本复制。用户可以在 Loop 进行中随时打开 `index.html`，看网一点点长出来
 
-每次写完 `research.json`，运行 `python3 scripts/build_web.py <调研目录>`。它会校验数据、生成查看器读取的 `research.js`，第一次运行时还会复制查看器。
+每次写完 `research.json`，运行 `python3 scripts/build_web.py <调研目录>`。它会校验数据、生成查看器读取的 `research.js`，并把最新的查看器复制过去。
 
 如果目录已经存在，**先读取 `research.json`，从上次的位置继续**（断点续跑），不要从头开始。
 
@@ -76,7 +76,7 @@ R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图�
    - 一种屏幕类型："权限引导做得好 → 搜 permission onboarding"
 7. **构建**：更新线索状态（open / done / empty），然后运行 `build_web.py`。脚本的提醒会告诉你配额和屏幕类型还差多少。
 
-**每满 25%**：在 `checkpoints` 里写一条小结，回答三个问题：反复出现的模式有哪些？哪个圈层或屏幕类型不足？下一阶段往哪里扩散？前两个答案写进 `note`，第三个写进 `next`。同时整理 `patterns`，合并同义项，保持 5–8 个。查看器会把每个模式画成一个扇区。写完**直接继续**下一轮。
+**每满 25%**：在 `checkpoints` 里写一条小结，回答三个问题：反复出现的模式有哪些？哪个圈层或屏幕类型不足？下一阶段往哪里扩散？前两个答案写进 `note`，第三个写进 `next`。同时整理 `patterns`，合并同义项，保持 5–8 个。查看器按模式决定截图在海上的方向和航道。写完**直接继续**下一轮。
 
 **线索枯竭时**（连续 3 轮没有新增）：切换圈层，或者把查询词从产品名换成模式名（`dashboard score`、`scan progress`、`threat alert`）。
 

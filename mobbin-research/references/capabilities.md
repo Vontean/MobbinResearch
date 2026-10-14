@@ -14,7 +14,7 @@ Mobbin MCP 有多个版本，工具名称和能力各不相同。开始调研前
 | 按品类浏览 App | — | `mobbin_search_apps` / `mobbin_popular_apps` | 用 Web 搜索列出 App 名 |
 | 看大图 | `scripts/fetch_screen_image.py` | `mobbin_get_screen_detail` | 脚本 |
 | 主色板 | `scripts/extract_palette.py` | `mobbin_get_screen_detail` 的颜色提取选项 | 脚本 |
-| 存进 Mobbin Collection | 看环境中是否有保存类工具 | `mobbin_list_collections`（只读） | 只在 index 里记录链接 |
+| 存进 Mobbin Collection | 看环境中是否有保存类工具 | `mobbin_list_collections`（只读） | 只在 `research.json` 里记录链接 |
 
 社区版能用 `mobbin_get_filters({ kind: "patterns" })` 查询 Mobbin 官方的模式分类词。这些词可以直接用作扩散线索。
 
