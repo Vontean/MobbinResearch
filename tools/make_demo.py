@@ -120,6 +120,10 @@ while len(screens) < 100:
 for i in range(5):
     p = random.choice(screens)
     leads.append({"id":f"L{len(leads)+1}","from":p["id"],"kind":"pattern","text":"搜 shield metaphor illustration","reason":f"{p['app']} 的盾牌隐喻可能还有更好的表达","status":random.choice(["open","empty"])})
+# 设计师在聊天里给过两次引导：Agent 把它们变成了线索，理由写设计师的原话
+STEER = {"L23": "多看看用温和语气表达状态的产品，别都是警报式的", "L35": "主操作只留一个的做法，去别的品类找找"}
+for l in leads:
+    if l["id"] in STEER: l.update(by="designer", reason=STEER[l["id"]])
 echoes=[]
 for _ in range(22):
     a = random.choice(screens); same=[s for s in screens if s["id"]!=a["id"] and s["patterns"][0]==a["patterns"][0] and s["ring"]!=a["ring"]]

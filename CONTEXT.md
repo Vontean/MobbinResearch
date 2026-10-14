@@ -13,6 +13,7 @@
 | 距离 Distance | 圈层的数值形式，1–4；界面上的 Distance 卡片 | `domain.distance(s)` |
 | 模式 Pattern | 一种可复用的设计做法，受控词表，5–8 个 | `patterns[]` |
 | 线索 Lead | 从一张截图长出的下一步方向，带理由；状态 open / done / empty | `leads[]` |
+| 引导 Steer | 设计师在聊天里给 Agent 的方向；Agent 把它变成 `by: "designer"` 的线索，下一轮优先追 | `leads[].by` |
 | 线索链 Trail | 从调研起点沿线索走到某张截图的路径 | `domain.trail(s)` |
 | 呼应 / 对照 Echo / Contrast | Agent 主动标注的两张截图之间的关系 | `echoes[]` |
 | 此刻 Now | Agent 当前的轮次、正在追的线索和一句话；完成时标记 done | `now` |

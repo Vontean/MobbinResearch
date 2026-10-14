@@ -1900,8 +1900,9 @@
    "from": 17,
    "kind": "app",
    "text": "去 Gentler Streak 找对照",
-   "reason": "Opal 用渐进式权限引导解决了同一个焦虑问题",
-   "status": "done"
+   "reason": "多看看用温和语气表达状态的产品，别都是警报式的",
+   "status": "done",
+   "by": "designer"
   },
   {
    "id": "L24",
@@ -1996,8 +1997,9 @@
    "from": 29,
    "kind": "pattern",
    "text": "单一主操作 在别的品类里怎么表达",
-   "reason": "想看单一主操作在非安全类产品里的样子",
-   "status": "done"
+   "reason": "主操作只留一个的做法，去别的品类找找",
+   "status": "done",
+   "by": "designer"
   },
   {
    "id": "L36",

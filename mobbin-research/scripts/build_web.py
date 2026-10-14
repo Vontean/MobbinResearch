@@ -64,6 +64,8 @@ def check(data, root):
             errors.append(f"lead {l['id']}: kind 必须是 {sorted(LEAD_KINDS)}")
         if l.get("status") not in LEAD_STATUS:
             errors.append(f"lead {l['id']}: status 必须是 {sorted(LEAD_STATUS)}")
+        if l.get("by", "agent") not in ("agent", "designer"):
+            errors.append(f"lead {l['id']}: by 必须是 agent 或 designer")
     for e in data.get("echoes", []):
         if e.get("a") not in sid or e.get("b") not in sid:
             errors.append(f"echo {e.get('a')}–{e.get('b')}: 指向不存在的 screen")

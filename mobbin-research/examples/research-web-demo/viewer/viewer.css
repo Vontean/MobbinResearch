@@ -146,6 +146,7 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 .trail li b { display: block; font-weight: 500; font-size: 13px; color: var(--text-primary); }
 .trail li span { display: block; font-size: 12px; color: var(--text-secondary); }
 .trail li em { display: block; font-style: normal; font-size: 11px; color: var(--text-disabled); }
+.trail li em .by { display: inline; margin-right: 6px; font: 400 10px/1 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-primary); }
 .trail li.self b, .trail li.self .n { color: var(--text-display); }
 @media (hover: hover) and (pointer: fine) { .trail li:hover b { text-decoration: underline; text-decoration-color: var(--text-disabled); text-underline-offset: 3px; } }
 .thumbs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }

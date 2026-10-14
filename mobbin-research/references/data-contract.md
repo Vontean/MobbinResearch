@@ -54,7 +54,8 @@
       "kind": "app",                   // app | pattern | screen-type
       "text": "看 Oura 的评分页",
       "reason": "Norton 的安全分和 Oura 的准备度分是同一种结构",
-      "status": "done"                 // open | done | empty（Mobbin 无结果）
+      "status": "done",                // open | done | empty（Mobbin 无结果）
+      "by": "designer"                 // 可选：来自用户在聊天里的引导时写 designer，reason 写用户原话的要点
     }
   ],
   "echoes": [

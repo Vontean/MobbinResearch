@@ -46,7 +46,7 @@
         hudMeta.innerHTML = `<span style="color:var(--text-primary)">Frame ${pad(s.id)}</span><span>Distance</span>${segs(4, app.research.distance(s))}${n != null ? `<span>${pad(n, 2)} related</span>` : ""}`;
         hudLine.textContent = `${s.app} — ${s.screen_type} · ${s.patterns.map(p => app.research.patternById.get(p)?.name || p).join(" / ")}`;
       } else if (L) {
-        hudMeta.innerHTML = `<span style="color:var(--utility-orange)">${L.lead.status === "open" ? "Open lead" : "Empty lead"}</span><span>From frame ${pad(L.lead.from)}</span>`;
+        hudMeta.innerHTML = `<span style="color:var(--utility-orange)">${L.lead.by === "designer" ? "Designer lead" : L.lead.status === "open" ? "Open lead" : "Empty lead"}</span><span>From frame ${pad(L.lead.from)}</span>`;
         hudLine.textContent = L.lead.text + (L.lead.reason ? ` — ${L.lead.reason}` : "");
       } else {
         hudMeta.innerHTML = [["drift", "Drift"], ["dive", "Dive"], ["relate", "Relate"], ["focus", "Focus"]].map(([g, t]) => `<span class="key">${glyph(g)}${t}</span>`).join("");

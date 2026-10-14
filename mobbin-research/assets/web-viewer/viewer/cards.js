@@ -11,7 +11,7 @@
   // 说明提示：一句总述，加一张对照表（ol）或一个短列表（ul），可选一句补充（foot）
   const TIPS = {
     distance: { lead: "这张图离直接竞品有多远", ol: [["01", "同类产品"], ["02", "解决同一需求的其他产品"], ["03", "结构相似的产品"], ["04", "任意品类的表达启发"]], foot: "画布上格数越多，离中心越远" },
-    trail: { lead: "这张图是怎么被找到的", ul: ["从调研起点出发", "Agent 每看到一张图，就顺着它想到下一条线索", "一路走到这张图；点任意一步可以跳过去"] },
+    trail: { lead: "这张图是怎么被找到的", ul: ["从调研起点出发", "Agent 每看到一张图，就顺着它想到下一条线索", "一路走到这张图；点任意一步可以跳过去"], foot: "标着 DESIGNER 的一步，来自设计师在聊天里的引导" },
     related: { lead: "和这张图最相关的图，最多 8 张", ol: [["LEAD", "由它的线索直接引出"], ["SIBLING", "来自同一条线索"], ["ECHO", "Agent 标注的呼应"], ["CONTRAST", "Agent 标注的对照"], ["PATTERN", "同一设计模式"], ["APP", "来自同一个 App"]] },
   };
   const tipHTML = t => `<p class="tip-lead">${esc(t.lead)}</p>`
@@ -50,7 +50,7 @@
       <section class="card"><div class="meta">Insight</div><div class="clip" style="--clip:168px"><p class="body-text">${esc(s.insight)}</p></div>
         <div class="note"><div class="meta dim">Agent note / round ${pad(s.round ?? 0, 2)}</div><div class="clip" style="--clip:150px">${rich(s.why_saved)}</div></div></section>
       <section class="card"><div class="row meta"><span class="ttl">Trail ${info("trail")}</span><span class="dim">${pad(tr.length, 2)} steps</span></div>
-        <ol class="trail clip" style="--clip:300px">${tr.map((c, i) => { const lead = research.leadOf(c); return `<li data-goto="${c.id}" class="${c === s ? "self" : ""}"><span class="n">${pad(i + 1, 2)}</span><img src="${esc(c.thumb)}" alt=""><div><b>${esc(c.app)}</b><span>${esc(lead ? lead.text : "起点")}</span>${lead && lead.reason && i > 0 ? `<em>${esc(lead.reason)}</em>` : ""}</div></li>`; }).join("")}</ol></section>
+        <ol class="trail clip" style="--clip:300px">${tr.map((c, i) => { const lead = research.leadOf(c); return `<li data-goto="${c.id}" class="${c === s ? "self" : ""}"><span class="n">${pad(i + 1, 2)}</span><img src="${esc(c.thumb)}" alt=""><div><b>${esc(c.app)}</b><span>${esc(lead ? lead.text : "起点")}</span>${lead && lead.reason && i > 0 ? `<em>${lead.by === "designer" ? `<b class="by">Designer</b>` : ""}${esc(lead.reason)}</em>` : ""}</div></li>`; }).join("")}</ol></section>
       <section class="card"><div class="row meta"><span class="ttl">Related ${info("related")}</span><span class="rel-n">${pad(related.length, 2)}</span></div>
         <div class="thumbs">${related.map(o => thumb(o.s, o.tag)).join("")}</div>
         ${ech.length ? `<div class="clip" style="--clip:168px">${ech.map(e => `<p class="echo"><b>${e.kind === "contrast" ? "CONTRAST" : "ECHO"} ${pad(e.other)}</b>${esc(e.note)}</p>`).join("")}</div>` : ""}</section>
