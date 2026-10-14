@@ -68,7 +68,7 @@
     const toolsEl = $("tools");
     function syncTools() { toolsEl.style.transform = panelMode ? `translateX(${-(camera.view.W - toolsEl.offsetWidth - 48)}px)` : ""; }
     $("t-insight").onclick = () => ix().toggleOverview();
-    $("t-replay").onclick = () => { ix().leave(); app.intro.stop(); camera.fit(true); app.intro.start(); };
+    $("t-replay").onclick = () => app.intro.replay();
 
     // ---------- 布局开关 ----------
     function syncSwitch() {

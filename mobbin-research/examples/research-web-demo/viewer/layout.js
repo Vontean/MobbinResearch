@@ -84,6 +84,8 @@
     return slots;
   }
   const radiusOf = slots => Math.max(...slots.map(c => Math.hypot(c.x, c.y)));
+  // n 张图的点阵圆的半径（生长中的岛屿用它预留最终的轮廓）
+  const discRadius = n => radiusOf(discSlots(Math.max(1, n)));
 
   // 分配：把理想位置缩放到半径 rs，再求总位移最小的一一对应；格子多于图时补空行
   function assignSlots(screens, P, slots, rs) {
@@ -219,5 +221,5 @@
     return { layout, positions, lanes: layout === "lanes" ? lanes : null, covered, bounds, core, coreDist, seaR, leadDots };
   }
 
-  Sea.layout = Object.freeze({ patternOrder, islandPositions, settleIsland, growIsland, lanePositions, composeScene, hungarian });
+  Sea.layout = Object.freeze({ patternOrder, islandPositions, settleIsland, growIsland, discRadius, lanePositions, composeScene, hungarian });
 })(window.Sea = window.Sea || {});

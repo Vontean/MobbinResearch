@@ -182,6 +182,22 @@ body.panel-open #switch { opacity: 0; pointer-events: none; }
 .source:hover { color: var(--text-primary); }
 .source .meta { color: inherit; }
 
+/* 任务书开场：终端式逐字打出，机器标签 + 人话 */
+#boot { position: fixed; inset: 0; z-index: 15; display: none; place-items: center; padding: var(--s-6); pointer-events: none; }
+#boot.on { display: grid; }
+#boot .term { width: min(600px, 100%); font: 400 11px/1.5 var(--font-machine); letter-spacing: .08em; text-transform: uppercase; color: var(--text-secondary); }
+#boot .sys { color: var(--text-disabled); }
+#boot .boot-title { margin: var(--s-2) 0 var(--s-6); font: 500 28px/1.2 var(--font-human); letter-spacing: -.01em; text-transform: none; color: var(--text-display); }
+#boot .boot-title span { display: inline-block; transform-origin: 0 0; }
+#boot .kv { display: grid; grid-template-columns: 96px 1fr; gap: var(--s-3); padding: 5px 0; }
+#boot .kv .v { font: 400 13px/1.6 var(--font-human); letter-spacing: 0; text-transform: none; color: var(--text-primary); }
+#boot .wait { margin-top: var(--s-6); }
+#boot .cursor { display: inline-block; width: 7px; height: 13px; margin-left: 3px; vertical-align: -2px; background: var(--text-display); animation: blink 1.06s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+body.booting .chrome, body.booting #index-box { opacity: 0; pointer-events: none; }
+/* 标题飞行途中，左上角的标题先不出现，落地时直接交接 */
+body.landing #masthead .title { opacity: 0; transition: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .shine.play, .led, .big-segs i, #mast-now .gaze { animation: none; }
   .big-segs i { transform: none; opacity: 1; }

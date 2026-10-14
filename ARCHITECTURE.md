@@ -27,7 +27,7 @@ flowchart LR
 | 2 | `layout.js` | 场景几何：模式顺序、岛屿、航道、遮挡、边界、核心、线索点 | 纯 |
 | 3 | `camera.js` `stage.js` | 镜头运动；视图节点（位置、明暗、图片）与布局过渡 | 有状态 |
 | 4 | `render.js` | 画出一帧，不做交互决策 | 有状态 |
-| 5 | `cards.js` `interaction.js` `ui.js` | 面板模板（纯）；交互状态机；界面外壳与面板 | 有状态 |
+| 5 | `cards.js` `interaction.js` `ui.js` `boot.js` | 面板模板（纯）；交互状态机；界面外壳与面板；任务书开场 | 有状态 |
 | 6 | `main.js` `live.js` | 组装、入场与深链接、帧循环；Loop 进行中的实时更新 | 入口 |
 
 几个设计决定：
@@ -61,7 +61,8 @@ flowchart LR
 | 改面板卡片内容、说明提示文案 | `viewer/cards.js` |
 | 改 HUD、深度计、工具栏、模式索引、面板开合 | `viewer/ui.js`、`index.html` |
 | 加图标 | `viewer/glyph.js` |
-| 改入场、深链接、帧循环 | `viewer/main.js` |
+| 改入场、Replay、深链接、帧循环 | `viewer/main.js` |
+| 改任务书开场的内容与打字、收起 | `viewer/boot.js`，节奏在 `config.js` 的 `boot` |
 | 改实时更新的读取与并入时机 | `viewer/live.js`，时序在 `config.js` 的 `live` |
 | 改视觉与动效的设计意图 | `assets/web-viewer/DESIGN.md` |
 | 更新演示 | `tools/make_demo.py`，再运行 `build_web.py` |

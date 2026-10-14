@@ -5,7 +5,7 @@
   const DATA = window.RESEARCH;
   if (!DATA) return fail("没有找到 research.js。请先运行 python3 scripts/build_web.py &lt;调研目录&gt;。");
   // 任何一层没有加载成功，都直接说明缺了哪个文件，而不是留下一块黑屏
-  const missing = ["util", "config", "glyph", "domain", "layout", "camera", "stage", "render", "cards", "interaction", "ui", "live"].filter(m => !Sea[m]);
+  const missing = ["util", "config", "glyph", "domain", "layout", "camera", "stage", "render", "cards", "interaction", "ui", "boot", "live"].filter(m => !Sea[m]);
   if (missing.length) return fail(`查看器文件不完整，缺少：${missing.map(m => `viewer/${m}.js`).join("、")}。请重新运行 build_web.py。`);
 
   const { config } = Sea;
@@ -32,20 +32,38 @@
   app.render = Sea.render.create(app);
   app.interaction = Sea.interaction.create(app);
   app.ui = Sea.ui.create(app);
+  app.boot = Sea.boot.create(app);
   app.live = Sea.live.create(app);
 
   // 入场：一道从核心荡开的波，铺开后自动下潜到直接竞品的重心
-  // 播放期间（波纹到下潜落定）不唤醒景深；用户任何直接操作都会提前结束入场
-  let introT = 0, playing = false, diving = false;
+  // 播放期间（打字开场、波纹到下潜落定）不唤醒景深；用户任何直接操作都会提前结束入场
+  let introT = 0, playing = false, diving = false, booting = 0;
+  const hideSea = () => { app.stage.enterT = Infinity; };            // 波还没出发：海面和图都不画
+  const showSea = () => { app.stage.enterT = performance.now() - 1e5; };
   app.intro = {
+    // 回放：先把任务书快速打一遍，收进标题，再入场
+    replay() {
+      const { camera, boot } = app, data = app.research.data;
+      app.interaction.leave(); app.intro.stop(); camera.fit(true);
+      if (!data.brief) return app.intro.start();
+      const seq = booting = performance.now();
+      hideSea();
+      boot.play(data, { char: config.boot.replayChar })
+        .then(() => booting === seq && new Promise(r => setTimeout(r, config.boot.pause)))
+        .then(() => booting === seq && boot.exit())
+        .then(() => { if (booting === seq) { booting = 0; app.intro.start(); } });
+    },
     start() {
       const { camera, stage } = app, E = config.entrance;
       stage.enter(); playing = true; diving = false;
       const wave = Math.hypot(camera.view.W, camera.view.H) / 2 / E.speed;
       introT = setTimeout(() => { diving = true; camera.diveAt(stage.scene.core.x, stage.scene.core.y); }, Math.min(wave, stage.scene.seaR * camera.fitTarget().k / E.speed + E.diveSlack) + E.diveDelay);
     },
-    stop() { clearTimeout(introT); playing = false; app.camera.stop(); },
-    get playing() { if (playing && diving && !app.camera.flying) playing = false; return playing; },
+    stop() {
+      clearTimeout(introT); playing = false; app.camera.stop();
+      if (booting) { booting = 0; app.boot.cut(); showSea(); }
+    },
+    get playing() { if (playing && diving && !app.camera.flying) playing = false; return playing || !!booting; },
   };
 
   function resize() {
@@ -72,6 +90,8 @@
   const deepLink = app.research.byId.get(+params.get("frame"));
   if (deepLink) { app.stage.enterT = performance.now() - 1e5; app.camera.fit(true); requestAnimationFrame(() => app.interaction.focus(deepLink, config.camera.fly.deepLink)); }
   else if (app.stage.nodes.length) app.intro.start();
+  // Loop 刚开始、还没有图：把任务书打在画布中央，等第一批图到来
+  else if (app.view.live && app.research.data.brief) { hideSea(); app.boot.play(app.research.data, { hold: true }); }
   app.live.start();
   requestAnimationFrame(frame);
 })(window.Sea = window.Sea || {});

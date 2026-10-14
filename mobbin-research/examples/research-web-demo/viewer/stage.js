@@ -14,7 +14,7 @@
 
   function create(app) {
     const { config, util } = app;
-    let islandCache = null, grown = null, settledAt = -1;
+    let islandCache = null, grown = null, settledAt = -1, outline = 0;
     const stage = { order: [], nodes: [], nodeOf: new Map(), scene: null, layoutT: 0, enterT: 0 };
 
     function load(n) {
@@ -54,8 +54,10 @@
     // 平时新图只落进空格子；每多一个检查点整理一次；完成后回到完整调研的布局，与 file:// 打开时一致
     function island(research, order) {
       const { data, screens, target } = research;
+      outline = 0;
       if (!app.view.live || research.complete) { grown = null; return Sea.layout.islandPositions(research, order); }
       const cps = (data.checkpoints || []).length, capacity = Math.max(target, screens.length);
+      outline = Sea.layout.discRadius(capacity);
       const pos = !grown || cps !== settledAt ? Sea.layout.settleIsland(research, order, capacity) : Sea.layout.growIsland(research, order, capacity, grown);
       settledAt = cps; grown = new Map([...pos].map(([s, p]) => [s.id, p]));
       return pos;
@@ -76,6 +78,11 @@
       if (app.view.layout === "lanes") ({ positions, info: lanes } = Sea.layout.lanePositions(research, order));
       else positions = islandCache ||= island(research, order);
       const scene = Sea.layout.composeScene(research, app.view.layout, positions, lanes, order);
+      // 生长中的岛屿：取景按最终的轮廓，图从中央小小地长起，镜头不必跟着一次次拉远
+      if (app.view.layout === "island" && outline) {
+        const { TW, TH } = config.grid, b = scene.bounds;
+        Object.assign(b, { x0: Math.min(b.x0, -outline - TW), x1: Math.max(b.x1, outline + TW), y0: Math.min(b.y0, -outline - TH), y1: Math.max(b.y1, outline + TH) });
+      }
       for (const n of stage.nodes) {
         const [x, y] = positions.get(n.s);
         n.gx = x; n.gy = y;

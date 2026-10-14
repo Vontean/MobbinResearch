@@ -25,7 +25,8 @@
       app.research = Sea.domain.createResearch(data);
       stage.sync(); stage.apply(!first);
       interaction.remap(); app.ui.refresh();
-      if (first && stage.nodes.length) { camera.fit(true); app.intro.start(); }   // 第一批图到来：入场
+      // 第一批图到来：任务书收进标题，然后入场
+      if (first && stage.nodes.length) { camera.fit(true); app.boot.on ? app.boot.exit().then(() => app.intro.start()) : app.intro.start(); }
       else if (overview) camera.surface();                                       // 在看全貌：跟着海一起长大
     }
 

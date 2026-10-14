@@ -38,6 +38,7 @@
 | 离开 Leave | Esc、关闭、点击空白：收起面板，镜头往后拉 | `interaction.leave()` |
 | 高亮 Highlight | 一组截图保持清晰：来自模式、洞察或框选 | `interaction.highlight()` |
 | 面板 Panel | 右侧的一列卡片；只在聚焦、模式、框选、概览时出现 | `ui.js`、`cards.js` |
+| 开场 Boot | 任务书在画布中央逐字打出，再收进左上角标题；Loop 刚开始时和 Replay 时出现 | `boot.js` |
 | 入场 Entrance | 打开页面时从核心荡开的波，随后自动下潜 | `app.intro` |
 | 实时更新 Live | Loop 进行中，页面跟着每次构建长出新图；用户停手时才落地 | `live.js` |
 | 生长 / 整理 Grow / Settle | 生长中的岛屿：新图只落进空格子；每个检查点全局整理一次 | `layout.growIsland()` / `layout.settleIsland()` |
