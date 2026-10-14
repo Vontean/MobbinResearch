@@ -127,7 +127,8 @@
           else td = reached ? 1 : 0;
         } else if (hl) { tl = hl.has(s.id) ? 1 : 0; td = 1 - tl; }
         n.lit += (tl - n.lit) * lk; n.dim += (td - n.dim) * lk;
-        const hovered = s === ix.hoverTile && live;
+        // 悬停放大只给还没聚焦的图：聚焦的图已经占满画面，再放大只会挤到下面的按钮
+        const hovered = s === ix.hoverTile && live && !(st.focused && s === st.woken);
         // 景深：焦点与相关图保持清晰，其余的失焦、略微退后
         const sc = (1 + f * .01 + (hovered ? .04 : 0) + n.lit * .03 + sweep(n.cd * k) * .04) * (.55 + .45 * util.ease.back(age)) * (1 - n.dim * .04) * (.9 + .1 * n.vis);
         const w = TW * k * sc, h = TH * k * sc;
