@@ -1,0 +1,24 @@
+// 第 0 层：点阵字形。每个图标由 2px 圆点按行绘制，"#" 为亮点，"|" 分行，宽度不限
+(function (Sea) {
+  "use strict";
+
+  const GLYPHS = {
+    insight: "..#..|.###.|#####|.###.|..#..",
+    replay:  ".###.|#...#|#.#.#|#...#|.###.",
+    close:   "#...#|.#.#.|..#..|.#.#.|#...#",
+    out:     "..###|...##|..#.#|.#...|#....",
+    down:    "#...#|.#.#.|..#..",
+    // 操作提示：拖拽、滚轮、停留、点击
+    drift:   "...#...|..###..|.#.#.#.|#######|.#.#.#.|..###..|...#...",
+    dive:    ".###.|#.#.#|#.#.#|#...#|#...#|#...#|.###.",
+    relate:  "#####|#...#|.#.#.|..#..|.#.#.|#...#|#####",
+    focus:   ".###.|###.#|###.#|#####|#...#|#...#|.###.",
+  };
+
+  const glyph = name => {
+    const rows = GLYPHS[name].split("|");
+    return `<span class="glyph" style="grid-template-columns:repeat(${rows[0].length},2px)">${rows.join("").split("").map(c => `<i class="${c === "#" ? "on" : ""}"></i>`).join("")}</span>`;
+  };
+
+  Sea.glyph = glyph;
+})(window.Sea = window.Sea || {});

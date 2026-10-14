@@ -5,8 +5,9 @@ Usage:
     build_web.py <research-dir>
 
 Reads <research-dir>/research.json, checks references and files, writes
-<research-dir>/research.js for the viewer, and copies the viewer to
-<research-dir>/index.html when it is missing.
+<research-dir>/research.js for the viewer, and copies the viewer
+(index.html plus the viewer/ folder) into <research-dir>. The viewer is a
+template, so it is replaced on every build.
 
 Exit codes: 0 when there are no errors (warnings allowed), 1 otherwise.
 """
@@ -17,7 +18,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-VIEWER = Path(__file__).resolve().parent.parent / "assets" / "web-viewer" / "index.html"
+VIEWER = Path(__file__).resolve().parent.parent / "assets" / "web-viewer"
 RINGS = {"R1", "R2", "R3", "R4"}
 LEAD_KINDS = {"app", "pattern", "screen-type"}
 LEAD_STATUS = {"open", "done", "empty"}
@@ -110,8 +111,10 @@ def main():
         return 1
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     (root / "research.js").write_text(f"window.RESEARCH = {payload};\n", encoding="utf-8")
-    if not (root / "index.html").exists():
-        shutil.copy(VIEWER, root / "index.html")
+    # 查看器是模板：每次构建都整体替换，已有的调研目录也能拿到最新版本
+    shutil.copy(VIEWER / "index.html", root / "index.html")
+    shutil.rmtree(root / "viewer", ignore_errors=True)
+    shutil.copytree(VIEWER / "viewer", root / "viewer")
     print(f"完成  {len(data.get('screens', []))} 张图 → {root / 'research.js'}")
     return 0
 

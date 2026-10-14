@@ -1,0 +1,38 @@
+// 第 0 层：调参。所有时序、阈值和尺寸只在这里定义，DESIGN.md 解释它们的设计意图
+(function (Sea) {
+  "use strict";
+
+  const G = 26;
+  Sea.config = Object.freeze({
+    // 世界单位：点阵间距 G，截图 TW×TH；截图中心落在格点上（列距 2G、行距 4G），航道间距 6G
+    grid: { G, TW: 36, TH: 78, CX: 2 * G, CY: 4 * G, LANE_Y: 6 * G },
+    rings: ["R1", "R2", "R3", "R4"],
+    layouts: ["island", "lanes"],
+
+    // 关联：最多 8 张，按类型限额以保证多样
+    related: { max: 8, minScore: .3, cap: { lineage: 3, echo: 3, pattern: 4, app: 2 } },
+
+    camera: {
+      diveRatio: .18,      // 入场下潜后，每张图占画面高度的比例
+      focusRatio: .75,     // 最深一档（聚焦）
+      leaveRatio: .4,      // 退出聚焦后，停在最深一档的这个比例
+      minFitRatio: .95,    // 最浅只能缩到适配视图的这个比例
+      deepFitRatio: 1.8,   // 超过适配视图这么多倍，算"已潜入"
+      follow: 11,          // 镜头跟随的指数速率
+      glideFriction: 3.2,  // 松手滑行的衰减
+      fly: { dive: 1300, surface: 1200, focus: 850, snap: 480, leave: 700, deepLink: 900 },
+    },
+
+    // 聚焦：迟滞区间（进入 60%、松开 45%），预判容差，延迟收起
+    focus: { enter: .6, release: .45, hoverPick: .85, settle: 90, pickX: .9, pickY: .7, closeDelay: 280, closeQuiet: 260 },
+
+    // 唤醒（悬停景深）：停留门槛、切换门槛、操作后的冷却、离开延迟、扩散速度（px/ms）、明暗速率
+    wake: { dwell: 140, switchDwell: 200, speed: .6, switchSpeed: .35, cooldown: 250, leave: 450, spread: 2.2, rate: 16 },
+
+    entrance: { speed: 1.6, diveDelay: 350, diveSlack: 200 },
+    layoutMorph: { duration: 900, stagger: 14 },
+    panel: { width: 400, gap: 16 },
+
+    reduced: matchMedia("(prefers-reduced-motion: reduce)").matches,
+  });
+})(window.Sea = window.Sea || {});
