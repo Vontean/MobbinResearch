@@ -44,6 +44,10 @@
       const k = cam.k, ox = cam.x, oy = cam.y;
       const enterFront = REDUCED ? 1e9 : (now - stage.enterT) * config.entrance.speed;
       const rFront = st.rippleT >= 0 ? (now - st.rippleT) * config.wake.spread : -1;
+      // 收网的光波：一条从核心向外移动的亮带，扫过整片海后结束
+      const Fn = config.finale, fFront = stage.finaleT && now > stage.finaleT && !REDUCED ? (now - stage.finaleT) * config.entrance.speed : -1;
+      if (fFront > (scene.seaR + Fn.band * 4) * k + Math.hypot(W, H)) stage.finaleT = 0;
+      const sweep = dc => fFront < 0 ? 0 : Math.exp(-(((dc - fFront) / Fn.band) ** 2));
       const live = ptr.inside && !ix.dragging;
 
       // 点阵海面：按亮度分桶，每桶一次填充
@@ -59,7 +63,7 @@
         if (dc > enterFront) continue;
         const f = wave(wx, wy, T) * amb;
         const wake = live ? ptr.wake * Math.max(0, 1 - Math.hypot(sx - ptr.sx, sy - ptr.sy) / 180) : 0;
-        const v = clamp((.2 + f * .06 + wake * .12) * clamp((enterFront - dc) / 160, 0, 1), 0, .999);
+        const v = clamp((.2 + f * .06 + wake * .12 + sweep(dc) * Fn.lift) * clamp((enterFront - dc) / 160, 0, 1), 0, .999);
         buckets[Math.floor(v * GRAYS)].push(sx, sy, dotR * (1 + f * .22));
       }
       for (let b = 0; b < GRAYS; b++) {
@@ -122,7 +126,7 @@
         n.lit += (tl - n.lit) * lk; n.dim += (td - n.dim) * lk;
         const hovered = s === ix.hoverTile && live;
         // 景深：焦点与相关图保持清晰，其余的失焦、略微退后
-        const sc = (1 + f * .01 + (hovered ? .04 : 0) + n.lit * .03) * (.55 + .45 * util.ease.back(age)) * (1 - n.dim * .04);
+        const sc = (1 + f * .01 + (hovered ? .04 : 0) + n.lit * .03 + sweep(n.cd * k) * .04) * (.55 + .45 * util.ease.back(age)) * (1 - n.dim * .04);
         const w = TW * k * sc, h = TH * k * sc;
         n.rect = { x: sx - w / 2, y: sy - h / 2, w, h };
         draws.push({ n, sx, sy, w, h, alpha: Math.min(1, age * 2.2), z: sc + n.lit });

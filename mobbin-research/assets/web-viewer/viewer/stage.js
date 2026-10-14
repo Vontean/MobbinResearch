@@ -15,7 +15,7 @@
   function create(app) {
     const { config, util } = app;
     let islandCache = null, grown = null, settledAt = -1, outline = 0;
-    const stage = { order: [], nodes: [], nodeOf: new Map(), scene: null, layoutT: 0, enterT: 0 };
+    const stage = { order: [], nodes: [], nodeOf: new Map(), scene: null, layoutT: 0, enterT: 0, finaleT: 0 };
 
     function load(n) {
       const img = new Image(); img.decoding = "async"; img.src = n.s.thumb;

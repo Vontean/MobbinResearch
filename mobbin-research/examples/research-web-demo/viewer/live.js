@@ -20,14 +20,24 @@
     }
 
     function merge(data) {
-      const { camera, stage, interaction } = app, first = !stage.nodes.length;
+      const { camera, stage, interaction } = app, first = !stage.nodes.length, wasComplete = app.research.complete;
       const overview = !camera.isDeep() && !interaction.state.focused;
       app.research = Sea.domain.createResearch(data);
       stage.sync(); stage.apply(!first);
       interaction.remap(); app.ui.refresh();
+      if (!first && !wasComplete && app.research.complete) return finale();
       // 第一批图到来：任务书收进标题，然后入场
       if (first && stage.nodes.length) { camera.fit(true); app.boot.on ? app.boot.exit().then(() => app.intro.start()) : app.intro.start(); }
       else if (overview) camera.surface();                                       // 在看全貌：跟着海一起长大
+    }
+
+    // 收网：Loop 结束。收起面板，镜头从任何位置拉回首帧（全貌），岛屿同时整理成最终的布局；
+    // 镜头落定后，一道光波从核心荡过整片海
+    function finale() {
+      const { camera, stage, interaction, config } = app;
+      interaction.leave(); app.intro.stop();
+      camera.fly(camera.fitTarget(), config.camera.fly.finale);
+      stage.finaleT = performance.now() + config.camera.fly.finale + config.finale.delay;
     }
 
     return {

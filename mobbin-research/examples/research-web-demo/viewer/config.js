@@ -20,7 +20,7 @@
       deepFitRatio: 1.8,   // 超过适配视图这么多倍，算"已潜入"
       follow: 11,          // 镜头跟随的指数速率
       glideFriction: 3.2,  // 松手滑行的衰减
-      fly: { dive: 1300, surface: 1200, focus: 850, snap: 480, leave: 700, deepLink: 900 },
+      fly: { dive: 1300, surface: 1200, focus: 850, snap: 480, leave: 700, deepLink: 900, finale: 1600 },
     },
 
     // 聚焦：迟滞区间（进入 60%、松开 45%），预判容差，延迟收起
@@ -30,6 +30,8 @@
     wake: { dwell: 140, switchDwell: 200, speed: .6, switchSpeed: .35, cooldown: 250, leave: 450, spread: 2.2, rate: 16 },
 
     entrance: { speed: 1.6, diveDelay: 350, diveSlack: 200 },
+    // 收网：镜头回到首帧后，一道光波从核心荡过整片海（只照亮，不隐藏）；光带宽度与亮度
+    finale: { band: 70, lift: .35, delay: 200 },
     layoutMorph: { duration: 900, stagger: 14 },
     panel: { width: 400, gap: 16 },
     // 卡片内滚动条：停止滚动后多久淡出、光标离开卡片后多久淡出、滑块最短长度（ms / px）

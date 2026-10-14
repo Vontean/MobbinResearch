@@ -64,9 +64,10 @@
       return out.sort((x, y) => y.score - x.score);
     }
 
-    // 调研是否已完成：Agent 标记了 now.done，或已达到目标数量（没有目标时视为完成）
+    // 调研是否已完成：以 Agent 的 now.done 为准（达到目标数量后还要蒸馏）；
+    // 没有 now 的旧数据按是否达到目标数量判断；没有目标时视为完成
     const target = (data.brief || {}).target || 0;
-    const complete = !!(data.now && data.now.done) || !target || screens.length >= target;
+    const complete = !target || (data.now ? !!data.now.done : screens.length >= target);
 
     return Object.freeze({
       data, screens, leads, byId, patternById, target, complete,
