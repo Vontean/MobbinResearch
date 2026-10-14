@@ -48,7 +48,7 @@ flowchart LR
 | 加 / 改 `research.json` 字段 | `references/data-contract.md` → `scripts/build_web.py` 的 `check()` → `viewer/domain.js` 或 `cards.js` |
 | 改查询词写法 | `references/query-patterns.md` |
 | 改 Mobbin 工具对照 | `references/capabilities.md` |
-| 改蒸馏、Key Insight、HTML Spec 分支 | `references/synthesis.md`、`assets/spec-components.html` |
+| 改蒸馏、Key Insight、迁移纪律 | `references/synthesis.md` |
 | 改颜色、字体、间距、圆角 | `viewer/viewer.css` 的 `:root`，同步 `DESIGN.md` |
 | 改时序、阈值、缩放比例、关联限额 | `viewer/config.js`，同步 `DESIGN.md` 的说明 |
 | 改关系怎么算、关联怎么选 | `viewer/domain.js` |

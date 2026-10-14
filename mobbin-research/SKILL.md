@@ -93,7 +93,7 @@ R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图�
 3. **精选**：在 `picks` 里列出最值得深挖的 10 张，每张写 2–3 句理由。
 4. **缺口**：在 `gaps` 里写明哪些方向没有找到好的参考，下一轮怎么补。
 
-如果用户需要静态文档，或者调研对象是单个组件、流程，按 [`references/synthesis.md`](references/synthesis.md) 的深挖和 Spec 分支来做。
+如果调研对象是单个组件或流程，按 [`references/synthesis.md`](references/synthesis.md) 的八透镜深挖和原子模式来做，结论同样写回 `research.json`。
 
 **完成标准**：每条结论都能追溯到具体的图；一个没看过这些图的设计师，在查看器里读完概览就能做出设计决策。
 
@@ -102,9 +102,8 @@ R1 是基准，R2–R4 是启发。R3、R4 的线索**优先从已保存的图�
 - [`references/query-patterns.md`](references/query-patterns.md)：把线索翻译成 Mobbin 能理解的画面化查询词，含按场景分类的示例库
 - [`references/data-contract.md`](references/data-contract.md)：`research.json` 的字段说明和写作要点
 - [`references/capabilities.md`](references/capabilities.md)：不同 Mobbin MCP 版本的工具对照、取大图、提取色板
-- [`references/synthesis.md`](references/synthesis.md)：八透镜深挖、Key Insight 写法、迁移纪律、HTML Spec 分支
+- [`references/synthesis.md`](references/synthesis.md)：八透镜深挖、Key Insight 写法、迁移纪律
 - `scripts/build_web.py`：校验 `research.json`，生成 `research.js`，复制查看器
 - `scripts/fetch_screen_image.py`：根据屏幕 ID 或 URL 下载完整大图
 - `scripts/extract_palette.py`：提取主色板
 - `assets/web-viewer/`：查看器模板（`index.html` 加 `viewer/` 目录）和它的 DESIGN.md
-- `assets/spec-components.html`：HTML Spec 组件库
