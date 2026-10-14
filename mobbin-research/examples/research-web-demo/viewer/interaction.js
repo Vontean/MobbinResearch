@@ -126,6 +126,8 @@
       if (t !== hoverTile) { hoverTile = t; hoverSince = now; }
       emptySince = t ? 0 : emptySince || now;
       hoverLead = t ? null : app.render.leadRects.find(r => Math.hypot(r.sx - ptr.x, r.sy - ptr.y) < 12) || null;
+      // 入场播放期间不唤醒；停留从入场结束时才开始计时
+      if (app.intro.playing) { hoverSince = now; return; }
       if (state.focused || state.highlight) return;
       const w = state.woken;
       if (t && t !== w && now - hoverSince > (w ? Wk.switchDwell : Wk.dwell) && ptr.speed < (w ? Wk.switchSpeed : Wk.speed) && !camera.flying && !stage.layoutT && now - lastInteract > Wk.cooldown) wake(t);

@@ -33,15 +33,17 @@
   app.ui = Sea.ui.create(app);
 
   // 入场：一道从核心荡开的波，铺开后自动下潜到直接竞品的重心
-  let introT = 0;
+  // 播放期间（波纹到下潜落定）不唤醒景深；用户任何直接操作都会提前结束入场
+  let introT = 0, playing = false, diving = false;
   app.intro = {
     start() {
       const { camera, stage } = app, E = config.entrance;
-      stage.enter();
+      stage.enter(); playing = true; diving = false;
       const wave = Math.hypot(camera.view.W, camera.view.H) / 2 / E.speed;
-      introT = setTimeout(() => camera.diveAt(stage.scene.core.x, stage.scene.core.y), Math.min(wave, stage.scene.seaR * camera.fitTarget().k / E.speed + E.diveSlack) + E.diveDelay);
+      introT = setTimeout(() => { diving = true; camera.diveAt(stage.scene.core.x, stage.scene.core.y); }, Math.min(wave, stage.scene.seaR * camera.fitTarget().k / E.speed + E.diveSlack) + E.diveDelay);
     },
-    stop() { clearTimeout(introT); app.camera.stop(); },
+    stop() { clearTimeout(introT); playing = false; app.camera.stop(); },
+    get playing() { if (playing && diving && !app.camera.flying) playing = false; return playing; },
   };
 
   function resize() {
