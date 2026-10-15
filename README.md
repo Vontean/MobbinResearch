@@ -1,4 +1,4 @@
-# Mobbin Research · 调研之海
+# VT Mobbin Research · 调研之海
 
 让 Agent 用 [Mobbin](https://mobbin.com) 循环调研真实 App 界面，你在旁边看着它把截图、线索和判断织成一片可以游览的海。
 
@@ -10,7 +10,7 @@
 
 设计调研常常停在"收集了一百张截图"：图在文件夹里，判断在脑子里，图与图之间的关系没有留下来。
 
-`mobbin-research` 是一个给 Agent 用的技能（Claude Code、Codex 都能用）。你交给它一个产品方向，它会：
+`vt-mobbin-research` 是一个给 Agent 用的技能（Claude Code、Codex 都能用）。你交给它一个产品方向，它会：
 
 1. **写任务书**：产品、用户、要回答的调研问题、目标数量、四圈配额。
 2. **按四圈扩散**：直接竞品 → 间接竞品 → 结构相似 → 表达启发。每保存一张图，都写一句"它对我们有什么启发"，再从这张图长出下一条线索。
@@ -48,30 +48,30 @@
 
 **准备**
 
-- [Mobbin 官方 MCP](https://mobbin.com)（`https://api.mobbin.com/mcp`，需要付费计划授权）。社区版 MCP 也能用，工具对照见 [`references/capabilities.md`](mobbin-research/references/capabilities.md)。
+- [Mobbin 官方 MCP](https://mobbin.com)（`https://api.mobbin.com/mcp`，需要付费计划授权）。社区版 MCP 也能用，工具对照见 [`references/capabilities.md`](vt-mobbin-research/references/capabilities.md)。
 - Python 3.9+，用于构建和本地预览。
 
-**安装技能**：把 `mobbin-research/` 复制到 Agent 的技能目录。
+**安装技能**：把 `vt-mobbin-research/` 复制到 Agent 的技能目录。
 
 ```bash
-cp -r mobbin-research ~/.claude/skills/
+cp -r vt-mobbin-research ~/.claude/skills/
 ```
 
 ```bash
-cp -r mobbin-research ~/.codex/skills/
+cp -r vt-mobbin-research ~/.codex/skills/
 ```
 
 **开始一次调研**：
 
 ```text
-用 mobbin-research 调研手机端网络安全防护 App，收集 100 张界面参考
+用 vt-mobbin-research 调研手机端网络安全防护 App，收集 100 张界面参考
 ```
 
 Agent 会先写任务书，再在内置浏览器里打开调研之海，然后开始 Loop。调研结束后，双击调研目录里的 `index.html` 就能再看。
 
 ## 先看一眼演示
 
-不需要 Mobbin，就能打开演示：双击 [`examples/research-web-demo/index.html`](mobbin-research/examples/research-web-demo/index.html)。
+不需要 Mobbin，就能打开演示：双击 [`examples/research-web-demo/index.html`](vt-mobbin-research/examples/research-web-demo/index.html)。
 
 想看"边调研边生长"的过程，可以用模拟脚本代替 Agent。在两个终端里分别运行：
 
@@ -89,11 +89,11 @@ python3 -m http.server 4320 --directory .live-demo
 
 | 路径 | 内容 |
 |---|---|
-| [`mobbin-research/`](mobbin-research/) | 技能本体：`SKILL.md`、参考文档、构建脚本、调研之海的查看器、演示数据 |
+| [`vt-mobbin-research/`](vt-mobbin-research/) | 技能本体：`SKILL.md`、参考文档、构建脚本、调研之海的查看器、演示数据 |
 | [`tools/`](tools/) | 开发工具：演示与压测数据生成、实时模拟、回归检查、演示视频录制 |
 | [`CONTEXT.md`](CONTEXT.md) | 领域语言：技能、数据、代码和界面共用的一套词 |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | 架构、分层、文件路由表、验证方式 |
-| [`DESIGN.md`](mobbin-research/assets/web-viewer/DESIGN.md) | 调研之海的视觉、动效与交互设计 |
+| [`DESIGN.md`](vt-mobbin-research/assets/web-viewer/DESIGN.md) | 调研之海的视觉、动效与交互设计 |
 | [`AGENTS.md`](AGENTS.md) | 给在这个仓库里工作的 Agent 的入口 |
 
 重新录制演示视频（需要全局安装的 Playwright 和 ffmpeg）：
@@ -105,4 +105,4 @@ NODE_PATH=$(npm root -g) node tools/record_demo.cjs
 ## 致谢
 
 - 视觉语言参考 [nullframe](https://github.com/m1ckc3s/nullframe)（Nothing 设计语言）。
-- 演示截图由 5 张 [Unsplash](https://unsplash.com) 抽象图裁切而成，来源见[演示说明](mobbin-research/examples/research-web-demo/README.md)。
+- 演示截图由 5 张 [Unsplash](https://unsplash.com) 抽象图裁切而成，来源见[演示说明](vt-mobbin-research/examples/research-web-demo/README.md)。

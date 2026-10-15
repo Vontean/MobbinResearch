@@ -21,8 +21,8 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEMO = ROOT / "mobbin-research/examples/research-web-demo"
-BUILD = ROOT / "mobbin-research/scripts/build_web.py"
+DEMO = ROOT / "vt-mobbin-research/examples/research-web-demo"
+BUILD = ROOT / "vt-mobbin-research/scripts/build_web.py"
 
 
 def snapshot(full, n, done):

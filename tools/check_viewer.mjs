@@ -12,8 +12,8 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const VIEWER = join(ROOT, "mobbin-research/assets/web-viewer/viewer");
-const DEMO = join(ROOT, "mobbin-research/examples/research-web-demo/research.json");
+const VIEWER = join(ROOT, "vt-mobbin-research/assets/web-viewer/viewer");
+const DEMO = join(ROOT, "vt-mobbin-research/examples/research-web-demo/research.json");
 const SNAPSHOT = join(ROOT, "tools/viewer.snapshot.json");
 
 for (const f of readdirSync(VIEWER).filter(f => f.endsWith(".js"))) {

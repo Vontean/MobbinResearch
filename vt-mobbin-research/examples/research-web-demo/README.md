@@ -3,7 +3,7 @@
 用模拟数据演示查看器：100 张图、6 个模式、四个圈层，领域是手机端网络安全防护 App。
 
 ```bash
-python3 -m http.server 4317 --directory mobbin-research/examples/research-web-demo
+python3 -m http.server 4317 --directory vt-mobbin-research/examples/research-web-demo
 ```
 
 然后打开 <http://localhost:4317>。也可以直接双击 `index.html`。
@@ -12,7 +12,7 @@ python3 -m http.server 4317 --directory mobbin-research/examples/research-web-de
 
 ```bash
 python3 tools/make_demo.py          # 重新生成 research.json（可选）
-python3 mobbin-research/scripts/build_web.py mobbin-research/examples/research-web-demo
+python3 vt-mobbin-research/scripts/build_web.py vt-mobbin-research/examples/research-web-demo
 ```
 
 - `research.json` 中的 App 名、洞察、线索都是**模拟数据**，用来展示交互，不是真实调研结论。

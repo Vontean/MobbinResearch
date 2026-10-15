@@ -47,7 +47,7 @@ flowchart LR
 
 | 要做的事 | 去哪里 |
 |---|---|
-| 改 Agent 的调研流程、完成标准 | `mobbin-research/SKILL.md` |
+| 改 Agent 的调研流程、完成标准 | `vt-mobbin-research/SKILL.md` |
 | 加 / 改 `research.json` 字段 | `references/data-contract.md` → `scripts/build_web.py` 的 `check()` → `viewer/domain.js` 或 `cards.js` |
 | 改查询词写法 | `references/query-patterns.md` |
 | 改 Mobbin 工具对照 | `references/capabilities.md` |
@@ -79,7 +79,7 @@ node tools/check_viewer.mjs
 先对 `viewer/` 下所有脚本做语法检查，再做纯函数层的快照比对。有意改变布局、关联或卡片内容后，用 `--update` 更新快照，并在提交说明里写明原因。
 
 ```bash
-python3 mobbin-research/scripts/build_web.py mobbin-research/examples/research-web-demo
+python3 vt-mobbin-research/scripts/build_web.py vt-mobbin-research/examples/research-web-demo
 ```
 
 演示构建应无错误、无提醒。交互改动还需要在浏览器里打开演示，检查：入场下潜；悬停唤醒；点击聚焦；Esc 拉远；滚轮预判聚焦；快速推拉时面板不抖；框选；布局切换；`?frame=` 深链接。边界改动用 `make_stress.py` 的数据再看一遍。实时更新的改动，用模拟脚本边写边看：

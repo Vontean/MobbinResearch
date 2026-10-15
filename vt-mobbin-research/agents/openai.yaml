@@ -1,7 +1,7 @@
 interface:
-  display_name: "Mobbin 设计调研"
+  display_name: "VT Mobbin 设计调研"
   short_description: "用 Mobbin MCP 循环做四圈网状调研，收集带洞察的界面参考并蒸馏成结论"
-  default_prompt: "使用 $mobbin-research 调研手机安全防护 App，收集 100 张界面参考存到 Google Drive"
+  default_prompt: "使用 $vt-mobbin-research 调研手机安全防护 App，收集 100 张界面参考存到 Google Drive"
 
 dependencies:
   tools:

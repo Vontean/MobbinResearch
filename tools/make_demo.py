@@ -2,7 +2,7 @@
 """Generate the mock research.json for the research sea demo.
 
 Usage:
-    python3 tools/make_demo.py [out-dir]    # default: mobbin-research/examples/research-web-demo
+    python3 tools/make_demo.py [out-dir]    # default: vt-mobbin-research/examples/research-web-demo
 
 Writes research.json only; the 20 screenshot crops in screens/ are committed
 (see the demo README for their Unsplash sources). Run build_web.py afterwards.
@@ -12,7 +12,7 @@ import json, random, sys
 from pathlib import Path
 random.seed(11)
 ROOT = Path(__file__).resolve().parent.parent
-OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "mobbin-research/examples/research-web-demo"
+OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "vt-mobbin-research/examples/research-web-demo"
 P = [
  dict(id="score-ring", name="安全评分圆环", summary="用一个分数和一句结论回答「我安全吗」",
   common="分数居中放大，下方一句结论，再下方是待处理事项列表。",

@@ -3,7 +3,7 @@
 
 Usage:
     python3 tools/make_stress.py <out-dir>
-    python3 mobbin-research/scripts/build_web.py <out-dir>
+    python3 vt-mobbin-research/scripts/build_web.py <out-dir>
     python3 -m http.server 4318 --directory <out-dir>
 
 Covers the edge cases the viewer must survive: 160 screens, 14 patterns
@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DEMO = ROOT / "mobbin-research/examples/research-web-demo"
+DEMO = ROOT / "vt-mobbin-research/examples/research-web-demo"
 
 NAMES = ["安全评分圆环", "风险分级色彩与文字双重编码在暗色模式下的表现", "扫描过程可视化", "单一主操作",
          "渐进式权限引导", "防护开关矩阵", "家庭共享与多设备管理", "数据泄露监测时间线", "VPN 连接状态的极简表达",
